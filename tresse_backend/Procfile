@@ -1,1 +1,1 @@
-web: gunicorn tresse.wsgi:application --chdir tresse_backend --bind 0.0.0.0:$PORT
+web: gunicorn tresse.wsgi:application --bind 0.0.0.0:$PORT
