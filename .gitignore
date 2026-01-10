@@ -27,3 +27,10 @@ pnpm-debug.log*
 __pycache__/
 *.pyc
 db.sqlite3
+
+venv/
+.venv/
+Lib/
+Scripts/
+pyvenv.cfg
+__pycache__/
