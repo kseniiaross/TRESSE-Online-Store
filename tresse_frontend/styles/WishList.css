@@ -1,0 +1,92 @@
+/* =========================
+   WISHLIST
+   ========================= */
+
+/* card wrapper so X can be positioned */
+.wishlist-card {
+  position: relative;
+}
+
+/* make sure image wrapper doesn't cover the X */
+.wishlist-card .pc-thumb-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* ✅ REMOVE X — TOP RIGHT (above the image) */
+.wishlist-remove-x {
+  appearance: none;
+  -webkit-appearance: none;
+
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  left: auto;
+
+  z-index: 10;
+  pointer-events: auto;
+
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.92);
+
+  display: grid;
+  place-items: center;
+
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 300;
+  color: rgba(0, 0, 0, 0.72);
+
+  cursor: pointer;
+  box-shadow: none;
+  outline: none;
+
+  transition:
+    border-color 160ms ease,
+    transform 120ms ease,
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.wishlist-remove-x:hover {
+  border-color: rgba(0, 0, 0, 0.28);
+  color: rgba(0, 0, 0, 0.92);
+  background: rgba(255, 255, 255, 1);
+}
+
+.wishlist-remove-x:active {
+  transform: translateY(1px);
+}
+
+/* ✅ CTA row: keep your existing .add-btn look, but ensure full width */
+.wishlist-actions {
+  margin-top: 14px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* force button to stretch (prevents "short" centered button) */
+.wishlist-actions .add-btn,
+.wishlist-add-full {
+  width: 100%;
+  display: block;
+  flex: 1;
+  max-width: none; /* just in case global .add-btn has max-width */
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+  .wishlist-remove-x {
+    width: 32px;
+    height: 32px;
+    font-size: 19px;
+    top: 8px;
+    right: 8px;
+    left: auto;
+  }
+}

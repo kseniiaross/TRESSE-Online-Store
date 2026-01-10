@@ -1,0 +1,169 @@
+.order-success {
+  /* чтобы футер ушёл ниже на “ещё один скролл” */
+  min-height: 100vh;
+
+  /* место под фиксированный header */
+  padding: 110px 24px 110px;
+
+  display: grid;
+  place-items: start center;
+
+  color: #111;
+}
+
+.order-success__card {
+  width: 100%;
+  max-width: 760px;
+
+  border: 1px solid #eaeaea;
+  border-radius: 16px;
+  background: #fff;
+
+  padding: 34px 26px 28px;
+}
+
+.order-success__header {
+  text-align: center;
+  padding-bottom: 18px;
+  margin-bottom: 6px;
+  position: relative;
+}
+
+/* тонкая “дорогая” линия-разделитель */
+.order-success__header::after {
+  content: "";
+  display: block;
+  width: min(520px, 92%);
+  height: 1px;
+  margin: 18px auto 0;
+  background: rgba(17, 17, 17, 0.10);
+}
+
+.order-success__title {
+  margin: 0 0 10px;
+  font-size: clamp(36px, 4.2vw, 56px);
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+  font-weight: 500;
+
+  /* делает текст визуально “чище” */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+.order-success__subtitle {
+  margin: 0 auto 0;
+  max-width: 56ch;
+  line-height: 1.6;
+  opacity: 0.88;
+  font-size: 15px;
+}
+
+/* “табличка” summary */
+.order-success__summary {
+  margin: 14px auto 18px;
+  max-width: 520px;
+
+  border: 1px solid #ededed;
+  border-radius: 14px;
+  overflow: hidden;
+
+  background: #fff;
+}
+
+.order-success__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+
+  padding: 12px 14px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.order-success__row:first-child {
+  border-top: none;
+}
+
+.order-success__label {
+  font-size: 12px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  opacity: 0.62;
+}
+
+.order-success__value {
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.order-success__value--mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+}
+
+/* лёгкий “акцент” на Paid, но без цвета */
+.order-success__value--status {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* кнопки */
+.order-success__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  margin-top: 10px;
+}
+
+.order-success__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px 18px;
+  border-radius: 12px;
+
+  text-decoration: none;
+  border: 1px solid #111;
+
+  letter-spacing: 0.03em;
+  transition: transform 0.08s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.order-success__btn:active {
+  transform: translateY(1px);
+}
+
+.order-success__btn--primary {
+  background: #111;
+  color: #fff;
+}
+
+.order-success__btn--primary:hover {
+  background: #000;
+}
+
+.order-success__btn--secondary {
+  background: transparent;
+  color: #111;
+}
+
+.order-success__btn--secondary:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+@media (max-width: 520px) {
+  .order-success__card {
+    padding: 28px 18px 22px;
+  }
+
+  .order-success__btn {
+    width: 100%;
+  }
+
+  .order-success__summary {
+    max-width: 100%;
+  }
+}

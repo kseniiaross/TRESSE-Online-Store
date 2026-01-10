@@ -1,0 +1,162 @@
+/* =========================
+   LOGIN CHOICE — layout + image frame
+   ========================= */
+
+.login-container{
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 80px);   /* ✅ контейнер = высота экрана (минус хедер) */
+  box-sizing: border-box;
+  margin-top: 100px;            /* ✅ если хедер фиксированный и контент нужно опустить */
+  padding-bottom: 50px;               /* ✅ убираем push вниз через padding */
+}
+
+/* LEFT */
+.login-left{
+  flex: 1;
+  background: #fff;
+  color: #111;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.login-left h2{
+  font-size: 1.4rem;
+  letter-spacing: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.login-left p{
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+  max-width: 380px;
+}
+
+/* Buttons */
+.black-button{
+  background: #111;
+  border: 1px solid #fff;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  text-decoration: none;
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  width: 150px;
+}
+
+.white-button{
+  background: #fff;
+  border: 1px solid #111;
+  color: #111;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  text-decoration: none;
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  width: 150px;
+}
+
+/* RIGHT */
+.login-right{
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: #fff;
+
+  /* ✅ “контейнер как у профи”: фото не упирается в низ страницы */
+  padding: 24px 24px 0;
+  box-sizing: border-box;
+}
+
+/* ✅ ключ: картинка должна заполнять контейнер по высоте */
+.login-right img{
+  width: 100%;
+  height: 100%;
+  max-width: 700px;
+  display: block;
+
+  object-fit: cover;            /* ✅ красивое кадрирование */
+  object-position: center 15%;  /* ✅ “приподнимаем” кадр (10–25% подгонишь) */
+}
+
+.visually-hidden{
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================
+   Mobile
+   ========================= */
+@media (max-width: var(--breakpoint-md)){
+  .login-container{
+    flex-direction: column;
+    height: auto;
+    margin-top: 0;
+    padding-top: 80px;
+  }
+
+  .login-left,
+  .login-right{
+    width: 100%;
+    height: auto;
+    padding: 2rem;
+    box-sizing: border-box;
+  }
+
+  .login-left{
+    align-items: center;
+    text-align: center;
+  }
+
+  .login-left h2{
+    font-size: 1.2rem;
+    letter-spacing: 0.3rem;
+  }
+
+  .login-left p{
+    font-size: 0.85rem;
+  }
+
+  .login-right{
+    height: 300px;
+    padding: 0;                 /* ✅ как у тебя было на мобиле */
+    align-items: stretch;
+  }
+
+  .login-right img{
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+  }
+}
+
+/* =========================
+   Desktop text tweak
+   ========================= */
+@media (min-width: 1024px){
+  .login-left p{
+    font-size: 0.8rem;
+    letter-spacing: 0.1rem;
+    text-transform: uppercase;
+    font-weight: 500;
+    line-height: 1.8;
+    max-width: 100%;
+  }
+}
