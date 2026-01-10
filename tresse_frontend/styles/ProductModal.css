@@ -1,0 +1,180 @@
+/* =========================
+   PRODUCT MODAL
+   ========================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 9999;
+}
+
+.modal-content {
+  width: min(620px, 92vw);
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.18);
+  padding: 18px 18px 16px;
+  position: relative;
+}
+
+/* close X */
+.modal-x {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.95);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* header */
+.modal-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  align-items: baseline;
+  margin-bottom: 14px;
+  
+}
+
+.modal-title {
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  /* чтобы не резало цену и не ломало layout */
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-price {
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap; /* цена всегда полностью видна */
+}
+
+/* section */
+.modal-section {
+  margin-top: 6px;
+}
+
+.modal-label {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.modal-muted {
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+/* sizes */
+.modal-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.modal-size {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.modal-size.is-active {
+  border-color: #111;
+  background: #111;
+  color: #fff;
+}
+
+/* actions */
+.modal-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* делаем “ADD TO CART” как твой add-btn, но чуть стабильнее в модалке */
+.modal-primary {
+  flex: 1;
+}
+
+/* NOTIFY ME — рядом с Add to cart */
+.modal-notify {
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: #fff;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  white-space: nowrap;
+  transition: border-color 160ms ease, transform 120ms ease;
+}
+
+.modal-notify:hover {
+  border-color: rgba(0, 0, 0, 0.32);
+}
+
+.modal-notify:active {
+  transform: translateY(1px);
+}
+
+.modal-notify:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Close */
+.modal-secondary {
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: #fff;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+  .modal-content {
+    padding: 16px 14px 14px;
+  }
+
+  .modal-actions {
+    flex-wrap: wrap;
+  }
+
+  .modal-primary {
+    flex: 1 1 100%;
+  }
+
+  .modal-notify,
+  .modal-secondary {
+    flex: 1 1 calc(50% - 6px);
+  }
+}

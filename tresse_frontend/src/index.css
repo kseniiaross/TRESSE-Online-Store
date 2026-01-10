@@ -1,0 +1,75 @@
+:root {
+  --header-height: 88px;
+}
+
+@media (max-width: 786px) {
+  :root { --header-height: 72px; }
+}
+
+body, html, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+
+}
+
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 4px;
+  border-radius: 4px;
+  transition: outline 0.2s ease;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.header-offset {
+  height: var(--header-height);
+  flex: 0 0 auto;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.layout {
+  min-height: 100vh;           
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-main {
+  flex: 1 0 auto;               
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--header-height)); 
+  padding-top: var(--header-height); 
+}
+
+.footer {
+  background-color: white;
+  color: black;
+  padding: 1rem;
+  text-align: center;
+  margin-top: auto;
+}

@@ -1,0 +1,142 @@
+.cart-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 16px 80px;
+}
+
+.cart-title {
+  text-align: center;
+  font-weight: 500;
+  font-size: 32px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 18px;
+  font-family: "Cormorant Garamond", "Playfair Display", "Times New Roman", serif;
+}
+
+.cart-empty {
+  opacity: 0.75;
+  padding: 12px 0;
+}
+
+.cart-grid {
+  margin-top: 8px;
+}
+
+.cart-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cart-size {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-top: 4px;
+}
+
+.cart-stock {
+  font-size: 12px;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+.cart-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.qty-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.qty-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ✅ input выглядит как раньше, но без браузерных стрелок */
+.qty-input {
+  width: 48px;
+  text-align: center;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  padding: 6px 0;
+}
+
+/* на всякий случай: если где-то останется type="number" */
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.qty-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.remove-btn {
+  border: 1px solid #ddd;
+  background: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cart-summary {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  margin-top: 16px;
+  padding: 12px 0;
+}
+
+.cart-summary__row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.cart-summary__total {
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+
+.pay-btn {
+  border: 1px solid #222;
+  background: #222;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.pay-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

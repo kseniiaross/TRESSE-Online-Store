@@ -1,0 +1,111 @@
+/* src/styles/Policy.css */
+
+.policy{
+  padding-top: calc(var(--header-height) + 28px);
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 60px;
+
+  background: #fff;
+  color: #0b0b0b;
+}
+
+/* Content container */
+.policy__content{
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+/* Header */
+.policy__header{
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  padding-bottom: 1rem;
+}
+
+.policy__title{
+  margin: 0;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  line-height: 1.1;
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+}
+
+/* Sections */
+.policy__section{
+  padding: 1.25rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+.policy__section:last-child{
+  border-bottom: none;
+}
+
+.policy__h2{
+  margin: 0 0 0.6rem 0;
+  font-size: 1.02rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 650;
+}
+
+.policy__text{
+  margin: 0.6rem 0;
+  line-height: 1.7;
+  color: rgba(0, 0, 0, 0.82);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+/* ✅ List should look like normal body text */
+.policy__list{
+  margin: 0.6rem 0;
+  padding-left: 1.25rem;
+
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  line-height: 1.7 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.policy__li{
+  margin: 0.4rem 0;
+
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  line-height: 1.7 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+/* Links */
+.policy__link{
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.policy__link:hover{ opacity: 0.9; }
+
+.policy__link:focus-visible{
+  outline: 2px solid #111;
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* ✅ This is what forces scroll so footer doesn't appear immediately */
+.policy__footerSpacer{
+  height: clamp(180px, 22vh, 320px);
+}
+
+/* Responsive */
+@media (max-width: 560px){
+  .policy{
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .policy__title{
+    letter-spacing: 0.10em;
+  }
+}

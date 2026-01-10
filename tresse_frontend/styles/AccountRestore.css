@@ -1,0 +1,139 @@
+/* src/styles/AccountRestore.css */
+
+.accountRestore {
+  /* как Policy/Help: футер ниже */
+  min-height: calc(100vh - var(--header-height));
+  display: flex;
+  flex-direction: column;
+
+  padding-top: calc(var(--header-height) + 28px);
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 120px;
+
+  background: #fff;
+  color: #0b0b0b;
+}
+
+.accountRestore__content {
+  flex: 1;
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.accountRestore__header {
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  padding-bottom: 1rem;
+}
+
+.accountRestore__title {
+  margin: 0;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  line-height: 1.1;
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+}
+
+.accountRestore__text {
+  margin: 0.6rem 0;
+  line-height: 1.7;
+  color: rgba(0, 0, 0, 0.82);
+  font-size: 1rem;
+}
+
+.accountRestore__section {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.accountRestore__section:last-child {
+  border-bottom: none;
+}
+
+.accountRestore__h2 {
+  margin: 0 0 0.6rem 0;
+  font-size: 1.02rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 650;
+}
+
+.accountRestore__form {
+  margin-top: 8px;
+  max-width: 520px;
+}
+
+.accountRestore__field {
+  margin-top: 14px;
+}
+
+.accountRestore__label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.78);
+}
+
+.accountRestore__input {
+  width: 100%;
+  padding: 12px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: #fff;
+  color: #0b0b0b;
+  outline: none;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.accountRestore__input:focus {
+  border-color: rgba(0, 0, 0, 0.42);
+}
+
+.accountRestore__error {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #b00020;
+}
+
+.accountRestore__actions {
+  margin-top: 18px;
+}
+
+.accountRestore__success {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.accountRestore__link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.accountRestore__link:hover {
+  opacity: 0.9;
+}
+
+.accountRestore__link:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+@media (max-width: 560px) {
+  .accountRestore {
+    padding-left: 14px;
+    padding-right: 14px;
+    padding-bottom: 120px;
+  }
+  .accountRestore__title {
+    letter-spacing: 0.10em;
+  }
+}

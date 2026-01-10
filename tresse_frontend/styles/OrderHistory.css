@@ -1,0 +1,250 @@
+.order-history{
+  padding: 120px 16px 240px; /* ✅ extra space so footer goes down + extra scroll */
+}
+
+.order-history__wrap{
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.order-history__header{
+  margin-bottom: 18px;
+}
+
+.order-history__title{
+  margin: 0 0 6px;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.order-history__subtitle{
+  margin: 0;
+  opacity: .75;
+}
+
+.order-history__loading{
+  opacity: .8;
+}
+
+.order-history__error{
+  color: #b00020;
+  margin: 12px 0 0;
+}
+
+.order-history__empty{
+  border: 1px solid #eaeaea;
+  border-radius: 16px;
+  background: #fff;
+  padding: 18px;
+  margin-top: 14px;
+}
+
+.order-history__empty-text{
+  margin: 0;
+}
+
+.order-history__list{
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.order-history__card{
+  border: 1px solid #eaeaea;
+  border-radius: 16px;
+  background: #fff;
+  padding: 18px;
+}
+
+.order-history__top{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+
+@media (min-width: 860px){
+  .order-history__top{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.order-history__meta{
+  min-width: 0;
+}
+
+.order-history__label{
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  opacity: .60;
+  margin-bottom: 6px;
+}
+
+.order-history__value{
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.order-history__value--strong{
+  font-weight: 700;
+}
+
+.order-history__value--date{
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.order-history__badge{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #eaeaea;
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.order-history__badge--paid{ border-color: rgba(10, 123, 62, .25); }
+.order-history__badge--canceled{ border-color: rgba(176, 0, 32, .25); opacity: .90; }
+.order-history__badge--pending{ opacity: .85; }
+
+.order-history__pay-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+  flex-wrap: wrap;
+}
+
+.order-history__pay-text{
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.order-history__pay-label{
+  opacity: .60;
+  font-size: 12px;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+}
+
+.order-history__pay-value{
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+.order-history__actions{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.order-history__btn{
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  letter-spacing: .04em;
+  transition: transform .08s ease, opacity .2s ease, background .2s ease;
+}
+
+.order-history__btn:hover{ background: #000; }
+.order-history__btn:active{ transform: translateY(1px); }
+.order-history__btn:disabled{ opacity: .55; cursor: not-allowed; }
+
+.order-history__btn--secondary{
+  background: transparent;
+  color: #111;
+}
+
+.order-history__btn--secondary:hover{
+  background: rgba(0,0,0,.04);
+}
+
+.order-history__btn--danger{
+  background: transparent;
+  color: #b00020;
+  border-color: rgba(176,0,32,.55);
+}
+
+.order-history__btn--danger:hover{
+  background: rgba(176,0,32,.06);
+}
+
+.order-history__items{
+  margin-top: 14px;
+}
+
+.order-history__items-title{
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  opacity: .60;
+  margin-bottom: 10px;
+}
+
+.order-history__items-list{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.order-history__item{
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px dashed #eee;
+  padding-bottom: 10px;
+}
+
+.order-history__item-left{
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.order-history__item-qty{
+  font-weight: 600;
+}
+
+.order-history__item-name{
+  font-weight: 600;
+  max-width: 520px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 520px){
+  .order-history__item-name{
+    max-width: 260px;
+  }
+}
+
+.order-history__item-size{
+  font-weight: 700;
+}
+
+.order-history__item-right{
+  font-weight: 700;
+  white-space: nowrap;
+}

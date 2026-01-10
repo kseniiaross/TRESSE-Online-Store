@@ -1,0 +1,261 @@
+/* src/styles/Home.css */
+
+/* ==========================================================================
+   HOME WRAPPER
+   IMPORTANT:
+   - DO NOT force the whole page to be 100svh
+   - the HERO can be 100svh, but the page must be allowed to grow to include the footer
+   ========================================================================== */
+
+.home {
+  position: relative;
+  width: 100%;
+}
+
+/* ==========================================================================
+   HERO (3-column editorial layout)
+   ========================================================================== */
+
+.home-hero {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  overflow: hidden;
+}
+
+.home-hero__column {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-hero__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+
+  opacity: 0;
+  animation: homeHeroFadeIn 0.4s ease forwards;
+}
+
+@keyframes homeHeroFadeIn {
+  to { opacity: 1; }
+}
+
+.home-hero__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.16) 0%, rgba(0,0,0,0.34) 100%);
+  pointer-events: none;
+}
+
+.home-hero__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(transparent 42%, rgba(0,0,0,0.22) 82%);
+  pointer-events: none;
+}
+
+.home-hero__content {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #fff;
+  padding: 2rem;
+  z-index: 2;
+}
+
+.home-hero__title {
+  font-family: "Playfair Display", serif;
+  font-weight: 100;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  letter-spacing: 1rem;
+  word-spacing: 2rem;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .home-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .home-hero__column:nth-child(2),
+  .home-hero__column:nth-child(3) {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   NEWSLETTER MODAL
+   ========================================================================== */
+
+.newsletter {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.newsletter__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.newsletter__panel {
+  position: relative;
+  width: min(860px, 100%);
+  background: rgba(12, 12, 12, 0.92);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+  padding: 2.2rem 2.2rem 1.8rem;
+  z-index: 1;
+}
+
+.newsletter__close {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.newsletter__close:hover {
+  color: #fff;
+}
+
+.newsletter__header {
+  text-align: center;
+  margin-bottom: 1.35rem;
+}
+
+.newsletter__title {
+  font-family: "Playfair Display", serif;
+  letter-spacing: 0.22rem;
+  font-weight: 600;
+  margin: 0 0 0.6rem 0;
+  font-size: clamp(1.2rem, 2.4vw, 2rem);
+}
+
+.newsletter__subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.98rem;
+}
+
+.newsletter__form {
+  width: 100%;
+}
+
+.newsletter__label {
+  display: block;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: 0.5rem;
+}
+
+.newsletter__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.newsletter__input {
+  width: 100%;
+  height: 46px;
+  padding: 0 0.95rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  outline: none;
+  border-radius: 2px;
+  min-width: 0;
+}
+
+.newsletter__input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.newsletter__input:focus {
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.10);
+}
+
+.newsletter__submit {
+  height: 46px;
+  padding: 0 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: #fff;
+  color: #0b0b0b;
+  font-weight: 700;
+  letter-spacing: 0.08rem;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.newsletter__submit:hover {
+  filter: brightness(0.95);
+}
+
+.newsletter__error {
+  margin-top: 0.65rem;
+  color: #ffd2d2;
+  font-size: 0.92rem;
+}
+
+.newsletter__success {
+  margin-top: 0.9rem;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.95rem;
+}
+
+.newsletter__fineprint {
+  margin-top: 0.85rem;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.newsletter__link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.newsletter__link:hover {
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .newsletter__panel {
+    padding: 1.6rem 1.25rem 1.25rem;
+  }
+
+  .newsletter__row {
+    grid-template-columns: 1fr;
+  }
+
+  .newsletter__submit {
+    width: 100%;
+  }
+}

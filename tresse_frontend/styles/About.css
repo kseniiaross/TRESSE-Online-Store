@@ -1,0 +1,46 @@
+/* src/styles/About.css */
+
+.about {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 24px 160px;
+  color: #111;
+  background: #fff;
+}
+
+.about__hero {
+  margin-bottom: 80px;
+}
+
+.about__kicker {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.about__title {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.1;
+  font-weight: 500;
+  margin: 0;
+}
+
+.about__content {
+  max-width: 720px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #222;
+}
+
+.about__content p {
+  margin-bottom: 24px;
+}
+
+.about__signature {
+  margin-top: 48px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}

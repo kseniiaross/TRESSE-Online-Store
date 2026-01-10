@@ -1,0 +1,237 @@
+.help {
+  padding-top: calc(var(--header-height) + 28px);
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 60px;
+  background: #fff;
+  color: #111;
+}
+
+.helpWrap {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.helpHeader {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.helpTitle {
+  margin: 0;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
+
+.helpIntro {
+  margin: 12px auto 0;
+  max-width: 720px;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+/* top nav */
+.helpNav {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 18px 0 0;
+}
+
+.helpNavLink {
+  color: #111;
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.helpNavLink:hover {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+/* separators */
+.helpLine {
+  height: 1px;
+  background: rgba(17, 17, 17, 0.12);
+  margin: 22px 0;
+}
+
+/* sections */
+.helpSection {
+  padding: 4px 0;
+}
+
+.helpH2 {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.helpText {
+  margin: 0 0 12px;
+  line-height: 1.6;
+  opacity: 0.88;
+}
+
+.helpSmall {
+  margin: 12px 0 0;
+  line-height: 1.6;
+  opacity: 0.75;
+  font-size: 0.92rem;
+}
+
+.helpMono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* actions */
+.helpActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+/* buttons */
+.helpBtn,
+.helpLinkBtn {
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(17, 17, 17, 0.28);
+  background: #fff;
+  color: #111;
+  text-decoration: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.06s ease;
+}
+
+.helpBtn:hover,
+.helpLinkBtn:hover {
+  border-color: rgba(17, 17, 17, 0.65);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.helpBtn:active,
+.helpLinkBtn:active {
+  transform: translateY(1px);
+}
+
+/* lists */
+.helpList {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.helpList li {
+  margin: 6px 0;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+/* definition list block */
+.helpInfo {
+  border: 1px solid rgba(17, 17, 17, 0.12);
+  background: rgba(0, 0, 0, 0.02);
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.helpRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.helpRow:last-child {
+  border-bottom: none;
+}
+
+.helpInfo dt {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.helpInfo dd {
+  margin: 0;
+  opacity: 0.85;
+  text-align: right;
+}
+
+/* ✅ policies (centered + clickable) */
+.helpPolicies {
+  display: flex;
+  justify-content: center;   /* ✅ centered */
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.helpPolicy {
+  height: 44px;
+  padding: 0 14px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(17, 17, 17, 0.28);
+  background: #fff;
+  color: #111;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+
+  text-decoration: none;     /* ✅ no “link look” */
+  cursor: pointer;           /* ✅ no forbidden cursor */
+  opacity: 1;                /* ✅ looks active */
+
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.06s ease;
+}
+
+.helpPolicy:hover {
+  border-color: rgba(17, 17, 17, 0.65);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.helpPolicy:active {
+  transform: translateY(1px);
+}
+
+/* focus */
+.help a:focus-visible,
+.help button:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+/* responsive */
+@media (max-width: 560px) {
+  .helpRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .helpInfo dd {
+    text-align: left;
+  }
+}

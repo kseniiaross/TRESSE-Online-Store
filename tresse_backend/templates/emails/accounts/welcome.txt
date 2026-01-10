@@ -1,0 +1,15 @@
+Hi {{ name }},
+
+Welcome to TRESSE — your account has been created successfully.
+
+With an account you can:
+- place orders faster
+- track your orders
+- manage returns and support requests
+
+Shop: {{ frontend_url }}
+
+Need help?
+Email us at: {{ support_email }}
+
+— TRESSE
