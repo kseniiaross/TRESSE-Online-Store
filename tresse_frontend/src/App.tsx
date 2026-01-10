@@ -1,6 +1,6 @@
 // src/App.tsx
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { Elements } from "@stripe/react-stripe-js";
 
@@ -9,6 +9,7 @@ import Register from "./components/Register";
 import LoginChoice from "./components/LoginChoice";
 import PasswordChange from "./components/PasswordChange";
 import PasswordResetConfirm from "./components/PasswordResetConfirm";
+import AccountRestore from "./components/AccountRestore";
 
 import Home from "./view/Home";
 import Help from "./view/Help";
@@ -27,8 +28,6 @@ import About from "./view/About";
 import Contact from "./view/Contact";
 import SizeGuide from "./view/SizeGuide";
 
-import AccountRestore from "./components/AccountRestore";
-
 import PrivateRoute from "./utils/PrivateRoute";
 import useAuthStorageSync from "./hooks/useAuthStorageSync";
 import { setCredentials, logout } from "./utils/authSlice";
@@ -37,7 +36,7 @@ import type { AppDispatch } from "./store";
 import { fetchCart } from "./store/serverCartSlice";
 import { fetchWishlistCount } from "./store/wishListSlice";
 
-import { stripePromise } from "./features/payments/stripe";
+import { getStripePromise } from "./features/payments/stripe";
 import type { User } from "./types";
 import { setOnUnauthorized } from "./api/axiosInstance";
 
@@ -97,6 +96,9 @@ function ScrollToTop() {
 export default function App() {
   const dispatch = useDispatch<AppDispatch>();
   useAuthStorageSync();
+
+  // ✅ Stripe init becomes safe + cached + does not crash the app if key is missing
+  const stripePromise = useMemo(() => getStripePromise(), []);
 
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -171,7 +173,7 @@ export default function App() {
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
 
-            {/* ✅ Account restore (public) */}
+            {/* Account restore (public) */}
             <Route path="/account/restore/:uidb64/:token" element={<AccountRestore />} />
 
             {/* Auth */}
@@ -210,6 +212,7 @@ export default function App() {
             />
 
             <Route path="/order/success" element={<OrderSuccess />} />
+
             <Route
               path="/order"
               element={
