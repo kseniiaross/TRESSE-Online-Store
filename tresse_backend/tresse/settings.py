@@ -104,15 +104,14 @@ WSGI_APPLICATION = "tresse.wsgi.application"
 # ------------------------------------------------------------
 # Database
 # ------------------------------------------------------------
-DATABASE_URL = config("DATABASE_URL", default="")
+DATABASE_URL = config("DATABASE_URL", default="", cast=str).strip()
 
 if DATABASE_URL:
-    # ✅ Railway / production database (from Railway Postgres)
     DATABASES = {
-        "default": dj_database_url.parse(
-            DATABASE_URL,
+        "default": dj_database_url.config(
+            default=DATABASE_URL,
             conn_max_age=config("DB_CONN_MAX_AGE", default=60, cast=int),
-            ssl_require=True,  # Railway обычно требует SSL
+            ssl_require=True,
         )
     }
 else:
