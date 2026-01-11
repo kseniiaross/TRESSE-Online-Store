@@ -9,12 +9,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
     default-libmysqlclient-dev \
-    libssl-dev \
-    libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
-COPY . .
-CMD ["sh", "-c", "cd /app || exit 1; if [ -d tresse ]; then echo 'Run from /app'; elif [ -d tresse_backend ]; then cd tresse_backend; echo 'Run from /app/tresse_backend'; else echo 'ERROR: no tresse/ or tresse_backend/ found in /app'; ls -la; exit 1; fi; gunicorn tresse.wsgi:application --bind 0.0.0.0:${PORT:-8080}"]
+COPY . /app
+
+CMD ["sh", "-c", "gunicorn tresse.wsgi:application --bind 0.0.0.0:${PORT} --workers 2 --timeout 120"]
