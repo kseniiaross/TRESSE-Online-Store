@@ -1,7 +1,7 @@
 # tresse/settings.py
 from pathlib import Path
 from datetime import timedelta
-
+import dj_database_url
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -104,17 +104,30 @@ WSGI_APPLICATION = "tresse.wsgi.application"
 # ------------------------------------------------------------
 # Database
 # ------------------------------------------------------------
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST"),
-        "PORT": config("DB_PORT"),
-        "CONN_MAX_AGE": config("DB_CONN_MAX_AGE", default=60, cast=int),
+DATABASE_URL = config("DATABASE_URL", default="")
+
+if DATABASE_URL:
+    # ✅ Railway / production database (from Railway Postgres)
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=config("DB_CONN_MAX_AGE", default=60, cast=int),
+            ssl_require=True,  # Railway обычно требует SSL
+        )
     }
-}
+else:
+    # ✅ Local database (your Mac)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME"),
+            "USER": config("DB_USER"),
+            "PASSWORD": config("DB_PASSWORD"),
+            "HOST": config("DB_HOST", default="127.0.0.1"),
+            "PORT": config("DB_PORT", default="5432"),
+            "CONN_MAX_AGE": config("DB_CONN_MAX_AGE", default=60, cast=int),
+        }
+    }
 
 # ------------------------------------------------------------
 # Password validation
