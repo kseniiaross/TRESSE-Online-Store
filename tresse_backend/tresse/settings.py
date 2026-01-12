@@ -147,9 +147,7 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# ------------------------------------------------------------
-# Static / Media
-# ------------------------------------------------------------
+
 STATIC_URL = config("STATIC_URL", default="/static/")
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
