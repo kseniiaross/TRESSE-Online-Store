@@ -150,7 +150,7 @@ USE_TZ = True
 # ------------------------------------------------------------
 # Static / Media
 # ------------------------------------------------------------
-STATIC_URL = "/static/"
+STATIC_URL = config("STATIC_URL", default="/static/")
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STORAGES = {
