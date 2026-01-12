@@ -16,4 +16,6 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY . /app
 
+RUN python manage.py collectstatic --noinput
+
 CMD ["sh", "-c", "gunicorn tresse.wsgi:application --bind 0.0.0.0:8080 --workers 2 --timeout 120"]
