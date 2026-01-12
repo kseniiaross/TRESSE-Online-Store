@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY . /app
 
-CMD ["sh", "-c", "gunicorn tresse.wsgi:application --bind 0.0.0.0:${PORT} --workers 2 --timeout 120"]
+CMD ["sh", "-c", "gunicorn tresse.wsgi:application --bind 0.0.0.0:8080 --workers 2 --timeout 120"]
