@@ -36,4 +36,4 @@ sqlparse==0.5.1
 # Typing (если нужно)
 typing_extensions==4.15.0
 
-whitenoise==6.7.0
+whitenoise==6.11.0
