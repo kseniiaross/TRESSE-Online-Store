@@ -2,12 +2,20 @@
 import axios from "axios";
 import { getAccessToken } from "../utils/token";
 
-const rawEnv =
-  import.meta.env.VITE_API_URL ||
-  import.meta.env.VITE_BACKEND_URL ||
-  "http://127.0.0.1:8000";
+// Единственный источник правды:
+// VITE_API_URL должен быть вида:
+// - http://127.0.0.1:8000/api   (локально)
+// - https://<railway-domain>/api (прод)
+const API_URL = import.meta.env.VITE_API_URL;
 
-const normalized = String(rawEnv).replace(/\/$/, "");
+if (!API_URL) {
+  // В проде это спасает от тихого падения на localhost
+  throw new Error(
+    "VITE_API_URL is missing. Set it in Vercel Environment Variables (Production/Preview/Development)."
+  );
+}
+
+const normalized = String(API_URL).replace(/\/$/, "");
 const baseURL = normalized.endsWith("/api") ? normalized : `${normalized}/api`;
 
 const axiosInstance = axios.create({
