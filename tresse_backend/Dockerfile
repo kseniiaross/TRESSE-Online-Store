@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
+ARG CACHEBUST=20260112_01
+
 COPY . /app
 RUN python3 manage.py collectstatic --noinput
 
