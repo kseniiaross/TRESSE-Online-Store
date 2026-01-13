@@ -31,6 +31,10 @@ CORS_ALLOWED_ORIGINS = [
     FRONTEND_URL.replace("://", "://www."),
 ]
 
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https:\/\/.*\.vercel\.app$",
+]
+
 # If you use cookies in the future, keep it True. For pure JWT-in-header it can be False.
 CORS_ALLOW_CREDENTIALS = config("CORS_ALLOW_CREDENTIALS", default=False, cast=bool)
 
