@@ -1,3 +1,6 @@
+import axiosInstance from "../api/axiosInstance";
+
+
 type SubscribeSource = "modal" | "footer" | "unknown";
 
 const DISMISS_KEY = "tresse:newsletter:lastDismissedAt";
@@ -60,22 +63,25 @@ export async function subscribeNewsletter(email: string, source: SubscribeSource
     throw new Error("Please enter a valid email address.");
   }
 
-  const res = await fetch("/api/newsletter/subscribe/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: clean, source }),
-  });
+  try {
+    // axiosInstance уже смотрит в VITE_API_URL и добавляет /api при создании baseURL
+    await axiosInstance.post("/newsletter/subscribe/", { email: clean, source });
 
-  if (!res.ok) {
+    markNewsletterSubscribed();
+  } catch (err: unknown) {
     let msg = "Subscription failed. Please try again.";
-    try {
-      const data = await res.json();
-      if (typeof data?.detail === "string") msg = data.detail;
-    } catch {
-      // ignore
+
+    // аккуратно вытаскиваем detail из ответа DRF
+    if (typeof err === "object" && err !== null) {
+      const anyErr = err as { response?: { data?: unknown } };
+      const data = anyErr.response?.data;
+
+      if (data && typeof data === "object" && "detail" in data) {
+        const detail = (data as { detail?: unknown }).detail;
+        if (typeof detail === "string") msg = detail;
+      }
     }
+
     throw new Error(msg);
   }
-
-  markNewsletterSubscribed();
 }
