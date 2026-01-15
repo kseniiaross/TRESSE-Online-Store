@@ -3,6 +3,9 @@ from pathlib import Path
 from datetime import timedelta
 import dj_database_url
 from decouple import config
+import cloudinary
+
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -300,3 +303,18 @@ LOGGING = {
 # Account restore window (days)
 ACCOUNT_RESTORE_WINDOW_DAYS = config("ACCOUNT_RESTORE_WINDOW_DAYS", default=30, cast=int)
 
+INSTALLED_APPS = [
+  ...
+  "cloudinary",
+  "cloudinary_storage",
+  ...
+]
+
+cloudinary.config(
+  cloud_name=config("CLOUDINARY_CLOUD_NAME"),
+  api_key=config("CLOUDINARY_API_KEY"),
+  api_secret=config("CLOUDINARY_API_SECRET"),
+  secure=True,
+)
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
