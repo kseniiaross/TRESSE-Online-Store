@@ -304,10 +304,8 @@ LOGGING = {
 ACCOUNT_RESTORE_WINDOW_DAYS = config("ACCOUNT_RESTORE_WINDOW_DAYS", default=30, cast=int)
 
 INSTALLED_APPS = [
-  ...
   "cloudinary",
   "cloudinary_storage",
-  ...
 ]
 
 cloudinary.config(
