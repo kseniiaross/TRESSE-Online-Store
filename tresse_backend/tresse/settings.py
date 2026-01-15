@@ -3,11 +3,12 @@ from pathlib import Path
 from datetime import timedelta
 import dj_database_url
 from decouple import config
-import cloudinary
 
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+CLOUDINARY_URL = config("CLOUDINARY_URL").strip()
 
 # ------------------------------------------------------------
 # Core security
@@ -173,8 +174,6 @@ STORAGES = {
 
 WHITENOISE_MANIFEST_STRICT = False
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -311,3 +310,4 @@ LOGGING = {
 ACCOUNT_RESTORE_WINDOW_DAYS = config("ACCOUNT_RESTORE_WINDOW_DAYS", default=30, cast=int)
 
 
+CLOUDINARY_URL = config("CLOUDINARY_URL", default="").strip()
