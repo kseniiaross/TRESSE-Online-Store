@@ -310,10 +310,4 @@ LOGGING = {
 # Account restore window (days)
 ACCOUNT_RESTORE_WINDOW_DAYS = config("ACCOUNT_RESTORE_WINDOW_DAYS", default=30, cast=int)
 
-INSTALLED_APPS = [
-  "cloudinary",
-  "cloudinary_storage",
-]
 
-
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
