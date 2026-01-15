@@ -1,5 +1,5 @@
 # Core
-Django==6.0.1
+Django==5.1.6
 gunicorn==23.0.0
 
 # API
@@ -38,5 +38,5 @@ typing_extensions==4.15.0
 
 whitenoise==6.11.0
 
-cloudinary
-django-cloudinary-storage
+cloudinary==1.41.0
+django-cloudinary-storage==0.3.0
