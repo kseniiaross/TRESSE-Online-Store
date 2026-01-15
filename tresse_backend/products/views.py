@@ -1,14 +1,15 @@
+# products/views.py
 from __future__ import annotations
 
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Value, BooleanField
+from django.db.models import BooleanField, Exists, OuterRef, Value
 from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework import generics, status, permissions, viewsets, filters as drf_filters
+from rest_framework import filters as drf_filters
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -20,14 +21,14 @@ from .models import (
     Cart,
     CartItem,
     Product,
-    Review,
     ProductSize,
     ProductWishlist,
+    Review,
     StockSubscription,
 )
 from .serializers import (
-    CartSerializer,
     CartItemSerializer,
+    CartSerializer,
     ProductSerializer,
     ReviewSerializer,
 )
@@ -45,6 +46,7 @@ class CartAPIView(APIView):
 
     def get(self, request):
         cart, _ = Cart.objects.get_or_create(user=request.user)
+
         cart = (
             Cart.objects.filter(pk=cart.pk)
             .select_related("user")
@@ -52,9 +54,11 @@ class CartAPIView(APIView):
                 "items__product_size__size",
                 "items__product_size__product__images",
                 "items__product_size__product__category",
+                "items__product_size__product__collections",
             )
             .first()
         )
+
         serializer = CartSerializer(cart, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -79,19 +83,21 @@ class CartItemAPIView(APIView):
             ps = ProductSize.objects.select_for_update().get(pk=product_size.pk)
 
             item = (
-                CartItem.objects
-                .filter(cart=cart, product_size=ps)
+                CartItem.objects.filter(cart=cart, product_size=ps)
                 .select_for_update()
                 .first()
             )
+
             current_qty = item.quantity if item else 0
-
             new_qty = current_qty + quantity_to_add
-            max_qty = ps.quantity
 
-            if new_qty > max_qty:
+            if new_qty > ps.quantity:
                 return Response(
-                    {"detail": "Not enough stock for this size.", "available": max_qty, "requested": new_qty},
+                    {
+                        "detail": "Not enough stock for this size.",
+                        "available": ps.quantity,
+                        "requested": new_qty,
+                    },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -125,11 +131,14 @@ class CartItemAPIView(APIView):
                 return Response({"quantity": "Must be >= 1"}, status=status.HTTP_400_BAD_REQUEST)
 
             ps = ProductSize.objects.select_for_update().get(pk=item.product_size_id)
-            max_qty = ps.quantity
 
-            if new_qty > max_qty:
+            if new_qty > ps.quantity:
                 return Response(
-                    {"detail": "Not enough stock for this size.", "available": max_qty, "requested": new_qty},
+                    {
+                        "detail": "Not enough stock for this size.",
+                        "available": ps.quantity,
+                        "requested": new_qty,
+                    },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -163,13 +172,24 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
         queryset = (
             Product.objects.select_related("category")
-            .prefetch_related("images", "sizes")
+            .prefetch_related("images", "sizes", "collections")
             .annotate(
                 _in_stock=Exists(
                     ProductSize.objects.filter(product_id=OuterRef("pk"), quantity__gt=0)
                 )
             )
         )
+
+        # Optional filters via query params:
+        # /api/products/?category=woman
+        category_slug = self.request.query_params.get("category")
+        if category_slug:
+            queryset = queryset.filter(category__slug=category_slug)
+
+        # /api/products/?collection=bestsellers
+        collection_slug = self.request.query_params.get("collection")
+        if collection_slug:
+            queryset = queryset.filter(collections__slug=collection_slug)
 
         if user and user.is_authenticated:
             queryset = queryset.annotate(
@@ -178,7 +198,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
                 )
             )
 
-        return queryset
+        return queryset.distinct()
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
@@ -243,7 +263,7 @@ class WishlistViewSet(viewsets.ReadOnlyModelViewSet):
         return (
             Product.objects.filter(id__in=wish_ids)
             .select_related("category")
-            .prefetch_related("images", "sizes")
+            .prefetch_related("images", "sizes", "collections")
             .annotate(
                 _in_stock=Exists(ProductSize.objects.filter(product_id=OuterRef("pk"), quantity__gt=0)),
                 _is_in_wishlist=Value(True, output_field=BooleanField()),
