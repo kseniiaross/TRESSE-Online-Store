@@ -118,13 +118,13 @@ export default function Footer() {
           <div className="footerCol">
             <ul className="footerList">
               <li>
-                <Link to="/catalog?category=women" className="footerLink">
-                  WOMEN
+                <Link to="/catalog?category=woman" className="footerLink">
+                  WOMAN
                 </Link>
               </li>
               <li>
-                <Link to="/catalog?category=men" className="footerLink">
-                  MEN
+                <Link to="/catalog?category=man" className="footerLink">
+                  MAN
                 </Link>
               </li>
               <li>

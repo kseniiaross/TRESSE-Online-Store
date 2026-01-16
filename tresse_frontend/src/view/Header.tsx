@@ -357,13 +357,13 @@ const Header: React.FC = () => {
             <nav className="menu-content" aria-label="Categories">
               <ul>
                 <li>
-                  <Link to="/catalog?category=women" onClick={closeMenu}>
-                    WOMEN
+                  <Link to="/catalog?category=woman" onClick={closeMenu}>
+                    WOMAN
                   </Link>
                 </li>
                 <li>
-                  <Link to="/catalog?category=men" onClick={closeMenu}>
-                    MEN
+                  <Link to="/catalog?category=man" onClick={closeMenu}>
+                    MAN
                   </Link>
                 </li>
                 <li>
