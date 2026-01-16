@@ -1,6 +1,7 @@
 # products/admin.py
 from __future__ import annotations
 
+from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 
@@ -61,17 +62,36 @@ class ProductImageInline(admin.TabularInline):
     preview.short_description = "Preview"
 
 
+class ProductAdminForm(forms.ModelForm):
+    """
+    Make ManyToMany 'collections' a simple checkbox list
+    instead of Django's dual-list 'filter_horizontal' widget.
+    """
+
+    class Meta:
+        model = Product
+        fields = "__all__"
+        widgets = {
+            "collections": forms.CheckboxSelectMultiple(),
+        }
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    form = ProductAdminForm
+
     list_display = ("id", "name", "category", "price", "available", "created_at")
-    list_filter = ("available", "category", "collections")
+
+    # ✅ keep only clean filters
+    # (collections filter removed because you said you don't need those annoying filters)
+    list_filter = ("available", "category")
+
     search_fields = ("name", "description")
 
-    # ✅ галочки для коллекций
-    filter_horizontal = ("collections",)
+    # ❌ remove the dual-list UI
+    # filter_horizontal = ("collections",)
 
     inlines = (ProductSizeInline, ProductImageInline)
-
     autocomplete_fields = ("category",)
 
 
