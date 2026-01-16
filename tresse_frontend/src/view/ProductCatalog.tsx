@@ -19,12 +19,9 @@ type Paginated<T> = {
 };
 
 const CATEGORY_MAP: Record<string, string> = {
-  woman: "women",
-  man: "men",
+  women: "woman",
+  men: "man",
   kids: "kids",
-  new: "new",
-  bestsellers: "bestsellers",
-  exclusives: "exclusives",
 };
 
 const SESSION_EMAIL_KEY = "notify_email";
