@@ -1,6 +1,7 @@
 from django.conf import settings
-from django.core.mail import send_mail
 from django.db import DatabaseError, IntegrityError
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -8,6 +9,9 @@ from rest_framework.views import APIView
 
 from .models import NewsletterSubscriber
 from .serializers import NewsletterSubscribeSerializer
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class SubscribeAPIView(APIView):
@@ -38,34 +42,42 @@ class SubscribeAPIView(APIView):
                     subscriber.save(update_fields=["is_active", "source", "updated_at"])
 
         except (IntegrityError, DatabaseError) as e:
-            # In DEBUG return useful detail; in prod keep generic
+            logger.exception("Newsletter DB error for %s: %s", email, str(e))
             if settings.DEBUG:
                 return Response({"detail": f"DB error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return Response({"detail": "Server error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # Email (do not break UX if SMTP isn't ready)
+        # ✅ subject можно хранить в settings (опционально), но хардкод тут ок
         subject = "Welcome to TRESSE"
-        message = (
-            "You’re subscribed to TRESSE emails.\n\n"
-            "You will receive updates about new collections, styling tips and special offers.\n\n"
-            "— TRESSE"
-        )
+        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or "no-reply@tresse.com"
 
-        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@tresse.com")
+        # ✅ контекст для шаблонов (можешь расширять)
+        ctx = {
+            "email": email,
+            "source": source,
+            "brand": "TRESSE",
+        }
 
+        email_sent = False
         try:
-            send_mail(
+            # ✅ берём готовые шаблоны из templates/
+            text_body = render_to_string("emails/accounts/newsletter_welcome.txt", ctx).strip()
+            html_body = render_to_string("emails/accounts/newsletter_welcome.html", ctx)
+
+            msg = EmailMultiAlternatives(
                 subject=subject,
-                message=message,
+                body=text_body,
                 from_email=from_email,
-                recipient_list=[email],
-                fail_silently=not settings.DEBUG,  # in DEBUG you WANT to see errors
+                to=[email],
             )
-        except Exception:
-            # Do not block subscription
-            pass
+            msg.attach_alternative(html_body, "text/html")
+            msg.send(fail_silently=False)
+
+            email_sent = True
+        except Exception as e:
+            logger.exception("Newsletter email send failed for %s: %s", email, str(e))
 
         return Response(
-            {"ok": True, "created": created, "email": email},
+            {"ok": True, "created": created, "email": email, "email_sent": email_sent},
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
         )

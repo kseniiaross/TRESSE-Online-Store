@@ -1,3 +1,4 @@
+Hi {{ name }},
 Welcome to TRESSE
 
 Thank you for subscribing to our newsletter.
