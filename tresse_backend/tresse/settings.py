@@ -242,7 +242,7 @@ SIMPLE_JWT = {
 EMAIL_BACKEND = config(
     "EMAIL_BACKEND",
     default="django.core.mail.backends.smtp.EmailBackend",
-)
+).strip()
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
 SUPPORT_EMAIL = config("SUPPORT_EMAIL")
 
@@ -251,6 +251,8 @@ EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+if not DEBUG and (not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD):
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=10, cast=int)
 

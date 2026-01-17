@@ -1,3 +1,4 @@
+# newsletter/views.py
 from django.conf import settings
 from django.db import DatabaseError, IntegrityError
 from django.template.loader import render_to_string
@@ -47,20 +48,14 @@ class SubscribeAPIView(APIView):
                 return Response({"detail": f"DB error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return Response({"detail": "Server error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # ✅ subject можно хранить в settings (опционально), но хардкод тут ок
-        subject = "Welcome to TRESSE"
-        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or "no-reply@tresse.com"
+        subject = getattr(settings, "NEWSLETTER_WELCOME_SUBJECT", "Welcome to TRESSE")
+        from_email = (getattr(settings, "DEFAULT_FROM_EMAIL", "") or "no-reply@tresse.com").strip()
+        reply_to = [(getattr(settings, "SUPPORT_EMAIL", "") or from_email).strip()]
 
-        # ✅ контекст для шаблонов (можешь расширять)
-        ctx = {
-            "email": email,
-            "source": source,
-            "brand": "TRESSE",
-        }
+        ctx = {"email": email, "source": source, "brand": "TRESSE"}
 
         email_sent = False
         try:
-            # ✅ берём готовые шаблоны из templates/
             text_body = render_to_string("emails/accounts/newsletter_welcome.txt", ctx).strip()
             html_body = render_to_string("emails/accounts/newsletter_welcome.html", ctx)
 
@@ -69,10 +64,10 @@ class SubscribeAPIView(APIView):
                 body=text_body,
                 from_email=from_email,
                 to=[email],
+                reply_to=reply_to,
             )
             msg.attach_alternative(html_body, "text/html")
             msg.send(fail_silently=False)
-
             email_sent = True
         except Exception as e:
             logger.exception("Newsletter email send failed for %s: %s", email, str(e))
