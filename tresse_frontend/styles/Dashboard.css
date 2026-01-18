@@ -7,17 +7,18 @@
   box-sizing: border-box;
 }
 
+/* Desktop/Tablet layout: left form + right gallery */
 .dashboard-layout{
   display: flex;
   width: 100%;
-  height: calc(100vh - 80px);
-  margin-top: 100px;
+  min-height: calc(100vh - 80px); /* ✅ allow page to grow; avoids footer overlap */
+  margin-top: 100px;             /* ✅ if header is fixed */
   box-sizing: border-box;
 }
 
 /* =========================
    LEFT (form panel)
-   ✅ z-index чтобы клики НЕ перехватывались правой частью
+   ✅ z-index so clicks are not blocked by right side
    ========================= */
 
 .dashboard-panel{
@@ -135,8 +136,9 @@
   margin-top: 12px;
 }
 
+/* ✅ Same sizing + same box model for <button> and <Link> */
 .dashboard-button{
-  width: 150px;
+  width: 200px;                /* ✅ unified width */
   padding: 0.8rem;
   font-size: 14px;
   border-radius: 0;
@@ -145,6 +147,11 @@
   letter-spacing: 0.04em;
   text-decoration: none;
   user-select: none;
+
+  display: inline-flex;        /* ✅ Link behaves like button */
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .dashboard-button:disabled{
@@ -184,7 +191,7 @@
 
 /* =========================
    RIGHT (photo frame)
-   ✅ z-index ниже панели
+   ✅ lower z-index than panel
    ========================= */
 
 .dashboard-media{
@@ -298,26 +305,28 @@
 }
 
 /* =========================
-   Responsive
+   Responsive (Mobile)
+   - Start position like LoginChoice
+   - Hide photo on mobile
+   - Buttons same width and centered
    ========================= */
 
 @media (max-width: var(--breakpoint-md)){
   .dashboard-layout{
     flex-direction: column;
     height: auto;
-    margin-top: 0;
-    padding-top: 80px;
+    min-height: auto;
+
+    margin-top: 0;        /* ✅ same as LoginChoice */
+    padding-top: 80px;    /* ✅ same as LoginChoice */
   }
 
-  .dashboard-panel,
-  .dashboard-media{
+  .dashboard-panel{
     width: 100%;
     height: auto;
     padding: 2rem;
     box-sizing: border-box;
-  }
 
-  .dashboard-panel{
     align-items: center;
     text-align: center;
     justify-content: flex-start;
@@ -330,9 +339,11 @@
 
   .dashboard-subtitle{
     font-size: 0.85rem;
+    max-width: 520px;
   }
 
   .dashboard-form{
+    width: 100%;
     max-width: 520px;
   }
 
@@ -340,23 +351,25 @@
     grid-template-columns: 1fr;
   }
 
-  .dashboard-media{
-    padding: 0;
-    height: 300px;
+  .dashboard-actions{
+    align-items: center;  /* ✅ center the unified button width */
   }
 
-  .dashboard-media-frame{
-    height: 300px;
-  }
-
-  .dashboard-media-image{
+  .dashboard-button{
     width: 100%;
-    height: 100%;
-    max-width: 100%;
-    object-fit: cover;
-    object-position: center 18%;
+    max-width: 320px;     /* ✅ like LoginChoice buttons */
+  }
+
+  /* ✅ Hide gallery on mobile */
+  .dashboard-media{
+    display: none;
   }
 }
+
+/* =========================
+   Desktop text tweak (optional)
+   - This is NOT for small screens. It's for large screens only.
+   ========================= */
 
 @media (min-width: 1024px){
   .dashboard-subtitle{
