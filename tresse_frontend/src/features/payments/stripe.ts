@@ -3,14 +3,24 @@ import { loadStripe, type Stripe } from "@stripe/stripe-js";
 
 let cached: Promise<Stripe | null> | null = null;
 
+function readPublishableKey(): string {
+  const raw = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+
+  if (typeof raw !== "string") return "";
+  return raw.trim();
+}
+
 export function getStripePromise(): Promise<Stripe | null> {
   if (cached) return cached;
 
-  const pk = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+  const pk = readPublishableKey();
 
-  // ✅ НЕ КИДАЕМ ОШИБКУ. Просто отключаем Stripe, если ключа нет.
-  if (!pk || typeof pk !== "string" || !pk.startsWith("pk_")) {
-    console.warn("Stripe is disabled: VITE_STRIPE_PUBLIC_KEY is missing/invalid");
+  // ✅ Не кидаем ошибку — просто отключаем Stripe, если ключа нет/битый
+  if (!pk || !pk.startsWith("pk_")) {
+    console.warn(
+      "[Stripe] Disabled: VITE_STRIPE_PUBLIC_KEY is missing or invalid. " +
+        "Expected a publishable key starting with 'pk_'."
+    );
     cached = Promise.resolve(null);
     return cached;
   }
