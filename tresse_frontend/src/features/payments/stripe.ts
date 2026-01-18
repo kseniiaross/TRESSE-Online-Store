@@ -1,30 +1,32 @@
 // src/features/payments/stripe.ts
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 
-let cached: Promise<Stripe | null> | null = null;
+let cachedPromise: Promise<Stripe | null> | null = null;
 
-function readPublishableKey(): string {
-  const raw = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+function getPublishableKey(): string | null {
+  const pk = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 
-  if (typeof raw !== "string") return "";
-  return raw.trim();
+  if (typeof pk !== "string") return null;
+  const key = pk.trim();
+
+  // publishable key должен начинаться с pk_
+  if (!key || !key.startsWith("pk_")) return null;
+
+  return key;
 }
 
 export function getStripePromise(): Promise<Stripe | null> {
-  if (cached) return cached;
+  if (cachedPromise) return cachedPromise;
 
-  const pk = readPublishableKey();
+  const key = getPublishableKey();
 
-  // ✅ Не кидаем ошибку — просто отключаем Stripe, если ключа нет/битый
-  if (!pk || !pk.startsWith("pk_")) {
-    console.warn(
-      "[Stripe] Disabled: VITE_STRIPE_PUBLIC_KEY is missing or invalid. " +
-        "Expected a publishable key starting with 'pk_'."
-    );
-    cached = Promise.resolve(null);
-    return cached;
+  if (!key) {
+    // Не падаем. Просто возвращаем null.
+    console.warn("Stripe disabled: missing/invalid VITE_STRIPE_PUBLIC_KEY");
+    cachedPromise = Promise.resolve(null);
+    return cachedPromise;
   }
 
-  cached = loadStripe(pk);
-  return cached;
+  cachedPromise = loadStripe(key);
+  return cachedPromise;
 }
