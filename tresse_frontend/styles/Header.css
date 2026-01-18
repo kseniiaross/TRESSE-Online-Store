@@ -1,56 +1,77 @@
-:root{
+/* =========================================
+   Header.css (clean / production style)
+   - Desktop: left (burger+logo) / right (search + links)
+   - Mobile: menu row moves UNDER logo
+   - Search icon on mobile: icon only (no white box)
+========================================= */
+
+/* -------------------------
+   CSS Variables
+------------------------- */
+:root {
   --header-height: 88px;
+  --header-pad-x: 2rem;
+  --header-pad-y: 1rem;
+
+  --text-light: #fff;
+  --text-dark: #000;
+
+  --focus-ring: rgba(255, 255, 255, 0.65);
 }
 
-@media (max-width: 786px){
-  :root{
+@media (max-width: 786px) {
+  :root {
     --header-height: 72px;
+    --header-pad-x: 1rem;
+    --header-pad-y: 0.75rem;
   }
 }
 
-/* =========================
-   A11y
-========================= */
-.sr-only{
+/* -------------------------
+   A11y helpers
+------------------------- */
+.sr-only {
   position: absolute !important;
   width: 1px !important;
   height: 1px !important;
   padding: 0 !important;
   margin: -1px !important;
   overflow: hidden !important;
-  clip: rect(0,0,0,0) !important;
+  clip: rect(0, 0, 0, 0) !important;
   white-space: nowrap !important;
   border: 0 !important;
 }
 
-/* =========================
+/* -------------------------
    Header layout
-========================= */
-.header{
+------------------------- */
+.header {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0 0 auto 0;
+  z-index: 100;
+
   width: 100%;
   height: var(--header-height);
-  z-index: 100;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  padding: 1rem 2rem;
+  padding: var(--header-pad-y) var(--header-pad-x);
   box-sizing: border-box;
 
   background: transparent;
 }
 
-.left-section{
+/* left group (burger + logo) */
+.left-section {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
-.right-section{
+/* right group (search + links) */
+.right-section {
   display: flex;
   align-items: center;
   gap: clamp(0.75rem, 2vw, 2rem);
@@ -58,12 +79,12 @@
   margin-right: 4rem;
 }
 
-/* =========================
+/* -------------------------
    Burger
-========================= */
-.humburger{
+------------------------- */
+.humburger {
   background: none;
-  border: none;
+  border: 0;
   cursor: pointer;
 
   display: flex;
@@ -78,29 +99,38 @@
   padding: 0;
 }
 
-.bar{
+.humburger:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 6px;
+  border-radius: 10px;
+}
+
+.bar {
   display: block;
   height: 2px;
   border-radius: 2px;
-  background: #fff;
-  transition: width .2s ease;
+  background: var(--text-light);
+  transition: width 0.2s ease;
   transform: translateZ(0);
 }
 
-.bar.dark{ background: #000; }
+.bar.dark {
+  background: var(--text-dark);
+}
 
-.bar.top{ width: 50px; }
-.bar.middle{ width: 40px; }
-.bar.bottom{ width: 30px; }
+.bar.top { width: 50px; }
+.bar.middle { width: 40px; }
+.bar.bottom { width: 30px; }
 
-.humburger.hover-animate .top{ width: 30px; }
-.humburger.hover-animate .bottom{ width: 50px; }
+/* your hover animation */
+.humburger.hover-animate .top { width: 30px; }
+.humburger.hover-animate .bottom { width: 50px; }
 
-/* =========================
+/* -------------------------
    Logo
-========================= */
-.logo{
-  color: #fff;
+------------------------- */
+.logo {
+  color: var(--text-light);
   font-family: "EB Garamond", serif;
   font-size: clamp(2rem, 5vw, 6rem);
   font-weight: 500;
@@ -108,83 +138,131 @@
   text-decoration: none;
   cursor: pointer;
 
-  position: relative;
-  top: 15px;
+  /* убрали "top: 15px" — это ломает мобилку */
+  position: static;
 }
 
-.logo.dark{ color: #000; }
+.logo.dark {
+  color: var(--text-dark);
+}
 
-/* =========================
+.logo:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 6px;
+  border-radius: 10px;
+}
+
+/* -------------------------
    Buttons / Links
-========================= */
+------------------------- */
 .login-button,
-.help-button{
+.help-button {
   background: none;
-  border: none;
+  border: 0;
   padding: 0;
 
   font-size: 1rem;
   cursor: pointer;
   text-decoration: none;
-
-  color: #fff;
+  color: var(--text-light);
 }
 
 .login-button.dark,
-.help-button.dark{
-  color: #000;
+.help-button.dark {
+  color: var(--text-dark);
 }
 
-.shopping-bag{
+.login-button:focus-visible,
+.help-button:focus-visible,
+.shopping-bag:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 6px;
+  border-radius: 10px;
+}
+
+.shopping-bag {
   font-size: 1rem;
   text-decoration: none;
-  color: #fff;
-  transition: opacity .2s ease;
+  color: var(--text-light);
+  transition: opacity 0.2s ease;
 }
 
-.shopping-bag:hover{ opacity: .7; }
-.shopping-bag.dark{ color: #000; }
+.shopping-bag:hover {
+  opacity: 0.7;
+}
 
-/* =========================
+.shopping-bag.dark {
+  color: var(--text-dark);
+}
+
+/* -------------------------
    Search
-========================= */
+------------------------- */
 .header-search{
   position: relative;
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+}
+
+.search-icon-btn{
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.search-icon-btn:focus-visible{
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 6px;
+  border-radius: 10px;
+}
+
+/* ✅ icon sizing */
+.search-icon{
+  width: 22px;
+  height: 22px;
+  display: block;
 }
 
 .search-input{
   background: transparent;
-  border: none;
-  border-bottom: 1px solid #fff;
+  border: 0;
+  border-bottom: 1px solid var(--text-light);
   outline: none;
 
   font-size: 1rem;
   padding: 0.2rem 0.5rem;
-}
 
-.search-input:not(.dark){
-  color: #fff;
-  border-bottom: 1px solid #fff;
+  color: var(--text-light);
 }
 
 .search-input.dark{
-  color: #000;
-  border-bottom: 1px solid #000;
+  color: var(--text-dark);
+  border-bottom: 1px solid var(--text-dark);
 }
 
 .search-input:not(.dark)::placeholder{
-  color: #fff;
+  color: var(--text-light);
   opacity: 1;
 }
 
 .search-input.dark::placeholder{
-  color: #000;
+  color: var(--text-dark);
 }
 
 /* dropdown */
-.search-dropdown{
+.search-dropdown {
   position: absolute;
   top: calc(100% + 10px);
   left: 0;
@@ -195,23 +273,23 @@
   background: #fff;
   color: #111;
 
-  border: 1px solid rgba(0,0,0,.12);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 12px;
-  box-shadow: 0 18px 60px rgba(15,23,42,.10);
+  box-shadow: 0 18px 60px rgba(15, 23, 42, 0.10);
 
   z-index: 1100;
   overflow: hidden;
 }
 
-.search-dropdown__row{
+.search-dropdown__row {
   padding: 12px 14px;
   font-size: 13px;
 }
 
-.search-dropdown__muted{ opacity: .6; }
-.search-dropdown__error{ color: #111; opacity: .65; } /* ✅ без красного */
+.search-dropdown__muted { opacity: 0.6; }
+.search-dropdown__error { color: #111; opacity: 0.65; }
 
-.search-dropdown__item{
+.search-dropdown__item {
   width: 100%;
   display: grid;
   grid-template-columns: 40px 1fr;
@@ -225,33 +303,32 @@
   text-align: left;
 }
 
-/* ✅ без серой заливки: только лёгкое затухание */
-.search-dropdown__item:hover{
+.search-dropdown__item:hover {
   background: transparent;
-  opacity: .7;
+  opacity: 0.7;
 }
 
-.search-dropdown__thumb{
+.search-dropdown__thumb {
   width: 40px;
   height: 40px;
-  background: rgba(0,0,0,.04);
+  background: rgba(0, 0, 0, 0.04);
   overflow: hidden;
   border-radius: 8px;
 }
 
-.search-dropdown__thumb img{
+.search-dropdown__thumb img {
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
 }
 
-.search-dropdown__text{ min-width: 0; }
+.search-dropdown__text { min-width: 0; }
 
-.search-dropdown__name{
+.search-dropdown__name {
   display: block;
   font-size: 13px;
-  letter-spacing: .04em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 
   overflow: hidden;
@@ -259,66 +336,70 @@
   white-space: nowrap;
 }
 
-.search-dropdown__meta{
+.search-dropdown__meta {
   display: block;
   margin-top: 2px;
   font-size: 12px;
-  opacity: .65;
+  opacity: 0.65;
 }
 
-.search-dropdown__all{
+.search-dropdown__all {
   width: 100%;
   border: 0;
-  border-top: 1px solid rgba(0,0,0,.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
   background: #fff;
 
   padding: 12px 14px;
   cursor: pointer;
   text-align: left;
 
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   font-size: 12px;
 }
 
-/* ✅ без серого hover */
-.search-dropdown__all:hover{
+.search-dropdown__all:hover {
   background: transparent;
-  opacity: .7;
+  opacity: 0.7;
 }
 
-/* =========================
-   User menu (dropdown)
-========================= */
-.user-menu-wrap{
+/* -------------------------
+   User menu dropdown
+------------------------- */
+.user-menu-wrap {
   position: relative;
   display: inline-flex;
   align-items: center;
 }
 
-.user-menu__btn{
+.user-menu__btn {
   background: transparent;
   border: 0;
   padding: 6px 10px;
   cursor: pointer;
 
   font-size: 14px;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 
-  color: #fff;
+  color: var(--text-light);
   border-radius: 10px;
 }
 
-.user-menu__btn.dark{ color: #000; }
+.user-menu__btn.dark { color: var(--text-dark); }
 
-.user-menu__caret{
-  margin-left: 6px;
-  font-size: 12px;
-  opacity: .7;
+.user-menu__btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
-.user-menu{
+.user-menu__caret {
+  margin-left: 6px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.user-menu {
   position: absolute;
   right: 0;
   top: calc(100% + 10px);
@@ -329,65 +410,64 @@
   background: #fff;
   color: #111;
 
-  border: 1px solid rgba(0,0,0,.10);
+  border: 1px solid rgba(0, 0, 0, 0.10);
   border-radius: 12px;
 
-  box-shadow: 0 18px 60px rgba(15,23,42,.10);
+  box-shadow: 0 18px 60px rgba(15, 23, 42, 0.10);
   padding: 6px;
 
   z-index: 1100;
 }
 
-.user-menu__item{
-  display: block;        /* ✅ фикс: больше не слепается в одну строку */
+.user-menu__item {
+  display: block;
   width: 100%;
 
   padding: 10px 12px;
   border-radius: 10px;
 
-  text-decoration: none; /* ✅ нет underline */
-  color: #111;           /* ✅ нет фиолетового */
+  text-decoration: none;
+  color: #111;
   font-size: 12px;
-  letter-spacing: .14em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 
-  background: transparent; /* ✅ без заливок */
+  background: transparent;
   border: 0;
   cursor: pointer;
   text-align: left;
 }
 
-.user-menu__item:visited{ color: #111; }
+.user-menu__item:visited { color: #111; }
 
-.user-menu__item:focus-visible{
-  outline: 2px solid rgba(0,0,0,.25);
+.user-menu__item:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.25);
   outline-offset: 2px;
 }
 
-/* ✅ без серого hover */
-.user-menu__item:hover{
+.user-menu__item:hover {
   background: transparent;
-  opacity: .65;
+  opacity: 0.65;
 }
 
-.user-menu__logout{
+.user-menu__logout {
   margin-top: 4px;
-  border-top: 1px solid rgba(0,0,0,.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 0 0 10px 10px;
   padding-top: 12px;
 }
 
-/* =========================
+/* -------------------------
    Sidebar
-========================= */
-.sidebar-backdrop{
+------------------------- */
+.sidebar-backdrop {
   position: fixed;
   inset: 0;
   background: transparent;
   z-index: 999;
 }
 
-.sidebar-menu{
+.sidebar-menu {
   position: absolute;
   top: 0;
   left: 0;
@@ -395,71 +475,108 @@
   width: 260px;
   height: 100vh;
 
-  background-color: rgba(255,255,255,0.92);
+  background-color: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(4px);
 
   z-index: 1000;
-  box-shadow: 2px 0 6px rgba(0,0,0,0.2);
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.2);
 
-  animation: slideIn .3s ease-out;
+  animation: slideIn 0.3s ease-out;
 }
 
-.menu-content{
-  padding: 40px 24px;
-}
+.menu-content { padding: 40px 24px; }
 
-.sidebar-menu ul{
+.sidebar-menu ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.sidebar-menu li{
-  margin-bottom: 20px;
-}
+.sidebar-menu li { margin-bottom: 20px; }
 
-.sidebar-menu a{
+.sidebar-menu a {
   text-decoration: none;
   color: #111;
   font-size: 18px;
   font-weight: 500;
   letter-spacing: 1px;
-  transition: opacity .2s ease-in-out;
+  transition: opacity 0.2s ease-in-out;
 }
 
-/* ✅ без серого hover — только opacity */
-.sidebar-menu a:hover{ opacity: .65; }
+.sidebar-menu a:hover { opacity: 0.65; }
 
-@keyframes slideIn{
-  from{ transform: translateX(-100%); }
-  to{ transform: translateX(0); }
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
 }
 
-/* =========================
-   Mobile
-========================= */
-@media (max-width: 786px){
-  .logo{ font-size: 3rem; }
+/* =========================================
+   MOBILE
+   - Header becomes 2 rows:
+     Row 1: burger + logo
+     Row 2: menu (search / login / help / bag) centered under logo
+========================================= */
+@media (max-width: 786px) {
+  .header {
+    height: auto;                /* ✅ теперь можно 2 строки */
+    padding: 12px 14px 10px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+  }
 
-  .right-section{
-    position: absolute;
-    top: 1.5rem;
-    right: 1rem;
+  .left-section {
+    width: 100%;
+    justify-content: flex-start; /* burger слева */
+    gap: 12px;
+  }
 
+  .logo {
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  .right-section {
+    width: 100%;
     margin-right: 0;
 
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: nowrap;
+    /* ✅ меню под лого */
+    position: static;
+    justify-content: center;
+    gap: 14px;
   }
 
-  .search-dropdown{
-    width: min(360px, calc(100vw - 24px));
-    left: auto;
-    right: 0;
+  /* ✅ на мобилке инпут прячем (чтобы не ломал шапку),
+     но иконка остаётся */
+  .search-input {
+    display: none;
   }
+
+  /* ✅ dropdown выравниваем по центру, чтобы не уезжал */
+  .search-dropdown {
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    width: min(360px, calc(100vw - 24px));
+  }
+
+  /* чуть компактнее текстовые ссылки */
+  .login-button,
+  .help-button,
+  .shopping-bag {
+    font-size: 0.95rem;
+  }
+
+  /* чуть компактнее burger */
+  .humburger {
+    width: 44px;
+  }
+
+  .bar.top { width: 44px; }
+  .bar.middle { width: 34px; }
+  .bar.bottom { width: 26px; }
 }
 
-main{ flex: 1; }
+/* Layout helper */
+main { flex: 1; }

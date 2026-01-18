@@ -5,7 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { setOnUnauthorized } from "./api/axiosInstance";
 import { setCount } from './store/wishListSlice';
-import '../styles/responsive.css';
+
 
 setOnUnauthorized(() => {
   store.dispatch(setCount(0));

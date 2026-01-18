@@ -47,7 +47,6 @@ import ShippingPolicy from "./view/policies/ShippingPolicy";
 import AccessibilityStatement from "./view/policies/AccessibilityStatement";
 
 import "./App.css";
-import "../styles/responsive.css";
 import "../styles/Policy.css";
 
 function isRecord(v: unknown): v is Record<string, unknown> {
