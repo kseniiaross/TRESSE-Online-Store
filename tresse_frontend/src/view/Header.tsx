@@ -7,7 +7,8 @@ import { useAppSelector, useAppDispatch } from "../utils/hooks";
 import { logout } from "../utils/authSlice";
 
 import "../../styles/Header.css";
-import searchIcon from "../assets/icons/search-icon.png";
+import searchIconWhite from "../assets/icons/search-icon-white.png";
+import searchIconBlack from "../assets/icons/search-icon-black.png";
 
 import { setCount } from "../store/wishListSlice";
 import { selectGuestCartCount, clearCart as clearGuestCart } from "../utils/cartSlice";
@@ -28,7 +29,7 @@ const Header: React.FC = () => {
   const location = useLocation();
 
   const [hovered, setHovered] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // sidebar menu
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -53,14 +54,17 @@ const Header: React.FC = () => {
   const serverCount = serverItems.reduce((sum, it) => sum + it.quantity, 0);
 
   const guestCount = useAppSelector(selectGuestCartCount);
-
-  // ✅ cartCount всегда есть (0 если пусто)
   const cartCount = isAuthed ? (serverCount > 0 ? serverCount : guestCount) : guestCount;
 
+  // Home page: white text/icons on hero
+  // Other pages: dark text/icons (white background)
   const isDarkText = location.pathname !== "/";
+
   const menuId = "user-dropdown-menu";
   const sidebarId = "category-menu";
   const searchListId = "header-search-suggestions";
+
+  const searchIcon = isDarkText ? searchIconBlack : searchIconWhite;
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -68,7 +72,7 @@ const Header: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // click outside для user-menu
+  // click outside for user-menu
   useEffect(() => {
     const onClickOutside = (e: MouseEvent) => {
       if (!isUserMenuOpen) return;
@@ -81,7 +85,7 @@ const Header: React.FC = () => {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, [isUserMenuOpen]);
 
-  // click outside для search dropdown
+  // click outside for search dropdown
   useEffect(() => {
     const onClickOutside = (e: MouseEvent) => {
       if (!isSearchOpen) return;
@@ -94,7 +98,7 @@ const Header: React.FC = () => {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, [isSearchOpen]);
 
-  // ✅ закрывать ВСЁ при смене маршрута (включая sidebar)
+  // close all on route change
   useEffect(() => {
     setIsUserMenuOpen(false);
     setIsSearchOpen(false);
@@ -104,7 +108,7 @@ const Header: React.FC = () => {
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
-  // фокус на меню, когда открылось
+  // focus sidebar on open
   useEffect(() => {
     if (isMenuOpen) {
       setTimeout(() => sidebarRef.current?.focus(), 0);
@@ -207,13 +211,11 @@ const Header: React.FC = () => {
         {isMobile ? (
           <button
             type="button"
-            className={`search-icon-btn ${isDarkText ? "dark" : ""}`}
-            aria-label="Open search"
-            onClick={() => {
-              // TODO: mobile search modal if needed
-            }}
+            className="search-icon-btn"
+            aria-label="Search products"
+            onClick={() => navigate("/catalog")}
           >
-            <img src={searchIcon} alt="" className={`search-icon ${isDarkText ? "dark" : ""}`} />
+            <img src={searchIcon} alt="" className="search-icon" />
           </button>
         ) : (
           <div className="header-search" ref={searchWrapRef}>
@@ -333,13 +335,12 @@ const Header: React.FC = () => {
           HELP
         </Link>
 
-        {/* ✅ ALWAYS VISIBLE (guest or authed), Zara-like */}
         <Link to="/cart" className={`shopping-bag ${isDarkText ? "dark" : ""}`} aria-label={`Shopping bag with ${cartCount} items`}>
           SHOPPING BAG [{cartCount}]
         </Link>
       </div>
 
-      {/* ✅ BACKDROP + SIDEBAR */}
+      {/* BACKDROP + SIDEBAR */}
       {isMenuOpen && (
         <div className="sidebar-backdrop" role="presentation" onClick={closeMenu}>
           <aside
