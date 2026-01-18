@@ -158,20 +158,37 @@
 @media (max-width: 768px) {
   .login-container {
     flex-direction: column;
-    min-height: auto; /* allow page to grow so footer can sit below */
+    min-height: auto;
   }
 
+  .login-left {
+    padding: 2rem 1.5rem;
+    justify-content: flex-start;
+    align-items: center;      /* ✅ центрируем контент */
+    text-align: center;
+  }
+
+  /* ✅ общий размер как в LoginChoice */
+  .login-form {
+    width: 100%;
+    max-width: 320px;         /* ✅ как в LoginChoice */
+  }
+
+  .login-form input,
+  .black-button,
+  .register-link {
+    width: 100%;
+    max-width: 320px;         /* ✅ одинаковая ширина */
+    box-sizing: border-box;
+    align-self: center;       /* ✅ не влево */
+  }
+
+  .form-actions {
+    align-items: center;      /* ✅ кнопки по центру */
+  }
+
+  /* ✅ hide the image on mobile */
   .login-right {
-    flex: none;          /* stop flex from stretching/collapsing weirdly */
-    width: 100%;
-    height: auto;        /* key: do not inherit any 100% height behavior */
-    overflow: visible;   /* key: remove cropping */
-  }
-
-  .login-right img {
-    display: block;
-    width: 100%;
-    height: auto;        /* key: show full image */
-    object-fit: contain; /* key: no crop; use 'cover' only if you want crop */
+    display: none;
   }
 }

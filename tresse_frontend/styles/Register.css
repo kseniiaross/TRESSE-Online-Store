@@ -171,6 +171,7 @@
     height: 300px;
     padding: 0;
     align-items: stretch;
+    display: none;
   }
 
   .register-right img{
