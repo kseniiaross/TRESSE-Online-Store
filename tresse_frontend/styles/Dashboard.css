@@ -311,7 +311,7 @@
    - Buttons same width and centered
    ========================= */
 
-@media (max-width: var(--breakpoint-md)){
+@media (max-width: 768px){
   .dashboard-layout{
     flex-direction: column;
     height: auto;
@@ -358,26 +358,5 @@
   .dashboard-button{
     width: 100%;
     max-width: 320px;     /* ✅ like LoginChoice buttons */
-  }
-
-  /* ✅ Hide gallery on mobile */
-  .dashboard-media{
-    display: none;
-  }
-}
-
-/* =========================
-   Desktop text tweak (optional)
-   - This is NOT for small screens. It's for large screens only.
-   ========================= */
-
-@media (min-width: 1024px){
-  .dashboard-subtitle{
-    font-size: 0.8rem;
-    letter-spacing: 0.1rem;
-    text-transform: uppercase;
-    font-weight: 500;
-    line-height: 1.8;
-    max-width: 100%;
   }
 }
