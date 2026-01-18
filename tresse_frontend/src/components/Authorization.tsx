@@ -8,12 +8,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth";
 import { setCredentials } from "../utils/authSlice";
 import { useAppDispatch } from "../utils/hooks";
-
 import { fetchWishlistCount } from "../store/wishListSlice";
 import { fetchCart, mergeGuestCart } from "../store/serverCartSlice";
-
 import type { LoginFormData, User } from "../types";
-
 import "../../styles/Authorization.css";
 import loginImage from "../assets/images/Login.jpg";
 
