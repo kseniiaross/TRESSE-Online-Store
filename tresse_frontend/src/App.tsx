@@ -1,8 +1,9 @@
 // src/App.tsx
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useLayoutEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Elements } from "@stripe/react-stripe-js";
+import type { Stripe } from "@stripe/stripe-js";
 
 import Authorization from "./components/Authorization";
 import Register from "./components/Register";
@@ -96,8 +97,24 @@ export default function App() {
   const dispatch = useDispatch<AppDispatch>();
   useAuthStorageSync();
 
-  // ✅ Stripe init becomes safe + cached + does not crash the app if key is missing
-  const stripePromise = useMemo(() => getStripePromise(), []);
+  // ✅ Stripe (safe): we only mount <Elements> if Stripe is actually available.
+  const [stripe, setStripe] = useState<Stripe | null>(null);
+  const [stripeReady, setStripeReady] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      const s = await getStripePromise(); // Stripe | null
+      if (!mounted) return;
+      setStripe(s);
+      setStripeReady(true);
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -133,7 +150,7 @@ export default function App() {
         path.startsWith("/login-choice") ||
         path.startsWith("/reset-password") ||
         path.startsWith("/login") ||
-        path.startsWith("/account/restore"); // ✅ do not redirect away while restoring
+        path.startsWith("/account/restore");
 
       if (!onAuthPage) {
         window.location.assign(`/login-choice?next=${encodeURIComponent(safeNext)}`);
@@ -216,9 +233,17 @@ export default function App() {
               path="/order"
               element={
                 <PrivateRoute>
-                  <Elements stripe={stripePromise}>
-                    <Order />
-                  </Elements>
+                  {!stripeReady ? (
+                    <div style={{ padding: 16 }}>Loading payment…</div>
+                  ) : !stripe ? (
+                    <div style={{ padding: 16 }}>
+                      Stripe is not configured. Please set <b>VITE_STRIPE_PUBLIC_KEY</b>.
+                    </div>
+                  ) : (
+                    <Elements stripe={stripe}>
+                      <Order />
+                    </Elements>
+                  )}
                 </PrivateRoute>
               }
             />
