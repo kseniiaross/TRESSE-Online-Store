@@ -5,7 +5,7 @@ import {
   getRefreshToken,
   setAccessToken,
   clearTokens,
-} from "../utils/token";
+} from "../types/token";
 
 const rawEnv =
   import.meta.env.VITE_API_URL ||

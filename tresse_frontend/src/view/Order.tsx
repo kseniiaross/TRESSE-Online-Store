@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CardNumberElement,
@@ -15,8 +22,6 @@ import * as serverCart from "../store/serverCartSlice";
 import "../../styles/Order.css";
 
 const PROFILE_STORAGE_KEY = "tresse_profile_v1";
-
-// ✅ store public order number (not DB id)
 const LAST_ORDER_ID_KEY = "tresse_last_order_id_v1";
 
 type StoredProfile = {
@@ -30,37 +35,6 @@ type StoredProfile = {
   postalCode?: string;
   country?: string;
 };
-
-function isRecord(v: unknown): v is Record<string, unknown> {
-  return typeof v === "object" && v !== null;
-}
-
-function safeString(v: unknown): string {
-  return typeof v === "string" ? v : "";
-}
-
-function readProfileFromStorage(): StoredProfile | null {
-  try {
-    const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed: unknown = JSON.parse(raw);
-    if (!isRecord(parsed)) return null;
-
-    return {
-      firstName: safeString(parsed.firstName),
-      lastName: safeString(parsed.lastName),
-      email: safeString(parsed.email),
-      addressLine1: safeString(parsed.addressLine1),
-      apartment: safeString(parsed.apartment),
-      city: safeString(parsed.city),
-      state: safeString(parsed.state),
-      postalCode: safeString(parsed.postalCode),
-      country: safeString(parsed.country),
-    };
-  } catch {
-    return null;
-  }
-}
 
 type ServerCartItem = {
   id: number;
@@ -95,6 +69,38 @@ type CheckoutFormData = {
   country: string;
 };
 
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null;
+}
+
+function safeString(v: unknown): string {
+  return typeof v === "string" ? v : "";
+}
+
+function readProfileFromStorage(): StoredProfile | null {
+  try {
+    const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed: unknown = JSON.parse(raw);
+    if (!isRecord(parsed)) return null;
+
+    return {
+      firstName: safeString(parsed.firstName),
+      lastName: safeString(parsed.lastName),
+      email: safeString(parsed.email),
+      addressLine1: safeString(parsed.addressLine1),
+      apartment: safeString(parsed.apartment),
+      city: safeString(parsed.city),
+      state: safeString(parsed.state),
+      postalCode: safeString(parsed.postalCode),
+      country: safeString(parsed.country),
+    };
+  } catch {
+    return null;
+  }
+}
+
 const toTitle = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 const normalizeCountryForStripe = (value: string) => {
@@ -115,18 +121,17 @@ function saveLastOrderId(orderId: string) {
     if (!clean) return;
     localStorage.setItem(LAST_ORDER_ID_KEY, clean);
   } catch {
-    // ignore
+    // no-op
   }
 }
 
 function extractOrderId(data: unknown): string {
   if (!isRecord(data)) return "";
 
-  // ✅ prefer public_id (safe)
   const publicId = data.public_id;
   if (typeof publicId === "string" && publicId.trim()) return publicId.trim();
 
-  // fallback to id
+  // Fallback to "id" if API returns numeric/string id.
   const raw = data.id;
   if (typeof raw === "number") return String(raw);
   if (typeof raw === "string") return raw.trim();
@@ -144,6 +149,7 @@ export default function Order() {
     (s: RootState) => (s.serverCart.cart?.items ?? []) as ServerCartItem[]
   );
 
+  // Build client-friendly cart lines for summary + total.
   const cartLines = useMemo(
     () =>
       serverItems.map((it) => ({
@@ -173,31 +179,47 @@ export default function Order() {
     country: "USA",
   });
 
-  const [clientSecret, setClientSecret] = useState<string>("");
-  const [intentLoading, setIntentLoading] = useState<boolean>(false);
-  const [intentError, setIntentError] = useState<string>("");
+  const [clientSecret, setClientSecret] = useState("");
+  const [intentLoading, setIntentLoading] = useState(false);
+  const [intentError, setIntentError] = useState("");
 
-  const [errorMsg, setErrorMsg] = useState<string>("");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const [cardNumberError, setCardNumberError] = useState<string>("");
-  const [cardExpiryError, setCardExpiryError] = useState<string>("");
-  const [cardCvcError, setCardCvcError] = useState<string>("");
+  const [cardNumberError, setCardNumberError] = useState("");
+  const [cardExpiryError, setCardExpiryError] = useState("");
+  const [cardCvcError, setCardCvcError] = useState("");
 
-  const [submitting, setSubmitting] = useState<boolean>(false);
-
-  const [needsFinalize, setNeedsFinalize] = useState<boolean>(false);
-  const [succeededIntentId, setSucceededIntentId] = useState<string>("");
+  const [submitting, setSubmitting] = useState(false);
+  const [needsFinalize, setNeedsFinalize] = useState(false);
+  const [succeededIntentId, setSucceededIntentId] = useState("");
 
   const confirmingRef = useRef(false);
+  const attemptIdRef = useRef("");
 
-  const attemptIdRef = useRef<string>("");
-
-  const [addressQuery, setAddressQuery] = useState<string>("");
-  const [addressOpen, setAddressOpen] = useState<boolean>(false);
-  const [addressLoading, setAddressLoading] = useState<boolean>(false);
+  // Address autocomplete (Nominatim)
+  const [addressQuery, setAddressQuery] = useState("");
+  const [addressOpen, setAddressOpen] = useState(false);
+  const [addressLoading, setAddressLoading] = useState(false);
   const [addressItems, setAddressItems] = useState<NominatimItem[]>([]);
-  const lastQueryRef = useRef<string>("");
+  const lastQueryRef = useRef("");
   const abortRef = useRef<AbortController | null>(null);
+
+  // Stable ids for labels/a11y (do not regenerate on re-render).
+  const ids = useMemo(
+    () => ({
+      fullName: "checkout_full_name",
+      street: "checkout_street",
+      apt: "checkout_apt",
+      city: "checkout_city",
+      state: "checkout_state",
+      zip: "checkout_zip",
+      country: "checkout_country",
+      cardholder: "checkout_cardholder",
+      addressList: "checkout_address_list",
+      pageError: "checkout_page_error",
+    }),
+    []
+  );
 
   const applyProfileToForm = (profile: StoredProfile | null) => {
     if (!profile) return;
@@ -208,7 +230,6 @@ export default function Order() {
       ...prev,
       fullName: prev.fullName || fullName,
       cardholderName: prev.cardholderName || fullName,
-
       addressLine1: prev.addressLine1 || (profile.addressLine1 ?? ""),
       apartment: prev.apartment || (profile.apartment ?? ""),
       city: prev.city || (profile.city ?? ""),
@@ -222,14 +243,14 @@ export default function Order() {
   };
 
   useEffect(() => {
+    // Load saved profile into checkout form on first mount.
     applyProfileToForm(readProfileFromStorage());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const onUpdated = () => {
-      applyProfileToForm(readProfileFromStorage());
-    };
+    // Sync form with profile updates from Profile page.
+    const onUpdated = () => applyProfileToForm(readProfileFromStorage());
 
     window.addEventListener("tresse:profileUpdated", onUpdated as EventListener);
     window.addEventListener("storage", onUpdated);
@@ -238,10 +259,10 @@ export default function Order() {
       window.removeEventListener("tresse:profileUpdated", onUpdated as EventListener);
       window.removeEventListener("storage", onUpdated);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addressQuery]);
 
   useEffect(() => {
+    // One attempt id per browser session to avoid duplicate intents.
     const key = "tresse_checkout_attempt_id";
     const stored = sessionStorage.getItem(key);
     if (stored) {
@@ -254,12 +275,14 @@ export default function Order() {
   }, []);
 
   useEffect(() => {
+    // Always show the latest server cart.
     dispatch(serverCart.fetchCart());
   }, [dispatch]);
 
   const applySuggestion = (item: NominatimItem) => {
     const a = item.address || {};
-    const street = [a.house_number, a.road].filter(Boolean).join(" ") || a.road || item.display_name;
+    const street =
+      [a.house_number, a.road].filter(Boolean).join(" ") || a.road || item.display_name;
 
     const city = a.city || a.town || a.village || "";
     const state = a.state || "";
@@ -322,11 +345,12 @@ export default function Order() {
     const t = window.setTimeout(() => {
       if (addressOpen) fetchSuggestions(addressQuery);
     }, 350);
+
     return () => window.clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addressQuery, addressOpen]);
 
   useEffect(() => {
+    // Create or refresh payment intent unless cart is empty or we are finalizing.
     if (cartIsEmpty) {
       setClientSecret("");
       setIntentError("");
@@ -335,7 +359,6 @@ export default function Order() {
       setSucceededIntentId("");
       return;
     }
-
     if (needsFinalize) return;
 
     let cancelled = false;
@@ -355,9 +378,7 @@ export default function Order() {
         const secret = String(data?.client_secret || "");
         setClientSecret(secret);
 
-        if (!secret) {
-          setIntentError("Payment could not be prepared. Please refresh the page.");
-        }
+        if (!secret) setIntentError("Payment could not be prepared. Please refresh the page.");
       } catch {
         if (cancelled) return;
         setClientSecret("");
@@ -415,6 +436,7 @@ export default function Order() {
   const goToSuccessWithOrderId = (orderId: string) => {
     const clean = (orderId || "").trim();
     if (clean) saveLastOrderId(clean);
+
     sessionStorage.removeItem("tresse_checkout_attempt_id");
     navigate(clean ? `/order/success?order=${encodeURIComponent(clean)}` : "/order/success");
   };
@@ -431,7 +453,6 @@ export default function Order() {
 
       const orderId = await createOrderOnBackend(succeededIntentId);
       await dispatch(serverCart.fetchCart());
-
       goToSuccessWithOrderId(orderId);
     } catch {
       setErrorMsg("Payment succeeded, but we couldn't finalize the order. Please try again.");
@@ -442,7 +463,6 @@ export default function Order() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
     setErrorMsg("");
 
     if (submitting) return;
@@ -485,6 +505,7 @@ export default function Order() {
         return;
       }
 
+      // Prevent duplicate confirmations (double clicks, slow networks, etc.)
       if (confirmingRef.current) return;
       confirmingRef.current = true;
 
@@ -526,12 +547,15 @@ export default function Order() {
 
       setSucceededIntentId(paymentIntent.id);
 
+      // Try to persist order immediately. If backend fails, allow "Finalize order".
       let orderId = "";
       try {
         orderId = await createOrderOnBackend(paymentIntent.id);
       } catch {
         setNeedsFinalize(true);
-        setErrorMsg("Payment succeeded, but the order could not be saved. Click “Finalize order” to complete.");
+        setErrorMsg(
+          "Payment succeeded, but the order could not be saved. Click “Finalize order” to complete."
+        );
         return;
       }
 
@@ -547,13 +571,18 @@ export default function Order() {
 
   const disableSubmit = submitting || intentLoading || cartIsEmpty || !stripe;
 
+  // Used for a11y: connect errors to inputs + allow screen readers to announce status.
+  const hasCardErrors = Boolean(cardNumberError || cardExpiryError || cardCvcError);
+
   return (
-    <div className="checkout">
+    <div className="checkout" aria-labelledby="checkout_title">
       <div className="checkout__container">
-        <h2 className="checkout__title">Place your order</h2>
+        <h2 id="checkout_title" className="checkout__title">
+          Place your order
+        </h2>
 
         <div className="checkout__grid">
-          <aside className="summary">
+          <aside className="summary" aria-label="Order summary">
             <h3 className="summary__title">Order Summary</h3>
 
             {cartIsEmpty ? (
@@ -570,17 +599,21 @@ export default function Order() {
               </ul>
             )}
 
-            <div className="summary__total">
+            <div className="summary__total" aria-label="Total amount">
               <span className="summary__totalLabel">Total:</span>
               <span className="summary__totalValue">${totalAmount.toFixed(2)}</span>
             </div>
           </aside>
 
-          <section className="panel">
+          <section className="panel" aria-label="Checkout form">
             <form onSubmit={handleSubmit} className="form" noValidate>
+              {/* Full name */}
               <div className="field field--full">
-                <label className="label">Full name</label>
+                <label className="label" htmlFor={ids.fullName}>
+                  Full name
+                </label>
                 <input
+                  id={ids.fullName}
                   className="input"
                   placeholder="Full name"
                   value={formData.fullName}
@@ -590,10 +623,15 @@ export default function Order() {
                 />
               </div>
 
+              {/* Street + suggestions */}
               <div className="field field--full">
-                <label className="label">Street address</label>
+                <label className="label" htmlFor={ids.street}>
+                  Street address
+                </label>
+
                 <div className="address">
                   <input
+                    id={ids.street}
                     className="input"
                     placeholder="Street address"
                     value={addressQuery || formData.addressLine1}
@@ -606,10 +644,13 @@ export default function Order() {
                     onBlur={() => setTimeout(() => setAddressOpen(false), 160)}
                     autoComplete="street-address"
                     required
+                    aria-expanded={addressOpen}
+                    aria-controls={ids.addressList}
+                    aria-autocomplete="list"
                   />
 
                   {addressOpen && (addressItems.length > 0 || addressLoading) && (
-                    <div className="address__list" role="listbox">
+                    <div id={ids.addressList} className="address__list" role="listbox">
                       {addressLoading && <div className="address__hint">Searching…</div>}
 
                       {!addressLoading &&
@@ -620,6 +661,7 @@ export default function Order() {
                             className="address__item"
                             onMouseDown={(ev) => ev.preventDefault()}
                             onClick={() => applySuggestion(it)}
+                            role="option"
                           >
                             {it.display_name}
                           </button>
@@ -630,8 +672,11 @@ export default function Order() {
               </div>
 
               <div className="field">
-                <label className="label">Apt / Unit</label>
+                <label className="label" htmlFor={ids.apt}>
+                  Apt / Unit
+                </label>
                 <input
+                  id={ids.apt}
                   className="input"
                   placeholder="Apt / Unit"
                   value={formData.apartment}
@@ -641,8 +686,11 @@ export default function Order() {
               </div>
 
               <div className="field">
-                <label className="label">City</label>
+                <label className="label" htmlFor={ids.city}>
+                  City
+                </label>
                 <input
+                  id={ids.city}
                   className="input"
                   placeholder="City"
                   value={formData.city}
@@ -653,8 +701,11 @@ export default function Order() {
               </div>
 
               <div className="field">
-                <label className="label">State</label>
+                <label className="label" htmlFor={ids.state}>
+                  State
+                </label>
                 <input
+                  id={ids.state}
                   className="input"
                   placeholder="State"
                   value={formData.state}
@@ -665,8 +716,11 @@ export default function Order() {
               </div>
 
               <div className="field">
-                <label className="label">ZIP code</label>
+                <label className="label" htmlFor={ids.zip}>
+                  ZIP code
+                </label>
                 <input
+                  id={ids.zip}
                   className="input"
                   placeholder="ZIP code"
                   value={formData.postalCode}
@@ -677,8 +731,11 @@ export default function Order() {
               </div>
 
               <div className="field field--full">
-                <label className="label">Country</label>
+                <label className="label" htmlFor={ids.country}>
+                  Country
+                </label>
                 <input
+                  id={ids.country}
                   className="input"
                   placeholder="Country"
                   value={formData.country}
@@ -689,8 +746,11 @@ export default function Order() {
               </div>
 
               <div className="field field--full">
-                <label className="label">Cardholder name</label>
+                <label className="label" htmlFor={ids.cardholder}>
+                  Cardholder name
+                </label>
                 <input
+                  id={ids.cardholder}
                   className="input"
                   placeholder="Name on card"
                   value={formData.cardholderName}
@@ -700,10 +760,11 @@ export default function Order() {
                 />
               </div>
 
+              {/* Stripe fields */}
               <div className="field field--full">
                 <label className="label">Card details</label>
 
-                <div className="cardFields">
+                <div className="cardFields" aria-invalid={hasCardErrors}>
                   <div className="cardField cardField--full">
                     <div className="stripeInput">
                       <CardNumberElement
@@ -747,8 +808,14 @@ export default function Order() {
                 </button>
               </div>
 
+              {/* Global message area */}
               {errorMsg && !intentLoading && (
-                <p className="message message--error" role="alert" aria-live="assertive">
+                <p
+                  id={ids.pageError}
+                  className="message message--error"
+                  role="alert"
+                  aria-live="assertive"
+                >
                   {errorMsg}
                 </p>
               )}

@@ -1,5 +1,5 @@
 import axiosInstance from '../utils/axiosInstance';
-import { Review, CreateReviewDTO } from '../types';
+import { Review, CreateReviewDTO } from '../types/types';
 
 export const fetchReviews = async (product: number): Promise<Review[]> => {
     try {

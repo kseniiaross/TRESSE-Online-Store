@@ -1,4 +1,3 @@
-// src/view/FAQ.tsx
 import { useMemo, useState } from "react";
 import "../../styles/FAQ.css";
 
@@ -187,9 +186,9 @@ export default function FAQ() {
 
   return (
     <main className="faq" aria-label="FAQ page">
-      <header className="faq__header">
-        <h1 className="faq__title">FAQ</h1>
-        <p className="faq__subtitle">
+        <header className="faq__header">
+          <h1 className="faq__title">FAQ</h1>
+          <p className="faq__subtitle">
           Quick answers to the most common questions about orders, delivery, returns, and care.
         </p>
       </header>

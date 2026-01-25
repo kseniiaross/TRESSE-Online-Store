@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
-import type { Product } from "../types";
+import type { Product } from "../types/types";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
-import { getAccessToken } from "../utils/token";
+import { getAccessToken } from "../types/token";
 import { fetchWishlistCount } from "../store/wishListSlice";
 import fallbackImg from "../assets/images/fallback_product.jpg";
 import "../../styles/ProductCatalog.css";

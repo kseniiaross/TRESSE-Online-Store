@@ -1,75 +1,39 @@
-:root {
-  --header-height: 88px;
-}
+/* index.css */
 
-@media (max-width: 786px) {
-  :root { --header-height: 72px; }
-}
+@import "../styles/variables.css";
+@import "../styles/base.css";
 
-body, html, #root {
-  height: 100%;
+html,
+body {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
 }
 
 body {
-  min-height: 100vh;
-  margin: 0;
   overflow-x: hidden;
-
-}
-
-
-a {
-  color: inherit;
-  text-decoration: inherit;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-:focus-visible {
-  outline: 2px solid #000;
-  outline-offset: 4px;
-  border-radius: 4px;
-  transition: outline 0.2s ease;
-}
-
-:focus:not(:focus-visible) {
-  outline: none;
-}
-
-.header-offset {
-  height: var(--header-height);
-  flex: 0 0 auto;
 }
 
 #root {
-  display: flex;
-  flex-direction: column;
   min-height: 100dvh;
 }
 
+/* Layout shell */
 .layout {
-  min-height: 100vh;           
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
 
 .layout-main {
-  flex: 1 0 auto;               
+  flex: 0 0 auto;               
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - var(--header-height)); 
-  padding-top: var(--header-height); 
+  padding-top: var(--header-height);
+  min-height: calc(100dvh + 1px);
 }
 
-.footer {
-  background-color: white;
-  color: black;
-  padding: 1rem;
-  text-align: center;
-  margin-top: auto;
+/* Optional helper */
+.header-offset {
+  height: var(--header-height);
+  flex: 0 0 auto;
 }

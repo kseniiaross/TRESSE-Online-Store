@@ -1,4 +1,3 @@
-// src/view/About.tsx
 import "../../styles/About.css";
 
 export default function About() {
@@ -15,7 +14,7 @@ export default function About() {
 
       <section className="about__content">
         <p>
-          TRESSE began quietly — as a personal hobby, not a business plan.
+          TRESSE began quietly as a personal hobby, not a business plan.
           It started with yarn, needles, and long evenings spent learning how
           patience turns into form.
         </p>
@@ -34,12 +33,12 @@ export default function About() {
 
         <p>
           TRESSE is not about fast fashion. It’s about choosing quality,
-          slowing down, and wearing something made with care — from the first
+          slowing down, and wearing something made with care from the first
           stitch to the final detail.
         </p>
 
         <p className="about__signature">
-          — TRESSE
+          TRESSE
         </p>
       </section>
     </main>

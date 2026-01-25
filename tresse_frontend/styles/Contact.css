@@ -1,11 +1,10 @@
-/* src/styles/Contact.css */
-
 .contact {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 120px 24px 160px;
-  background: #fff;
-  color: #111;
+  min-height: calc(100dvh - var(--header-height));
+  padding: 48px var(--container-x) 96px;
+  background: var(--c-white);
+  color: var(--text);
 }
 
 .contact__hero {
@@ -14,10 +13,10 @@
 
 .contact__kicker {
   font-size: 12px;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--track-xl);
   text-transform: uppercase;
-  color: #666;
-  margin-bottom: 16px;
+  color: var(--text-muted);
+  margin: 0 0 16px;
 }
 
 .contact__title {
@@ -32,11 +31,11 @@
   max-width: 640px;
   font-size: 16px;
   line-height: 1.7;
-  color: #222;
+  color: var(--text);
 }
 
 .contact__content p {
-  margin-bottom: 24px;
+  margin: 0 0 24px;
 }
 
 .contact__email {
@@ -46,20 +45,27 @@
 .contact__label {
   display: block;
   font-size: 12px;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--track-lg);
   text-transform: uppercase;
-  color: #666;
-  margin-bottom: 8px;
+  color: var(--text-muted);
+  margin: 0 0 8px;
 }
 
 .contact__link {
   font-size: 18px;
-  color: #111;
+  color: var(--text);
   text-decoration: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  transition: border-color 0.2s ease;
+  border-bottom: 1px solid var(--border);
+  transition: border-color 0.2s ease, opacity 0.2s ease;
 }
 
 .contact__link:hover {
-  border-color: #000;
+  border-bottom-color: var(--text);
+  opacity: 0.9;
+}
+
+.contact__link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  border-bottom-color: transparent;
 }

@@ -1,17 +1,13 @@
-// src/api/auth.ts
 import { isAxiosError } from "axios";
 import api from "./axiosInstance";
-import type { LoginRequest, RegisterRequest, ResponseData } from "../types";
+import type { LoginRequest, RegisterRequest, ResponseData } from "../types/auth";
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (!isAxiosError(error)) return fallback;
 
   const data = error.response?.data;
 
-  // Common DRF shapes:
-  // { detail: "..." }
-  // { email: ["..."] }
-  // { password: ["..."] }
+
   if (typeof data === "object" && data !== null) {
     const record = data as Record<string, unknown>;
 
@@ -51,7 +47,7 @@ export async function registerUser(data: RegisterRequest): Promise<ResponseData>
 }
 
 /**
- * ✅ Request account restore email (generic response - does not leak existence)
+ * Request account restore email (generic response - does not leak existence)
  * Backend: POST /api/accounts/restore/request/
  */
 export async function requestAccountRestore(email: string): Promise<{ message: string }> {
@@ -66,7 +62,7 @@ export async function requestAccountRestore(email: string): Promise<{ message: s
 }
 
 /**
- * ✅ Confirm account restore (activate + optionally set new password)
+ * Confirm account restore (activate + optionally set new password)
  * Backend: POST /api/accounts/restore/confirm/
  */
 export async function confirmAccountRestore(params: {

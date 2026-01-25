@@ -1,27 +1,26 @@
-/* =========================
-   DASHBOARD — form + photo frame
-   ========================= */
 
-.dashboard-page{
+/* ==========================================================================
+   DASHBOARD
+   ========================================================================== */
+
+.dashboard {
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Desktop/Tablet layout: left form + right gallery */
-.dashboard-layout{
+.dashboard__layout {
   display: flex;
   width: 100%;
-  min-height: calc(100vh - 80px); /* ✅ allow page to grow; avoids footer overlap */
-  margin-top: 100px;             /* ✅ if header is fixed */
+  min-height: calc(100dvh - var(--header-height));
+  padding-top: var(--header-height); /* header is fixed */
   box-sizing: border-box;
 }
 
-/* =========================
-   LEFT (form panel)
-   ✅ z-index so clicks are not blocked by right side
-   ========================= */
+/* ==========================================================================
+   LEFT PANEL (form)
+   ========================================================================== */
 
-.dashboard-panel{
+.dashboard__panel {
   flex: 1;
   background: #fff;
   color: #111;
@@ -30,16 +29,15 @@
   flex-direction: column;
   justify-content: center;
   box-sizing: border-box;
-
   position: relative;
   z-index: 2;
 }
 
-.dashboard-header{
+.dashboard__header {
   margin-bottom: 18px;
 }
 
-.dashboard-title{
+.dashboard__title {
   margin: 0 0 1rem;
   font-size: 1.4rem;
   letter-spacing: 0.5rem;
@@ -47,23 +45,23 @@
   font-weight: 500;
 }
 
-.dashboard-subtitle{
+.dashboard__subtitle {
   margin: 0 0 2rem;
   font-size: 0.9rem;
   max-width: 420px;
   opacity: 0.9;
 }
 
-.dashboard-form{
+.dashboard__form {
   width: 100%;
   max-width: 520px;
 }
 
-.dashboard-section{
+.dashboard__section {
   margin-bottom: 22px;
 }
 
-.dashboard-section-title{
+.dashboard__section-title {
   margin: 0 0 10px;
   font-size: 11px;
   letter-spacing: 0.16em;
@@ -73,22 +71,22 @@
 }
 
 /* Grid */
-.dashboard-grid{
+.dashboard__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px 14px;
 }
 
-.dashboard-field{
+.dashboard__field {
   min-width: 0;
 }
 
-.dashboard-field--full{
+.dashboard__field--full {
   grid-column: 1 / -1;
 }
 
 /* Inputs */
-.dashboard-label{
+.dashboard__label {
   display: block;
   font-size: 11px;
   letter-spacing: 0.16em;
@@ -97,7 +95,7 @@
   margin-bottom: 6px;
 }
 
-.dashboard-input{
+.dashboard__input {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #eaeaea;
@@ -108,37 +106,37 @@
   font-size: 14px;
 }
 
-.dashboard-input:focus{
+.dashboard__input:focus {
   border-color: #111;
 }
 
 /* Status */
-.dashboard-status{
+.dashboard__status {
   margin-top: 10px;
   min-height: 18px;
 }
 
-.dashboard-status__ok{
+.dashboard__status-ok {
   font-size: 13px;
   letter-spacing: 0.02em;
 }
 
-.dashboard-status__err{
+.dashboard__status-err {
   font-size: 13px;
   letter-spacing: 0.02em;
 }
 
 /* Actions */
-.dashboard-actions{
+.dashboard__actions {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 12px;
 }
 
-/* ✅ Same sizing + same box model for <button> and <Link> */
-.dashboard-button{
-  width: 200px;                /* ✅ unified width */
+/* Unified sizing for <button> and <Link> */
+.dashboard__button {
+  width: 200px;
   padding: 0.8rem;
   font-size: 14px;
   border-radius: 0;
@@ -148,78 +146,82 @@
   text-decoration: none;
   user-select: none;
 
-  display: inline-flex;        /* ✅ Link behaves like button */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
 }
 
-.dashboard-button:disabled{
+.dashboard__button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.dashboard-button--primary{
+.dashboard__button--primary {
   background: #111;
   border: 1px solid #fff;
   color: #fff;
 }
 
-.dashboard-button--primary:hover{
+.dashboard__button--primary:hover {
   background: #000;
 }
 
-.dashboard-button--secondary{
+.dashboard__button--secondary {
   background: #fff;
   border: 1px solid #111;
   color: #111;
 }
 
-.dashboard-button--secondary:hover{
-  background: rgba(0,0,0,0.04);
+.dashboard__button--secondary:hover {
+  background: rgba(0, 0, 0, 0.04);
 }
 
-.dashboard-button--danger{
+.dashboard__button--danger {
   background: #fff;
   border: 1px solid #111;
   color: #111;
 }
 
-.dashboard-button--danger:hover{
-  background: rgba(0,0,0,0.06);
+.dashboard__button--danger:hover {
+  background: rgba(0, 0, 0, 0.06);
 }
 
-/* =========================
-   RIGHT (photo frame)
-   ✅ lower z-index than panel
-   ========================= */
+/* ==========================================================================
+   RIGHT MEDIA 
+   IMPORTANT:
+   - Frame has a stable size using aspect-ratio and max-height.
+   - Image fills the frame (object-fit: cover).
+   - This prevents "jumping" when images have different proportions.
+   ========================================================================== */
 
-.dashboard-media{
+.dashboard__media {
   flex: 1;
-  height: 100%;
-  overflow: hidden;
   display: flex;
   align-items: stretch;
+  justify-content: center;
   background: #fff;
-  padding-bottom: 50px;
-  margin: 0;
   box-sizing: border-box;
 
+  /* Lower than panel */
   position: relative;
   z-index: 1;
 }
 
-.dashboard-media-frame{
+.dashboard__media-frame {
   position: relative;
-  width: 100%;
+  width: min(700px, 100%);
   height: 100%;
+  max-height: calc(100dvh - var(--header-height) - 48px);
+  min-height: 520px;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
+  margin: 0 auto;
 }
 
-.dashboard-media-image{
+.dashboard__media-image {
   width: 100%;
   height: 100%;
-  max-width: 700px;
   display: block;
 
   object-fit: cover;
@@ -227,7 +229,7 @@
 }
 
 /* Dots */
-.dashboard-media-dots{
+.dashboard__media-dots {
   position: absolute;
   left: 50%;
   bottom: 14px;
@@ -236,33 +238,33 @@
   gap: 6px;
   padding: 8px 10px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.75);
-  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.10);
   z-index: 2;
 }
 
-.dashboard-media-dot{
+.dashboard__media-dot {
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: rgba(0,0,0,0.25);
+  background: rgba(0, 0, 0, 0.25);
   border: none;
   padding: 0;
   cursor: pointer;
 }
 
-.dashboard-media-dot--active{
-  background: rgba(0,0,0,0.75);
+.dashboard__media-dot--active {
+  background: rgba(0, 0, 0, 0.75);
 }
 
-/* =========================
+/* ==========================================================================
    MODAL
-   ========================= */
+   ========================================================================== */
 
-.dashboard-modalOverlay{
+.dashboard__modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -270,16 +272,16 @@
   z-index: 9999;
 }
 
-.dashboard-modal{
+.dashboard__modal {
   width: 100%;
   max-width: 520px;
   background: #fff;
-  border: 1px solid rgba(0,0,0,0.15);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   padding: 22px 22px 18px;
   box-sizing: border-box;
 }
 
-.dashboard-modalTitle{
+.dashboard__modalTitle {
   margin: 0 0 10px;
   font-size: 14px;
   letter-spacing: 0.2em;
@@ -287,41 +289,38 @@
   font-weight: 600;
 }
 
-.dashboard-modalText{
+.dashboard__modalText {
   margin: 0 0 14px;
   font-size: 14px;
   opacity: 0.9;
   line-height: 1.5;
 }
 
-.dashboard-modalStatus{
+.dashboard__modalStatus {
   margin-bottom: 12px;
   min-height: 18px;
 }
 
-.dashboard-modalActions{
+.dashboard__modalActions {
   display: flex;
   gap: 12px;
 }
 
-/* =========================
+/* ==========================================================================
    Responsive (Mobile)
    - Start position like LoginChoice
-   - Hide photo on mobile
-   - Buttons same width and centered
-   ========================= */
+   - Hide media column on mobile
+   ========================================================================== */
 
-@media (max-width: 768px){
-  .dashboard-layout{
+@media (max-width: 768px) {
+  .dashboard__layout {
     flex-direction: column;
-    height: auto;
     min-height: auto;
 
-    margin-top: 0;        /* ✅ same as LoginChoice */
-    padding-top: 80px;    /* ✅ same as LoginChoice */
+    padding-top: var(--header-height);
   }
 
-  .dashboard-panel{
+  .dashboard__panel {
     width: 100%;
     height: auto;
     padding: 2rem;
@@ -332,31 +331,35 @@
     justify-content: flex-start;
   }
 
-  .dashboard-title{
+  .dashboard__title {
     font-size: 1.2rem;
     letter-spacing: 0.3rem;
   }
 
-  .dashboard-subtitle{
+  .dashboard__subtitle {
     font-size: 0.85rem;
     max-width: 520px;
   }
 
-  .dashboard-form{
+  .dashboard__form {
     width: 100%;
     max-width: 520px;
   }
 
-  .dashboard-grid{
+  .dashboard__grid {
     grid-template-columns: 1fr;
   }
 
-  .dashboard-actions{
-    align-items: center;  /* ✅ center the unified button width */
+  .dashboard__actions {
+    align-items: center;
   }
 
-  .dashboard-button{
+  .dashboard__button {
     width: 100%;
-    max-width: 320px;     /* ✅ like LoginChoice buttons */
+    max-width: 320px;
+  }
+
+  .dashboard__media {
+    display: none;
   }
 }

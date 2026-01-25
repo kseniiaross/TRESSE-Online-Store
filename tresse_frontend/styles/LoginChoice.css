@@ -1,138 +1,191 @@
-/* =========================
-   LOGIN CHOICE — layout + image frame
-   ========================= */
+/* ==========================================================================
+   LoginChoice.css
+   Scope: LoginChoice screen only.
 
-.login-container{
-  display: flex;
-  width: 100%;
-  height: calc(100vh - 80px);
-  box-sizing: border-box;
-  margin-top: 100px;
-  padding-bottom: 50px;
+   Notes for reviewers:
+   - Styles are page-scoped (no global resets)
+   - Shared auth primitives reused across LoginChoice / Authorization / Register
+   - CTA variants are explicit (no generic hover on base class)
+   ========================================================================== */
+
+.auth-page {
+  --auth-top-gap: 40px;
+  --auth-bottom-gap: 50px;
+
+  --auth-control-width: 300px;
+  --auth-control-width-mobile: 320px;
+
+  --auth-frame-padding: 24px;
+  --auth-image-max-width: 700px;
+
+  /* Header offset is already applied by .layout-main */
+  padding-top: var(--auth-top-gap);
+  padding-bottom: var(--auth-bottom-gap);
+  background: #fff;
 }
 
-/* LEFT */
-.login-left{
+.auth {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.auth__left {
   flex: 1;
-  background: #fff;
-  color: #111;
   padding: 4rem;
+  box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
-  box-sizing: border-box;
 }
 
-.login-left h2{
+.auth__title {
   font-size: 1.4rem;
   letter-spacing: 0.5rem;
-  margin-bottom: 1rem;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
 }
 
-.login-left p{
+.auth__subtitle {
   font-size: 0.9rem;
-  margin-bottom: 2rem;
-  max-width: 380px;
+  margin: 0 0 2rem;
+  max-width: 420px;
 }
 
-/* ✅ Buttons ONLY inside LoginChoice */
-.login-left .black-button,
-.login-left .white-button{
-  width: 150px;
+/* Actions / CTAs */
+
+.auth__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 0.5rem;
+  align-items: flex-start;
+}
+
+.auth__cta {
+  width: var(--auth-control-width);
+  max-width: 100%;
+  height: 44px;
   box-sizing: border-box;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  padding: 0.8rem;
-  margin: 0 0 1rem 0;
-
-  font-size: 14px;
   text-decoration: none;
   text-align: center;
-  cursor: pointer;
+  user-select: none;
 
-  /* ✅ same “position line” for both */
-  align-self: flex-start;
+  letter-spacing: 0.12em;
+  font-size: 0.9rem;
+  text-transform: uppercase;
 }
 
-.login-left .black-button{
-  background: #111;
+/* Primary CTA */
+
+.auth__cta--primary {
+  background: #000;
   color: #fff;
-  border: 1px solid transparent;
+  border: 1px solid #000;
 }
 
-.login-left .white-button{
+.auth__cta--primary:hover,
+.auth__cta--primary:focus-visible {
+  background: #111;
+}
+
+/* Secondary CTA — STAYS WHITE */
+
+.auth__cta--secondary {
   background: #fff;
-  color: #111;
-  border: 1px solid #111;
+  color: #000;
+  border: 1px solid rgba(0, 0, 0, 0.35);
 }
 
-/* RIGHT */
-.login-right{
+.auth__cta--secondary:hover,
+.auth__cta--secondary:focus-visible {
+  background: #fff;
+  color: #000;
+  border-color: rgba(0, 0, 0, 0.75);
+}
+
+/* Keyboard focus (WCAG 2.1) */
+
+.auth__cta:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 3px;
+}
+
+/* Image frame */
+
+.auth__right {
   flex: 1;
-  height: 100%;
   overflow: hidden;
+
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  background: #fff;
-  padding: 24px 24px 0;
+
+  padding: var(--auth-frame-padding) var(--auth-frame-padding) 0;
   box-sizing: border-box;
+
+  max-height: 720px;
 }
 
-.login-right img{
+.auth__image {
   width: 100%;
   height: 100%;
-  max-width: 700px;
+  max-width: var(--auth-image-max-width);
+
   display: block;
   object-fit: cover;
   object-position: center 15%;
 }
 
-.visually-hidden{
+/* Accessibility:
+   We keep this for backward compatibility IF your TSX uses it.
+   But base.css already provides .srOnly as the standard. */
+.visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
-  padding: 0;
   margin: -1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 
-/* =========================
-   Mobile
-   ========================= */
-@media (max-width: 768px){
-  .login-container{
-    flex-direction: column;
-    height: auto;
-    margin-top: 0;
-    padding-top: 80px;
-    padding-bottom: 0;
+/* Mobile */
+
+@media (max-width: 768px) {
+  .auth-page {
+    padding-top: 20px;
+    padding-bottom: 30px;
   }
 
-  .login-left{
-    width: 100%;
-    height: auto;
-    padding: 2rem;
-    box-sizing: border-box;
+  .auth {
+    flex-direction: column;
+  }
+
+  .auth__left {
+    padding: 2rem 1.5rem;
     align-items: center;
     text-align: center;
   }
 
-  /* ✅ force both buttons to same centered block */
-  .login-left .black-button,
-  .login-left .white-button{
+  .auth__cta {
     width: 100%;
-    max-width: 320px;
-    align-self: center;
-    margin-bottom: 12px;
+    max-width: var(--auth-control-width-mobile);
   }
 
-  .login-right{
+  .auth__actions {
+    align-items: center;
+  }
+
+  .auth__right {
     display: none;
   }
 }

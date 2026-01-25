@@ -1,9 +1,8 @@
-// src/view/Dashboard.tsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "../../styles/Dashboard.css";
-
 import api from "../api/axiosInstance";
+import type { ProfileFormState, ProfileResponse, ProfileUpdatePayload } from "../types/profile";
 
 import Dashboard1 from "../assets/images/Dashboard1.jpg";
 import Dashboard2 from "../assets/images/Dashboard2.jpg";
@@ -12,56 +11,17 @@ import Dashboard4 from "../assets/images/Dashboard4.jpg";
 import Dashboard5 from "../assets/images/Dashboard5.jpg";
 import Dashboard6 from "../assets/images/Dashboard6.jpg";
 
-const galleryImages = [Dashboard1, Dashboard2, Dashboard3, Dashboard4, Dashboard5, Dashboard6];
+const galleryImages = [Dashboard1, Dashboard2, Dashboard3, Dashboard4, Dashboard5, Dashboard6] as const;
 
-// ✅ localStorage key: Order сможет читать это и автозаполнять
+// Local storage key: Order page can read it and prefill shipping fields.
 const PROFILE_STORAGE_KEY = "tresse_profile_v1";
 
-// ✅ baseURL у axiosInstance уже содержит /api
+// axiosInstance baseURL already includes "/api".
 const API_PROFILE_URL = "/accounts/profile/";
 const API_DELETE_ACCOUNT_URL = "/accounts/delete-account/";
 
-type ProfileFormState = {
-  firstName: string;
-  lastName: string;
-  email: string;
-
-  addressLine1: string;
-  apartment: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-};
-
-type ProfileResponse = {
-  email?: string;
-
-  first_name?: string;
-  last_name?: string;
-
-  address_line1?: string;
-  apartment?: string;
-  city?: string;
-  state?: string;
-  postal_code?: string;
-  country?: string;
-};
-
-type ProfileUpdatePayload = {
-  email?: string;
-
-  first_name: string;
-  last_name: string;
-
-  address_line1: string;
-  apartment: string;
-  city: string;
-  state: string;
-  postal_code: string;
-  country: string;
-};
-
+// Keep runtime checks close to storage parsing.
+// This prevents "any" and avoids crashing on unexpected shapes.
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
 }
@@ -98,11 +58,13 @@ function readProfileFromStorage(): ProfileFormState | null {
 
 function writeProfileToStorage(profile: ProfileFormState) {
   localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
+
+  // Broadcast for other pages (e.g., Order) to react without hard coupling.
   window.dispatchEvent(new CustomEvent("tresse:profileUpdated", { detail: profile }));
 }
 
 function buildDefaultProfile(): ProfileFormState {
-  // подтянем user из localStorage (как у тебя в App.tsx)
+  // Pull user from localStorage (same pattern as in App.tsx).
   let email = "";
   let firstName = "";
   let lastName = "";
@@ -169,7 +131,7 @@ function mapFormToApi(form: ProfileFormState): ProfileUpdatePayload {
 
 function isValidEmail(v: string): boolean {
   const s = v.trim();
-  if (!s) return true; // email необязателен — если пустой, ок
+  if (!s) return true; // Optional email: empty is allowed.
   return s.includes("@") && s.includes(".");
 }
 
@@ -181,9 +143,11 @@ export default function Dashboard() {
   const total = galleryImages.length;
 
   useEffect(() => {
+    // Keep the interval stable and cleaned up properly.
     const t = window.setInterval(() => {
       setActiveIndex((p) => (p + 1) % total);
     }, 5500);
+
     return () => window.clearInterval(t);
   }, [total]);
 
@@ -197,31 +161,33 @@ export default function Dashboard() {
   });
 
   const [saving, setSaving] = useState(false);
-  const [saveMsg, setSaveMsg] = useState<string>("");
-  const [saveErr, setSaveErr] = useState<string>("");
+  const [saveMsg, setSaveMsg] = useState("");
+  const [saveErr, setSaveErr] = useState("");
 
   // -------------------------
-  // Delete modal
+  // Delete modal (focus management + Esc close)
   // -------------------------
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [deleteMsg, setDeleteMsg] = useState<string>("");
-  const [deleteErr, setDeleteErr] = useState<string>("");
+  const [deleteMsg, setDeleteMsg] = useState("");
+  const [deleteErr, setDeleteErr] = useState("");
 
   const modalRef = useRef<HTMLDivElement | null>(null);
   const lastFocusedRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (!deleteOpen) return;
+    if (!isDeleteOpen) return;
 
+    // Store last focused element to restore focus after closing.
     lastFocusedRef.current = document.activeElement as HTMLElement | null;
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setDeleteOpen(false);
+      if (e.key === "Escape") setIsDeleteOpen(false);
     };
 
     document.addEventListener("keydown", onKey);
 
+    // Autofocus primary action for accessibility.
     window.setTimeout(() => {
       const btn = modalRef.current?.querySelector<HTMLButtonElement>('[data-autofocus="true"]');
       btn?.focus();
@@ -231,10 +197,10 @@ export default function Dashboard() {
       document.removeEventListener("keydown", onKey);
       lastFocusedRef.current?.focus?.();
     };
-  }, [deleteOpen]);
+  }, [isDeleteOpen]);
 
   // -------------------------
-  // ✅ Initial sync from backend (non-blocking)
+  // Initial sync from backend (non-blocking)
   // -------------------------
   useEffect(() => {
     let cancelled = false;
@@ -246,7 +212,7 @@ export default function Dashboard() {
 
         const fromApi = mapApiToForm(data);
 
-        // не затираем то, что уже есть локально (если пользователь уже вводил)
+        // Merge: never overwrite user-entered local values.
         setForm((prev) => {
           const merged: ProfileFormState = {
             firstName: prev.firstName || fromApi.firstName,
@@ -261,12 +227,12 @@ export default function Dashboard() {
             country: prev.country || fromApi.country || "USA",
           };
 
-          // ✅ обновим localStorage (чтобы Order сразу видел)
+          // Keep local storage in sync for Order page.
           writeProfileToStorage(merged);
           return merged;
         });
       } catch {
-        // тихо игнорим: локальные данные всё равно есть
+        // Silent fail: local data is still usable.
       }
     })();
 
@@ -291,7 +257,7 @@ export default function Dashboard() {
     setSaveMsg("");
     setSaveErr("");
 
-    // ✅ локально сохраняем всегда — чтобы Order мог сразу использовать
+    // Always persist locally first to keep UX fast and resilient.
     writeProfileToStorage(form);
 
     if (!isValidEmail(form.email)) {
@@ -304,8 +270,8 @@ export default function Dashboard() {
       const payload = mapFormToApi(form);
       await api.put(API_PROFILE_URL, payload);
       setSaveMsg("Saved.");
-    } catch (err: unknown) {
-      // локально уже сохранили — UX не ломаем
+    } catch {
+      // Local already saved; server failure should not block the user.
       setSaveMsg("Saved locally. (Server sync failed.)");
       setSaveErr("Server sync failed.");
     } finally {
@@ -325,12 +291,12 @@ export default function Dashboard() {
   const openDeleteModal = () => {
     setDeleteMsg("");
     setDeleteErr("");
-    setDeleteOpen(true);
+    setIsDeleteOpen(true);
   };
 
   const closeDeleteModal = () => {
     if (deleting) return;
-    setDeleteOpen(false);
+    setIsDeleteOpen(false);
   };
 
   const handleDeleteAccount = async () => {
@@ -343,7 +309,7 @@ export default function Dashboard() {
 
       setDeleteMsg("Your account deletion request was submitted. Please check your email.");
 
-      // ✅ очищаем локальное (и профиль тоже)
+      // Clear auth + profile data locally.
       localStorage.removeItem("access");
       localStorage.removeItem("refresh");
       localStorage.removeItem("user");
@@ -356,27 +322,27 @@ export default function Dashboard() {
   };
 
   return (
-    <section className="dashboard-page">
-      <div className="dashboard-layout">
+    <section className="dashboard">
+      <div className="dashboard__layout">
         {/* LEFT */}
-        <div className="dashboard-panel">
-          <header className="dashboard-header">
-            <h2 className="dashboard-title">Dashboard</h2>
-            <p className="dashboard-subtitle">Manage your profile and shipping details.</p>
+        <div className="dashboard__panel">
+          <header className="dashboard__header">
+            <h2 className="dashboard__title">Dashboard</h2>
+            <p className="dashboard__subtitle">Manage your profile and shipping details.</p>
           </header>
 
-          <form className="dashboard-form" onSubmit={handleSave} noValidate>
-            <section className="dashboard-section">
-              <h3 className="dashboard-section-title">Account</h3>
+          <form className="dashboard__form" onSubmit={handleSave} noValidate>
+            <section className="dashboard__section">
+              <h3 className="dashboard__section-title">Account</h3>
 
-              <div className="dashboard-grid">
-                <div className="dashboard-field">
-                  <label className="dashboard-label" htmlFor="firstName">
+              <div className="dashboard__grid">
+                <div className="dashboard__field">
+                  <label className="dashboard__label" htmlFor="firstName">
                     First name
                   </label>
                   <input
                     id="firstName"
-                    className="dashboard-input"
+                    className="dashboard__input"
                     value={form.firstName}
                     onChange={onField("firstName")}
                     autoComplete="given-name"
@@ -384,13 +350,13 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <div className="dashboard-field">
-                  <label className="dashboard-label" htmlFor="lastName">
+                <div className="dashboard__field">
+                  <label className="dashboard__label" htmlFor="lastName">
                     Last name
                   </label>
                   <input
                     id="lastName"
-                    className="dashboard-input"
+                    className="dashboard__input"
                     value={form.lastName}
                     onChange={onField("lastName")}
                     autoComplete="family-name"
@@ -398,13 +364,13 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <div className="dashboard-field dashboard-field--full">
-                  <label className="dashboard-label" htmlFor="email">
+                <div className="dashboard__field dashboard__field--full">
+                  <label className="dashboard__label" htmlFor="email">
                     Email
                   </label>
                   <input
                     id="email"
-                    className="dashboard-input"
+                    className="dashboard__input"
                     type="email"
                     value={form.email}
                     onChange={onField("email")}
@@ -415,17 +381,17 @@ export default function Dashboard() {
               </div>
             </section>
 
-            <section className="dashboard-section">
-              <h3 className="dashboard-section-title">Shipping address</h3>
+            <section className="dashboard__section">
+              <h3 className="dashboard__section-title">Shipping address</h3>
 
-              <div className="dashboard-grid">
-                <div className="dashboard-field dashboard-field--full">
-                  <label className="dashboard-label" htmlFor="addressLine1">
+              <div className="dashboard__grid">
+                <div className="dashboard__field dashboard__field--full">
+                  <label className="dashboard__label" htmlFor="addressLine1">
                     Street address
                   </label>
                   <input
                     id="addressLine1"
-                    className="dashboard-input"
+                    className="dashboard__input"
                     value={form.addressLine1}
                     onChange={onField("addressLine1")}
                     autoComplete="street-address"
@@ -433,13 +399,13 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <div className="dashboard-field dashboard-field--full">
-                  <label className="dashboard-label" htmlFor="apartment">
+                <div className="dashboard__field dashboard__field--full">
+                  <label className="dashboard__label" htmlFor="apartment">
                     Apt / Unit
                   </label>
                   <input
                     id="apartment"
-                    className="dashboard-input"
+                    className="dashboard__input"
                     value={form.apartment}
                     onChange={onField("apartment")}
                     autoComplete="address-line2"
@@ -447,13 +413,13 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <div className="dashboard-field">
-                  <label className="dashboard-label" htmlFor="city">
+                <div className="dashboard__field">
+                  <label className="dashboard__label" htmlFor="city">
                     City
                   </label>
                   <input
                     id="city"
-                    className="dashboard-input"
+                    className="dashboard__input"
                     value={form.city}
                     onChange={onField("city")}
                     autoComplete="address-level2"
@@ -461,13 +427,13 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <div className="dashboard-field">
-                  <label className="dashboard-label" htmlFor="state">
+                <div className="dashboard__field">
+                  <label className="dashboard__label" htmlFor="state">
                     State
                   </label>
                   <input
                     id="state"
-                    className="dashboard-input"
+                    className="dashboard__input"
                     value={form.state}
                     onChange={onField("state")}
                     autoComplete="address-level1"
@@ -475,13 +441,13 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <div className="dashboard-field">
-                  <label className="dashboard-label" htmlFor="postalCode">
+                <div className="dashboard__field">
+                  <label className="dashboard__label" htmlFor="postalCode">
                     ZIP code
                   </label>
                   <input
                     id="postalCode"
-                    className="dashboard-input"
+                    className="dashboard__input"
                     value={form.postalCode}
                     onChange={onField("postalCode")}
                     autoComplete="postal-code"
@@ -489,13 +455,13 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <div className="dashboard-field">
-                  <label className="dashboard-label" htmlFor="country">
+                <div className="dashboard__field">
+                  <label className="dashboard__label" htmlFor="country">
                     Country
                   </label>
                   <input
                     id="country"
-                    className="dashboard-input"
+                    className="dashboard__input"
                     value={form.country}
                     onChange={onField("country")}
                     autoComplete="country-name"
@@ -505,19 +471,19 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* status messages */}
-            <div className="dashboard-status" aria-live="polite">
-              {saveMsg ? <div className="dashboard-status__ok">{saveMsg}</div> : null}
-              {saveErr ? <div className="dashboard-status__err">{saveErr}</div> : null}
+            {/* Status messages */}
+            <div className="dashboard__status" aria-live="polite">
+              {saveMsg ? <div className="dashboard__status-ok">{saveMsg}</div> : null}
+              {saveErr ? <div className="dashboard__status-err">{saveErr}</div> : null}
             </div>
 
-            <div className="dashboard-actions">
-              <button className="dashboard-button dashboard-button--primary" type="submit" disabled={saving}>
+            <div className="dashboard__actions">
+              <button className="dashboard__button dashboard__button--primary" type="submit" disabled={saving}>
                 {saving ? "Saving..." : "Save changes"}
               </button>
 
               <button
-                className="dashboard-button dashboard-button--secondary"
+                className="dashboard__button dashboard__button--secondary"
                 type="button"
                 onClick={handleReset}
                 disabled={saving}
@@ -525,12 +491,12 @@ export default function Dashboard() {
                 Reset
               </button>
 
-              <Link to="/account/change-password" className="dashboard-button dashboard-button--secondary">
+              <Link to="/account/change-password" className="dashboard__button dashboard__button--secondary">
                 Change password
               </Link>
 
               <button
-                className="dashboard-button dashboard-button--danger"
+                className="dashboard__button dashboard__button--danger"
                 type="button"
                 onClick={openDeleteModal}
                 disabled={saving}
@@ -542,16 +508,16 @@ export default function Dashboard() {
         </div>
 
         {/* RIGHT */}
-        <aside className="dashboard-media" aria-label="Dashboard gallery">
-          <div className="dashboard-media-frame">
-            <img className="dashboard-media-image" src={activeImage} alt={`Dashboard ${activeIndex + 1}`} />
+        <aside className="dashboard__media" aria-label="Dashboard gallery">
+          <div className="dashboard__media-frame">
+            <img className="dashboard__media-image" src={activeImage} alt={`Dashboard ${activeIndex + 1}`} />
 
-            <div className="dashboard-media-dots" aria-label="Gallery pagination">
-              {galleryImages.map((_, i) => (
+            <div className="dashboard__media-dots" aria-label="Gallery pagination">
+              {galleryImages.map((src, i) => (
                 <button
-                  key={i}
+                  key={src}
                   type="button"
-                  className={`dashboard-media-dot ${i === activeIndex ? "dashboard-media-dot--active" : ""}`}
+                  className={`dashboard__media-dot ${i === activeIndex ? "dashboard__media-dot--active" : ""}`}
                   aria-label={`Go to image ${i + 1}`}
                   onClick={() => setActiveIndex(i)}
                 />
@@ -562,32 +528,32 @@ export default function Dashboard() {
       </div>
 
       {/* Delete modal */}
-      {deleteOpen ? (
-        <div className="dashboard-modalOverlay" role="presentation" onMouseDown={closeDeleteModal}>
+      {isDeleteOpen ? (
+        <div className="dashboard__modalOverlay" role="presentation" onMouseDown={closeDeleteModal}>
           <div
-            className="dashboard-modal"
+            className="dashboard__modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="delete-title"
             onMouseDown={(e) => e.stopPropagation()}
             ref={modalRef}
           >
-            <h3 className="dashboard-modalTitle" id="delete-title">
+            <h3 className="dashboard__modalTitle" id="delete-title">
               Are you sure?
             </h3>
 
-            <p className="dashboard-modalText">
+            <p className="dashboard__modalText">
               This action will permanently delete your account. A confirmation email will be sent to you.
             </p>
 
-            <div className="dashboard-modalStatus" aria-live="polite">
-              {deleteMsg ? <div className="dashboard-status__ok">{deleteMsg}</div> : null}
-              {deleteErr ? <div className="dashboard-status__err">{deleteErr}</div> : null}
+            <div className="dashboard__modalStatus" aria-live="polite">
+              {deleteMsg ? <div className="dashboard__status-ok">{deleteMsg}</div> : null}
+              {deleteErr ? <div className="dashboard__status-err">{deleteErr}</div> : null}
             </div>
 
-            <div className="dashboard-modalActions">
+            <div className="dashboard__modalActions">
               <button
-                className="dashboard-button dashboard-button--primary"
+                className="dashboard__button dashboard__button--primary"
                 type="button"
                 onClick={handleDeleteAccount}
                 disabled={deleting}
@@ -597,7 +563,7 @@ export default function Dashboard() {
               </button>
 
               <button
-                className="dashboard-button dashboard-button--secondary"
+                className="dashboard__button dashboard__button--secondary"
                 type="button"
                 onClick={closeDeleteModal}
                 disabled={deleting}
