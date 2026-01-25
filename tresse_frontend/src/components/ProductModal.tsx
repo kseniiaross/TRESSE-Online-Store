@@ -2,9 +2,9 @@ import React, { useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 import "../../styles/ProductModal.css";
-import type { Product } from "../types";
+import type { Product } from "../types/types";
 import { addToCart as addToGuestCart } from "../utils/cartSlice";
-import { getAccessToken } from "../utils/token";
+import { getAccessToken } from "../types/token";
 import * as serverCart from "../store/serverCartSlice";
 
 interface ProductModalProps {

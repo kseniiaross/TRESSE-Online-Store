@@ -1,5 +1,5 @@
 .help {
-  padding-top: calc(var(--header-height) + 28px);
+  padding-top: calc(var(--header-height) + 12px);
   padding-left: 16px;
   padding-right: 16px;
   padding-bottom: 60px;
@@ -7,32 +7,35 @@
   color: #111;
 }
 
-.helpWrap {
+.help__wrap {
   max-width: 900px;
   margin: 0 auto;
 }
 
-.helpHeader {
+.help__header {
   text-align: center;
   margin-bottom: 18px;
 }
 
-.helpTitle {
+.help__title {
   margin: 0;
   font-size: clamp(2rem, 3.5vw, 3rem);
   letter-spacing: 0.12em;
   font-weight: 600;
 }
 
-.helpIntro {
+.help__intro {
   margin: 12px auto 0;
   max-width: 720px;
   line-height: 1.6;
   opacity: 0.85;
 }
 
-/* top nav */
-.helpNav {
+.help__nowrap {
+  white-space: nowrap;
+}
+
+.help__nav {
   display: flex;
   justify-content: center;
   gap: 16px;
@@ -40,7 +43,7 @@
   margin: 18px 0 0;
 }
 
-.helpNavLink {
+.help__navLink {
   color: #111;
   text-decoration: none;
   letter-spacing: 0.06em;
@@ -49,25 +52,23 @@
   opacity: 0.85;
 }
 
-.helpNavLink:hover {
+.help__navLink:hover {
   opacity: 1;
   text-decoration: underline;
   text-underline-offset: 6px;
 }
 
-/* separators */
-.helpLine {
+.help__line {
   height: 1px;
   background: rgba(17, 17, 17, 0.12);
   margin: 22px 0;
 }
 
-/* sections */
-.helpSection {
+.help__section {
   padding: 4px 0;
 }
 
-.helpH2 {
+.help__h2 {
   margin: 0 0 10px;
   font-size: 1.05rem;
   letter-spacing: 0.1em;
@@ -75,34 +76,31 @@
   font-weight: 600;
 }
 
-.helpText {
+.help__text {
   margin: 0 0 12px;
   line-height: 1.6;
   opacity: 0.88;
 }
 
-.helpSmall {
+.help__small {
   margin: 12px 0 0;
   line-height: 1.6;
   opacity: 0.75;
   font-size: 0.92rem;
 }
 
-.helpMono {
+.help__mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-/* actions */
-.helpActions {
+.help__actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 10px;
 }
 
-/* buttons */
-.helpBtn,
-.helpLinkBtn {
+.help__btn {
   height: 44px;
   padding: 0 14px;
   border: 1px solid rgba(17, 17, 17, 0.28);
@@ -122,38 +120,23 @@
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.06s ease;
 }
 
-.helpBtn:hover,
-.helpLinkBtn:hover {
+.help__btn:hover {
   border-color: rgba(17, 17, 17, 0.65);
   background: rgba(0, 0, 0, 0.02);
 }
 
-.helpBtn:active,
-.helpLinkBtn:active {
+.help__btn:active {
   transform: translateY(1px);
 }
 
-/* lists */
-.helpList {
-  margin: 0;
-  padding-left: 18px;
-}
-
-.helpList li {
-  margin: 6px 0;
-  line-height: 1.6;
-  opacity: 0.9;
-}
-
-/* definition list block */
-.helpInfo {
+.help__info {
   border: 1px solid rgba(17, 17, 17, 0.12);
   background: rgba(0, 0, 0, 0.02);
   padding: 12px;
   margin-top: 10px;
 }
 
-.helpRow {
+.help__row {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -161,33 +144,37 @@
   border-bottom: 1px solid rgba(17, 17, 17, 0.08);
 }
 
-.helpRow:last-child {
+.help__row:last-child {
   border-bottom: none;
 }
 
-.helpInfo dt {
+.help__info dt {
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 
-.helpInfo dd {
+.help__info dd {
   margin: 0;
   opacity: 0.85;
   text-align: right;
 }
 
-/* ✅ policies (centered + clickable) */
-.helpPolicies {
+/* Policies */
+.help__policies {
   display: flex;
-  justify-content: center;   /* ✅ centered */
-  flex-wrap: wrap;
-  gap: 10px;
+  justify-content: flex-start; 
+  align-items: center;
+  flex-wrap: nowrap;         
+  gap: 8px;
   margin-top: 12px;
+  overflow-x: visible;         
+  padding-bottom: 0;
 }
 
-.helpPolicy {
-  height: 44px;
-  padding: 0 14px;
+.help__policyBtn {
+  flex: 0 1 auto;
+  height: 38px;
+  padding: 0 10px;
 
   display: inline-flex;
   align-items: center;
@@ -197,23 +184,23 @@
   background: #fff;
   color: #111;
 
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  font-size: 0.85rem;
+  font-size: 0.74rem;
+  white-space: nowrap;
 
-  text-decoration: none;     /* ✅ no “link look” */
-  cursor: pointer;           /* ✅ no forbidden cursor */
-  opacity: 1;                /* ✅ looks active */
+  text-decoration: none;
+  cursor: pointer;
 
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.06s ease;
 }
 
-.helpPolicy:hover {
+.help__policyBtn:hover {
   border-color: rgba(17, 17, 17, 0.65);
   background: rgba(0, 0, 0, 0.02);
 }
 
-.helpPolicy:active {
+.help__policyBtn:active {
   transform: translateY(1px);
 }
 
@@ -227,11 +214,24 @@
 
 /* responsive */
 @media (max-width: 560px) {
-  .helpRow {
+  .help__row {
     flex-direction: column;
     align-items: flex-start;
   }
-  .helpInfo dd {
+
+  .help__info dd {
     text-align: left;
+  }
+
+  .help__policies {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .help__policyBtn {
+    width: 100%;
+    max-width: 360px;
+    justify-content: center;
   }
 }

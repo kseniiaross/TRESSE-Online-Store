@@ -1,130 +1,138 @@
-/* src/styles/Login.css
-   Clean, readable, production-style.
-   - Avoids mobile Safari 100vh issues (uses min-height + svh fallback)
-   - Keeps header fixed without layout “jumping”
-   - On mobile: image block moves UNDER the form
+/* ==========================================================================
+   Authorization.css
+   Scope: Authorization (Login) screen only.
+
+   Why this file exists:
+   - Page-scoped styles only (no global resets, no tag overrides)
+   - Shared auth layout primitives (.auth-page / .auth / columns)
+   - Predictable sizing for inputs + CTAs (desktop + mobile)
+   - WCAG-friendly focus-visible and readable error styles
+
+   Reviewer notes:
+   - Base CTA has NO hover (variants control hover)
+   - Secondary CTA stays white on hover/focus
+   ========================================================================== */
+
+/* -------------------------------------------------------------------------- */
+/* Page wrapper: consistent gaps under fixed header and above footer           */
+/* IMPORTANT:
+   - Header offset is applied globally by .layout-main (index.css).
+   - So THIS page adds only a visual gap, not the header height again.
 */
+/* -------------------------------------------------------------------------- */
 
-.input-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
+.auth-page {
+  /* Visual gaps like the mock */
+  --auth-top-gap: 40px;
+  --auth-bottom-gap: 50px;
+
+  /* Control sizing */
+  --auth-control-width: 300px;
+  --auth-control-width-mobile: 320px;
+
+  /* Image frame */
+  --auth-frame-padding: 24px;
+  --auth-image-max-width: 700px;
+
+  padding-top: var(--auth-top-gap);
+  padding-bottom: var(--auth-bottom-gap);
+  background: #fff;
 }
 
-.input-group label {
-  font-size: 0.875rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
-  color: #333;
-}
+/* -------------------------------------------------------------------------- */
+/* Two-column container                                                       */
+/* -------------------------------------------------------------------------- */
 
-/* messages */
-.form-message {
-  margin-top: 0.35rem;
-  font-size: 0.8rem;
-  line-height: 1.3;
-  color: rgba(0, 0, 0, 0.75);
-  letter-spacing: 0.02em;
-}
-
-.form-message--server {
-  margin-top: 1rem;
-  color: rgba(0, 0, 0, 0.85);
-}
-
-/* keep validation output minimal (no red by default) */
-.input-group span[role="alert"] {
-  color: inherit;
-  font-size: inherit;
-  margin-top: 0;
-}
-
-.server-error {
-  display: none;
-}
-
-/* layout */
-.login-container {
+.auth {
   display: flex;
   width: 100%;
+  box-sizing: border-box;
 
-  /* Do NOT lock layout to height: 100vh
-     Use min-height so page can grow naturally */
-  min-height: 100vh;
-  min-height: 100svh;
+  /* Keep layout premium on large screens */
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.login-left {
+/* -------------------------------------------------------------------------- */
+/* Left column                                                                */
+/* -------------------------------------------------------------------------- */
+
+.auth__left {
   flex: 1;
   padding: 4rem;
-  background: #fff;
-  color: #000;
+  box-sizing: border-box;
 
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.login-left h2 {
+.auth__title {
+  margin: 0 0 1rem;
   font-size: 1.4rem;
   letter-spacing: 0.5rem;
-  margin-bottom: 1rem;
+  text-transform: uppercase;
 }
 
-.login-left p {
+.auth__subtitle {
+  margin: 0 0 2rem;
   font-size: 0.9rem;
-  margin-bottom: 2rem;
+  max-width: 420px;
 }
 
-.login-form {
+/* -------------------------------------------------------------------------- */
+/* Form                                                                       */
+/* -------------------------------------------------------------------------- */
+
+.auth__form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.login-form input {
+.auth__field {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth__label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.auth__input {
+  width: var(--auth-control-width);
+  max-width: var(--auth-control-width);
+  box-sizing: border-box;
+
   padding: 0.8rem;
   font-size: 1rem;
+
   border: 1px solid #000;
-  outline: none;
+  background: #fff;
 }
 
-.login-form input,
-.login-form button {
-  width: 300px;
-  max-width: 100%;
-  box-sizing: border-box;
-  align-self: flex-start;
+.auth__input:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
 }
 
-.black-button {
-  width: 300px;
-  max-width: 100%;
-  padding: 0.9rem;
-
-  background: #000;
-  color: #fff;
-  border: 0;
-
-  cursor: pointer;
-  text-align: center;
+.auth__message {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  line-height: 1.35;
 }
 
-/* image column */
-.login-right {
-  flex: 1;
-  overflow: visible; /* ✅ was cutting the image */
+.auth__message--error {
+  color: #b00020;
 }
 
-.login-right img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-}
+/* -------------------------------------------------------------------------- */
+/* Actions / CTAs                                                             */
+/* -------------------------------------------------------------------------- */
 
-/* buttons */
-.form-actions {
+.auth__actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -132,63 +140,125 @@
   align-items: flex-start;
 }
 
-.register-link {
-  width: 300px;
-  max-width: 100%;
+/* CTA base — NO hover here on purpose */
+.auth__cta {
+  width: var(--auth-control-width);
+  max-width: var(--auth-control-width);
   height: 44px;
+  box-sizing: border-box;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   text-decoration: none;
-  border: 1px solid rgba(0, 0, 0, 0.35);
-  color: #000;
+  text-align: center;
+  user-select: none;
 
   letter-spacing: 0.12em;
-  font-size: 0.9rem;
   text-transform: uppercase;
 }
 
-.register-link:hover {
+/* Focus (WCAG) — shared */
+.auth__cta:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 3px;
+}
+
+/* Primary */
+.auth__cta--primary {
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+
+.auth__cta--primary:hover,
+.auth__cta--primary:focus-visible {
+  background: #111;
+}
+
+.auth__cta--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Secondary — stays white */
+.auth__cta--secondary {
+  background: #fff;
+  color: #000;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+.auth__cta--secondary:hover,
+.auth__cta--secondary:focus-visible {
+  background: #fff; /* stays white */
+  color: #000;
   border-color: rgba(0, 0, 0, 0.75);
 }
 
-/* Mobile: stack blocks, image goes under form */
+/* -------------------------------------------------------------------------- */
+/* Right column (image frame)                                                 */
+/* -------------------------------------------------------------------------- */
+
+.auth__right {
+  flex: 1;
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding: var(--auth-frame-padding) var(--auth-frame-padding) 0;
+  box-sizing: border-box;
+
+  /* Visual control on huge screens (no header math here anymore) */
+  max-height: 720px;
+}
+
+.auth__image {
+  width: 100%;
+  height: 100%;
+  max-width: var(--auth-image-max-width);
+
+  display: block;
+
+  object-fit: cover;
+  object-position: center 15%;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Mobile                                                                     */
+/* -------------------------------------------------------------------------- */
+
 @media (max-width: 768px) {
-  .login-container {
+  .auth-page {
+    padding-top: 20px;
+    padding-bottom: 30px;
+  }
+
+  .auth {
     flex-direction: column;
-    min-height: auto;
   }
 
-  .login-left {
+  .auth__left {
     padding: 2rem 1.5rem;
-    justify-content: flex-start;
-    align-items: center;      /* ✅ центрируем контент */
+    align-items: center;
     text-align: center;
+    justify-content: flex-start;
   }
 
-  /* ✅ общий размер как в LoginChoice */
-  .login-form {
+  .auth__input,
+  .auth__cta {
     width: 100%;
-    max-width: 320px;         /* ✅ как в LoginChoice */
+    max-width: var(--auth-control-width-mobile);
   }
 
-  .login-form input,
-  .black-button,
-  .register-link {
-    width: 100%;
-    max-width: 320px;         /* ✅ одинаковая ширина */
-    box-sizing: border-box;
-    align-self: center;       /* ✅ не влево */
+  .auth__actions {
+    align-items: center;
   }
 
-  .form-actions {
-    align-items: center;      /* ✅ кнопки по центру */
-  }
-
-  /* ✅ hide the image on mobile */
-  .login-right {
+  .auth__right {
     display: none;
   }
 }

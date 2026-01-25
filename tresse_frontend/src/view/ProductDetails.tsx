@@ -6,7 +6,7 @@ import "../../styles/ProductDetail.css";
 import api from "../api/axiosInstance";
 import fallbackImg from "../assets/images/fallback_product.jpg";
 
-import { isAuthenticated } from "../utils/token";
+import { isAuthenticated } from "../types/token";
 import { useAppDispatch } from "../utils/hooks";
 
 import { fetchWishlistCount } from "../store/wishListSlice";

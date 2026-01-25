@@ -1,5 +1,5 @@
 // src/features/payments/stripe.ts
-import { loadStripe, type Stripe } from "@stripe/stripe-js";
+import type { Stripe } from "@stripe/stripe-js";
 
 let cachedPromise: Promise<Stripe | null> | null = null;
 
@@ -21,12 +21,13 @@ export function getStripePromise(): Promise<Stripe | null> {
   const key = getPublishableKey();
 
   if (!key) {
-    // Не падаем. Просто возвращаем null.
     console.warn("Stripe disabled: missing/invalid VITE_STRIPE_PUBLIC_KEY");
     cachedPromise = Promise.resolve(null);
     return cachedPromise;
   }
 
-  cachedPromise = loadStripe(key);
+  // ✅ ВАЖНО: stripe-js загружается только когда реально нужен checkout
+  cachedPromise = import("@stripe/stripe-js").then(({ loadStripe }) => loadStripe(key));
+
   return cachedPromise;
 }

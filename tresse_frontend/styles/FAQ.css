@@ -1,34 +1,66 @@
-/* src/styles/FAQ.css */
-
 .faq {
   min-height: 100vh;
   background: #fff;
   color: #111;
-  padding: 56px 18px 90px;
+  padding: calc(var(--header-height, 0px) + 40px) 18px 90px;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
+
+/* ------------------------------
+   Header (Luxury / minimal)
+------------------------------ */
 
 .faq__header {
   max-width: 1100px;
   margin: 0 auto 28px;
+
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.12);
+}
+
+.faq__kicker {
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(17, 17, 17, 0.6);
 }
 
 .faq__title {
-  margin: 0 0 8px;
-  font-size: clamp(34px, 4.2vw, 54px);
-  line-height: 1.03;
-  letter-spacing: 0.02em;
-  font-weight: 700;
+  margin: 0 0 10px;
+  font-size: clamp(34px, 4.4vw, 58px);
+  line-height: 1.02;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  font-weight: 700;
+}
+
+.faq__titleAccent {
+  position: relative;
+  display: inline-block;
+}
+
+.faq__titleAccent::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  width: 100%;
+  height: 1px;
+  background: rgba(17, 17, 17, 0.65);
 }
 
 .faq__subtitle {
   margin: 0;
-  max-width: 62ch;
+  max-width: 80ch;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.7;
   color: rgba(17, 17, 17, 0.72);
 }
+
+/* ------------------------------
+   Layout
+------------------------------ */
 
 .faq__layout {
   max-width: 1100px;
@@ -40,14 +72,19 @@
 
 .faq__sidebar {
   position: sticky;
-  top: 18px;
+  top: calc(var(--header-height, 0px) + 18px);
   align-self: start;
 }
+
+/* ------------------------------
+   Categories
+------------------------------ */
 
 .faq__categories {
   margin: 0;
   padding: 0;
   list-style: none;
+
   border-left: 1px solid rgba(17, 17, 17, 0.12);
 }
 
@@ -58,15 +95,15 @@
 .faq__categoryBtn {
   width: 100%;
   text-align: left;
-  padding: 10px 12px;
+  padding: 11px 12px;
   background: transparent;
   border: 0;
   cursor: pointer;
   font-size: 12px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(17, 17, 17, 0.7);
-  transition: color 140ms ease, background 140ms ease;
+  color: rgba(17, 17, 17, 0.72);
+  transition: background 140ms ease, color 140ms ease;
 }
 
 .faq__categoryBtn:hover {
@@ -79,6 +116,15 @@
   background: rgba(17, 17, 17, 0.06);
 }
 
+.faq__categoryBtn:focus-visible {
+  outline: 2px solid rgba(17, 17, 17, 0.35);
+  outline-offset: 2px;
+}
+
+/* ------------------------------
+   Content
+------------------------------ */
+
 .faq__content {
   min-width: 0;
 }
@@ -86,6 +132,10 @@
 .faq__list {
   border-top: 1px solid rgba(17, 17, 17, 0.12);
 }
+
+/* ------------------------------
+   Accordion items
+------------------------------ */
 
 .faq__item {
   border-bottom: 1px solid rgba(17, 17, 17, 0.12);
@@ -96,11 +146,18 @@
   background: transparent;
   border: 0;
   cursor: pointer;
+
   padding: 16px 2px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+}
+
+.faq__question:focus-visible {
+  outline: 2px solid rgba(17, 17, 17, 0.35);
+  outline-offset: 4px;
 }
 
 .faq__qText {
@@ -118,10 +175,14 @@
 .faq__answer {
   padding: 0 2px 16px;
   font-size: 14px;
-  line-height: 1.7;
-  color: rgba(17, 17, 17, 0.75);
+  line-height: 1.75;
+  color: rgba(17, 17, 17, 0.76);
   max-width: 78ch;
 }
+
+/* ------------------------------
+   Help block
+------------------------------ */
 
 .faq__help {
   margin-top: 26px;
@@ -132,14 +193,15 @@
 .faq__helpTitle {
   margin: 0 0 8px;
   font-size: 12px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: rgba(17, 17, 17, 0.9);
 }
 
 .faq__helpText {
   margin: 0 0 10px;
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.75;
   color: rgba(17, 17, 17, 0.72);
 }
 
@@ -155,7 +217,20 @@
   border-bottom-color: #111;
 }
 
+.faq__helpLink:focus-visible {
+  outline: 2px solid rgba(17, 17, 17, 0.35);
+  outline-offset: 4px;
+}
+
+/* ------------------------------
+   Responsive
+------------------------------ */
+
 @media (max-width: 880px) {
+  .faq {
+    padding: calc(var(--header-height, 0px) + 28px) 16px 70px;
+  }
+
   .faq__layout {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -171,8 +246,8 @@
     border-bottom: 1px solid rgba(17, 17, 17, 0.12);
     display: flex;
     overflow-x: auto;
-    gap: 6px;
-    padding: 8px 0;
+    gap: 8px;
+    padding: 10px 0;
   }
 
   .faq__categoryBtn {
@@ -186,5 +261,6 @@
   .faq__categoryBtn.is-active {
     background: #111;
     color: #fff;
+    border-color: #111;
   }
 }

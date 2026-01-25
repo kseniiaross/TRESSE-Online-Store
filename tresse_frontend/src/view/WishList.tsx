@@ -5,7 +5,7 @@ import type { AppDispatch } from "../store";
 
 import api from "../api/axiosInstance";
 
-import type { Product } from "../types";
+import type { Product } from "../types/types";
 import ProductModal from "../components/ProductModal";
 import fallbackImg from "../assets/images/fallback_product.jpg";
 

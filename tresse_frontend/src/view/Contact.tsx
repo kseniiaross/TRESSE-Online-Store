@@ -1,4 +1,3 @@
-// src/view/Contact.tsx
 import "../../styles/Contact.css";
 
 const SUPPORT_EMAIL = "support@tresseknitting.com";

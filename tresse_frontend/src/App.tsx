@@ -1,8 +1,9 @@
 // src/App.tsx
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useLayoutEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Elements } from "@stripe/react-stripe-js";
+import type { Stripe } from "@stripe/stripe-js";
 
 import Authorization from "./components/Authorization";
 import Register from "./components/Register";
@@ -36,8 +37,7 @@ import type { AppDispatch } from "./store";
 import { fetchCart } from "./store/serverCartSlice";
 import { fetchWishlistCount } from "./store/wishListSlice";
 
-import { getStripePromise } from "./features/payments/stripe";
-import type { User } from "./types";
+import type { User } from "./types/user";
 import { setOnUnauthorized } from "./api/axiosInstance";
 
 import TermsOfService from "./view/policies/TermsOfService";
@@ -92,12 +92,47 @@ function ScrollToTop() {
   return null;
 }
 
+/**
+ * Loads Stripe ONLY when the /order route is rendered.
+ * This prevents hidden Stripe iframes from appearing on other pages
+ * and breaking keyboard tab navigation.
+ */
+function OrderRouteWithStripe() {
+  // Stripe.js is loaded by loadStripe(), which returns Promise<Stripe | null>
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      // Dynamic import ensures Stripe code is not executed on app startup
+      const mod = await import("./features/payments/stripe");
+      if (!mounted) return;
+
+      // getStripePromise() should internally cache the promise
+      setStripePromise(mod.getStripePromise());
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // While Stripe is loading, show the page shell (or a loader)
+  if (!stripePromise) {
+    return <div style={{ padding: 24 }}>Loading checkout…</div>;
+  }
+
+  return (
+    <Elements stripe={stripePromise}>
+      <Order />
+    </Elements>
+  );
+}
+
 export default function App() {
   const dispatch = useDispatch<AppDispatch>();
   useAuthStorageSync();
-
-  // ✅ Stripe promise (cached inside stripe.ts + memo here)
-  const stripePromise = useMemo(() => getStripePromise(), []);
 
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -212,13 +247,12 @@ export default function App() {
 
             <Route path="/order/success" element={<OrderSuccess />} />
 
+            {/* ✅ Stripe only here */}
             <Route
               path="/order"
               element={
                 <PrivateRoute>
-                  <Elements stripe={stripePromise}>
-                    <Order />
-                  </Elements>
+                  <OrderRouteWithStripe />
                 </PrivateRoute>
               }
             />

@@ -1,9 +1,8 @@
-/* src/styles/About.css */
-
 .about {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 120px 24px 160px;
+  min-height: calc(100dvh - var(--header-height));
+  padding: 56px 24px 160px;
   color: #111;
   background: #fff;
 }

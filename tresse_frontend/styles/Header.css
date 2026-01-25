@@ -1,45 +1,29 @@
 /* =========================================
    Header.css (clean / production style)
    - Desktop: left (burger+logo) / right (search + links)
-   - Mobile: menu row moves UNDER logo
-   - Search icon on mobile: icon only (no white box)
+   - Mobile: header becomes 2 rows (left row + right row)
+   - Uses global tokens from variables.css
 ========================================= */
 
 /* -------------------------
-   CSS Variables
+   Local tokens (component only)
 ------------------------- */
-:root {
-  --header-height: 88px;
+.header {
   --header-pad-x: 2rem;
   --header-pad-y: 1rem;
 
   --text-light: #fff;
   --text-dark: #000;
 
-  --focus-ring: rgba(255, 255, 255, 0.65);
+  /* Local focus for dark hero header */
+  --header-focus-ring: rgba(255, 255, 255, 0.65);
 }
 
 @media (max-width: 786px) {
-  :root {
-    --header-height: 72px;
+  .header {
     --header-pad-x: 1rem;
     --header-pad-y: 0.75rem;
   }
-}
-
-/* -------------------------
-   A11y helpers
-------------------------- */
-.sr-only {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
 }
 
 /* -------------------------
@@ -51,7 +35,7 @@
   z-index: 100;
 
   width: 100%;
-  height: var(--header-height);
+  height: var(--header-height); /* ✅ comes from variables.css */
 
   display: flex;
   align-items: center;
@@ -76,7 +60,6 @@
   align-items: center;
   gap: clamp(0.75rem, 2vw, 2rem);
   flex-wrap: nowrap;
-  margin-right: 4rem;
 }
 
 /* -------------------------
@@ -100,7 +83,7 @@
 }
 
 .humburger:focus-visible {
-  outline: 2px solid var(--focus-ring);
+  outline: 2px solid var(--header-focus-ring);
   outline-offset: 6px;
   border-radius: 10px;
 }
@@ -122,7 +105,7 @@
 .bar.middle { width: 40px; }
 .bar.bottom { width: 30px; }
 
-/* your hover animation */
+/* hover animation */
 .humburger.hover-animate .top { width: 30px; }
 .humburger.hover-animate .bottom { width: 50px; }
 
@@ -138,7 +121,6 @@
   text-decoration: none;
   cursor: pointer;
 
-  /* убрали "top: 15px" — это ломает мобилку */
   position: static;
 }
 
@@ -147,7 +129,7 @@
 }
 
 .logo:focus-visible {
-  outline: 2px solid var(--focus-ring);
+  outline: 2px solid var(--header-focus-ring);
   outline-offset: 6px;
   border-radius: 10px;
 }
@@ -175,7 +157,7 @@
 .login-button:focus-visible,
 .help-button:focus-visible,
 .shopping-bag:focus-visible {
-  outline: 2px solid var(--focus-ring);
+  outline: 2px solid var(--header-focus-ring);
   outline-offset: 6px;
   border-radius: 10px;
 }
@@ -198,14 +180,14 @@
 /* -------------------------
    Search
 ------------------------- */
-.header-search{
+.header-search {
   position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.search-icon-btn{
+.search-icon-btn {
   background: transparent;
   border: 0;
   padding: 0;
@@ -222,20 +204,19 @@
   box-shadow: none;
 }
 
-.search-icon-btn:focus-visible{
-  outline: 2px solid var(--focus-ring);
+.search-icon-btn:focus-visible {
+  outline: 2px solid var(--header-focus-ring);
   outline-offset: 6px;
   border-radius: 10px;
 }
 
-/* ✅ icon sizing */
-.search-icon{
+.search-icon {
   width: 22px;
   height: 22px;
   display: block;
 }
 
-.search-input{
+.search-input {
   background: transparent;
   border: 0;
   border-bottom: 1px solid var(--text-light);
@@ -247,17 +228,17 @@
   color: var(--text-light);
 }
 
-.search-input.dark{
+.search-input.dark {
   color: var(--text-dark);
   border-bottom: 1px solid var(--text-dark);
 }
 
-.search-input:not(.dark)::placeholder{
+.search-input:not(.dark)::placeholder {
   color: var(--text-light);
   opacity: 1;
 }
 
-.search-input.dark::placeholder{
+.search-input.dark::placeholder {
   color: var(--text-dark);
 }
 
@@ -389,7 +370,7 @@
 .user-menu__btn.dark { color: var(--text-dark); }
 
 .user-menu__btn:focus-visible {
-  outline: 2px solid var(--focus-ring);
+  outline: 2px solid var(--header-focus-ring);
   outline-offset: 3px;
 }
 
@@ -512,13 +493,17 @@
 
 /* =========================================
    MOBILE
-   - Header becomes 2 rows:
-     Row 1: burger + logo
-     Row 2: menu (search / login / help / bag) centered under logo
 ========================================= */
-@media (max-width: 786px) {
+@media (max-width: 768px) {
   .header {
-    height: auto;                /* ✅ теперь можно 2 строки */
+    --header-pad-x: 1rem;
+    --header-pad-y: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    height: auto;
     padding: 12px 14px 10px;
     flex-direction: column;
     align-items: center;
@@ -528,7 +513,7 @@
 
   .left-section {
     width: 100%;
-    justify-content: flex-start; /* burger слева */
+    justify-content: flex-start;
     gap: 12px;
   }
 
@@ -539,21 +524,16 @@
 
   .right-section {
     width: 100%;
-    margin-right: 0;
-
-    /* ✅ меню под лого */
-    position: static;
     justify-content: center;
     gap: 14px;
   }
 
-  /* ✅ на мобилке инпут прячем (чтобы не ломал шапку),
-     но иконка остаётся */
+  /* on mobile we hide input to keep header stable */
   .search-input {
     display: none;
   }
 
-  /* ✅ dropdown выравниваем по центру, чтобы не уезжал */
+  /* dropdown centered on mobile */
   .search-dropdown {
     left: 50%;
     transform: translateX(-50%);
@@ -561,14 +541,12 @@
     width: min(360px, calc(100vw - 24px));
   }
 
-  /* чуть компактнее текстовые ссылки */
   .login-button,
   .help-button,
   .shopping-bag {
     font-size: 0.95rem;
   }
 
-  /* чуть компактнее burger */
   .humburger {
     width: 44px;
   }
@@ -577,6 +555,3 @@
   .bar.middle { width: 34px; }
   .bar.bottom { width: 26px; }
 }
-
-/* Layout helper */
-main { flex: 1; }

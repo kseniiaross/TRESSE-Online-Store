@@ -1,12 +1,12 @@
-// src/view/Header.tsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-import { isAuthenticated, clearAuthStorage } from "../utils/token";
+import { isAuthenticated, clearAuthStorage } from "../types/token";
 import { useAppSelector, useAppDispatch } from "../utils/hooks";
 import { logout } from "../utils/authSlice";
 
 import "../../styles/Header.css";
+
 import searchIconWhite from "../assets/icons/search-icon-white.png";
 import searchIconBlack from "../assets/icons/search-icon-black.png";
 
@@ -30,7 +30,7 @@ const Header: React.FC = () => {
 
   const [hovered, setHovered] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const userMenuWrapRef = useRef<HTMLDivElement | null>(null);
@@ -47,14 +47,16 @@ const Header: React.FC = () => {
   const searchWrapRef = useRef<HTMLDivElement | null>(null);
 
   const user = useAppSelector((state) => state.auth.user);
-  const isAuthed = isAuthenticated();
+
+  const isAuthed = Boolean(user) && isAuthenticated();
 
   const serverCart = useAppSelector((s) => s.serverCart.cart);
   const serverItems = serverCart?.items ?? [];
   const serverCount = serverItems.reduce((sum, it) => sum + it.quantity, 0);
 
   const guestCount = useAppSelector(selectGuestCartCount);
-  const cartCount = isAuthed ? (serverCount > 0 ? serverCount : guestCount) : guestCount;
+
+  const cartCount = isAuthed ? serverCount : guestCount;
 
   // Home page: white text/icons on hero
   // Other pages: dark text/icons (white background)
@@ -72,7 +74,6 @@ const Header: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // click outside for user-menu
   useEffect(() => {
     const onClickOutside = (e: MouseEvent) => {
       if (!isUserMenuOpen) return;
@@ -111,7 +112,7 @@ const Header: React.FC = () => {
   // focus sidebar on open
   useEffect(() => {
     if (isMenuOpen) {
-      setTimeout(() => sidebarRef.current?.focus(), 0);
+      window.setTimeout(() => sidebarRef.current?.focus(), 0);
     }
   }, [isMenuOpen]);
 
@@ -138,6 +139,7 @@ const Header: React.FC = () => {
     if (!trimmed || trimmed.length < 2) {
       setResults([]);
       setSearchError(null);
+      setIsSearchOpen(false);
       return;
     }
 
@@ -156,6 +158,7 @@ const Header: React.FC = () => {
       } catch {
         setResults([]);
         setSearchError("Search is temporarily unavailable.");
+        setIsSearchOpen(true);
       } finally {
         setIsSearchLoading(false);
       }
@@ -165,7 +168,7 @@ const Header: React.FC = () => {
   }, [trimmed]);
 
   const openSearch = () => {
-    if (trimmed.length >= 2 && results.length > 0) setIsSearchOpen(true);
+    if (trimmed.length >= 2) setIsSearchOpen(true);
   };
 
   const submitSearchToCatalog = () => {
@@ -219,7 +222,7 @@ const Header: React.FC = () => {
           </button>
         ) : (
           <div className="header-search" ref={searchWrapRef}>
-            <label className="sr-only" htmlFor="site-search">
+            <label className="srOnly" htmlFor="site-search">
               Search
             </label>
 
@@ -295,7 +298,7 @@ const Header: React.FC = () => {
           <div className="user-menu-wrap" ref={userMenuWrapRef}>
             <button
               type="button"
-              className={`user-name user-menu__btn ${isDarkText ? "dark" : ""}`}
+              className={`user-menu__btn ${isDarkText ? "dark" : ""}`}
               aria-haspopup="menu"
               aria-expanded={isUserMenuOpen}
               aria-controls={menuId}
@@ -335,7 +338,11 @@ const Header: React.FC = () => {
           HELP
         </Link>
 
-        <Link to="/cart" className={`shopping-bag ${isDarkText ? "dark" : ""}`} aria-label={`Shopping bag with ${cartCount} items`}>
+        <Link
+          to="/cart"
+          className={`shopping-bag ${isDarkText ? "dark" : ""}`}
+          aria-label={`Shopping bag with ${cartCount} items`}
+        >
           SHOPPING BAG [{cartCount}]
         </Link>
       </div>
@@ -345,7 +352,7 @@ const Header: React.FC = () => {
         <div className="sidebar-backdrop" role="presentation" onClick={closeMenu}>
           <aside
             id={sidebarId}
-            ref={sidebarRef as any}
+            ref={sidebarRef}
             className="sidebar-menu"
             role="dialog"
             aria-label="Category menu"

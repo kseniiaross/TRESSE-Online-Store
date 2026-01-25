@@ -1,6 +1,83 @@
+/* ==========================================================================
+   variables.css
+   Purpose: Design tokens used across the app (colors, spacing, typography, breakpoints).
+   Why: Single source of truth — easy to keep consistent + safe refactors.
+   ========================================================================== */
+
 :root {
-    --breakpoint-sm: 576px;
-    --breakpoint-md: 768px;
-    --breakpoint-lg: 1024px;
-    --breakpoint-xl: 1200px;
+  /* ------------------------------------------------------------------------
+     Colors
+     ------------------------------------------------------------------------ */
+  --c-black: #0b0b0b;
+  --c-white: #ffffff;
+
+  /* Text on light surfaces (default app pages) */
+  --text: #0b0b0b;
+  --text-muted: rgba(0, 0, 0, 0.82);
+
+  /* Borders on light surfaces */
+  --border: rgba(0, 0, 0, 0.12);
+  --border-soft: rgba(0, 0, 0, 0.08);
+
+  /* Whites with alpha (used mostly on dark surfaces like Footer / hero) */
+  --w-08: rgba(255, 255, 255, 0.08);
+  --w-22: rgba(255, 255, 255, 0.22);
+  --w-45: rgba(255, 255, 255, 0.45);
+  --w-58: rgba(255, 255, 255, 0.58);
+  --w-60: rgba(255, 255, 255, 0.60);
+  --w-70: rgba(255, 255, 255, 0.70);
+  --w-78: rgba(255, 255, 255, 0.78);
+  --w-80: rgba(255, 255, 255, 0.80);
+
+  /* ------------------------------------------------------------------------
+     Layout
+     ------------------------------------------------------------------------ */
+  --header-height: 88px; /* ✅ single source of truth */
+
+  /* Default horizontal padding for pages/containers */
+  --container-x: 16px;
+
+  /* ------------------------------------------------------------------------
+     Typography / tracking
+     ------------------------------------------------------------------------ */
+  --track-xl: 0.14em;
+  --track-lg: 0.12em;
+  --track-md: 0.10em;
+  --track-sm: 0.06em;
+
+  /* ------------------------------------------------------------------------
+     Focus (WCAG 2.1)
+     Default focus ring for light pages.
+     For dark sections (Footer), override locally.
+     ------------------------------------------------------------------------ */
+  --focus-ring: #111;
+  --focus-offset: 4px;
+
+  /* ------------------------------------------------------------------------
+     Breakpoints
+     ------------------------------------------------------------------------ */
+  --bp-lg: 1024px;
+  --bp-md: 780px;
+  --bp-sm: 560px;
+
+  /* “In-between” width where newsletter can collide with columns */
+  --bp-footer-wrap: 1180px;
+
+  /* ------------------------------------------------------------------------
+     Footer sizing (component uses these tokens)
+     ------------------------------------------------------------------------ */
+  --footer-top-pad-y: 34px;
+  --footer-top-min-h: 150px;
+
+  --footer-main-pad-top: 56px;
+  --footer-main-pad-bottom: 44px;
+
+  --footer-gap-lg: 44px;
+  --footer-gap-md: 40px;
+}
+
+@media (max-width: 786px) {
+  :root {
+    --header-height: 72px;
+  }
 }
