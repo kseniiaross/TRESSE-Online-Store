@@ -27,7 +27,6 @@ function writeLastOrderIdToStorage(orderId: string) {
     if (!clean) return;
     localStorage.setItem(LAST_ORDER_ID_KEY, clean);
   } catch {
-    // ignore
   }
 }
 
@@ -62,21 +61,25 @@ export default function OrderSuccess() {
           </p>
         </header>
 
-        <div className="order-success__summary" role="group" aria-label="Order summary">
+        <div className="order-success__summary" aria-labelledby="order-summary-title">
+          <h2 id="order-summary-title" className="srOnly">
+            Order summary
+          </h2>
+
           <div className="order-success__row">
             <span className="order-success__label">Status</span>
             <span className="order-success__value order-success__value--status">Paid</span>
           </div>
 
           {orderId ? (
-            <div className="order-success__row">
+            <div className="order-success__row" aria-live="polite">
               <span className="order-success__label">Order number</span>
               <span className="order-success__value order-success__value--mono">{orderId}</span>
             </div>
           ) : null}
         </div>
 
-        <div className="order-success__actions">
+        <nav className="order-success__actions" aria-label="Next actions">
           <Link to="/orders" className="order-success__btn order-success__btn--primary">
             View my orders
           </Link>
@@ -84,7 +87,7 @@ export default function OrderSuccess() {
           <Link to="/catalog" className="order-success__btn order-success__btn--secondary">
             Continue shopping
           </Link>
-        </div>
+        </nav>
       </div>
     </section>
   );

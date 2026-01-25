@@ -1,16 +1,31 @@
 import api from "./axiosInstance";
+import type { Product } from "../types/product";
 
-type FetchProductsParams = {
+export type Paginated<T> = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+};
+
+export type FetchProductsParams = {
   search?: string;
   category?: string;
   page?: number;
   page_size?: number;
+  in_stock?: boolean;
+  ordering?: string;
+  min_price?: number;
+  max_price?: number;
 };
 
-export const fetchProducts = async (params?: FetchProductsParams) => {
-  const response = await api.get('/products/', {
+export const fetchProducts = async (
+  params?: FetchProductsParams,
+  signal?: AbortSignal
+) => {
+  const response = await api.get<Paginated<Product>>("/products/", {
     params,
+    signal,
   });
-
   return response.data;
 };
