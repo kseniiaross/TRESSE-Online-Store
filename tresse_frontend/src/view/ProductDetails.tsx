@@ -1,4 +1,3 @@
-// src/view/ProductDetails.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "../../styles/ProductDetail.css";
@@ -20,7 +19,7 @@ type ApiImage = {
 };
 
 type ApiSize = {
-  id: number; // ProductSize.id
+  id: number; 
   size: { id: number; name: string };
   quantity: number;
 };
@@ -127,7 +126,6 @@ export default function ProductDetails() {
         setError(null);
         setUiMessage(null);
 
-        // ✅ baseURL already ends with /api, so we use "/products/..."
         const res = await api.get<Product>(`/products/${productId}/`);
 
         if (!alive) return;
@@ -408,11 +406,6 @@ export default function ProductDetails() {
             </button>
 
             {uiMessage ? <div className="product-detail__message">{uiMessage}</div> : null}
-          </div>
-
-          <div className="product-detail__fineprint">
-            <div className="product-detail__fine-line" />
-            <p>Shipping and returns information will appear here.</p>
           </div>
         </aside>
       </div>
