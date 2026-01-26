@@ -3,9 +3,9 @@
 
 /* ==========================================================================
    DASHBOARD
-   - Keep 2 columns.
-   - Left column content centered within the left half.
-   - Both columns start at the same top line.
+   - Keep 2 columns
+   - Start both columns at the same top line
+   - Raise overall content slightly and keep a clean bottom gap
    ========================================================================== */
 
 .dashboard {
@@ -19,17 +19,18 @@
   min-height: calc(100dvh - var(--header-height));
   padding-top: var(--header-height);
 
-  /* Do NOT push everything too far right */
+  /* Add a nice bottom breathing room */
+  padding-bottom: clamp(28px, 4vh, 72px);
+
   max-width: 1440px;
   margin: 0 auto;
   padding-left: clamp(16px, 2.5vw, 36px);
   padding-right: clamp(16px, 2.5vw, 36px);
 
   display: grid;
-  grid-template-columns: 1fr 1fr; /* true halves */
+  grid-template-columns: 1fr 1fr;
   gap: clamp(18px, 3vw, 44px);
-
-  align-items: start; /* both columns start from the top */
+  align-items: start;
   box-sizing: border-box;
 }
 
@@ -42,11 +43,10 @@
   color: #111;
   box-sizing: border-box;
 
-  /* Raise the whole left side (but still below header) */
-  padding-top: clamp(14px, 2vw, 28px);
+  /* Raise the whole block a bit (less top padding) */
+  padding-top: clamp(8px, 1.2vw, 18px);
   padding-bottom: 24px;
 
-  /* Center content inside the left half */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -55,7 +55,7 @@
 .dashboard__header {
   margin-bottom: 18px;
   width: 100%;
-  max-width: 560px; /* keeps header aligned with form */
+  max-width: 560px;
 }
 
 .dashboard__title {
@@ -73,13 +73,11 @@
   opacity: 0.9;
 }
 
-/* Form width */
 .dashboard__form {
   width: 100%;
   max-width: 560px;
 }
 
-/* Sections */
 .dashboard__section {
   margin-bottom: 22px;
 }
@@ -147,8 +145,6 @@
 
 /* ==========================================================================
    ACTIONS
-   - Desktop: 2x2 grid
-   - Mobile: single column
    ========================================================================== */
 
 .dashboard__actions {
@@ -156,10 +152,9 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 200px));
   gap: 12px 16px;
-  justify-content: start; /* keep nicely aligned under the form */
+  justify-content: start;
 }
 
-/* Unified sizing for <button> and <Link> */
 .dashboard__button {
   width: 200px;
   padding: 0.8rem;
@@ -219,17 +214,17 @@
 
 /* ==========================================================================
    RIGHT MEDIA (gallery)
-   - Bigger frame.
-   - No cropping: object-fit: contain.
-   - Same top alignment as left.
+   - Make the container slightly bigger
+   - Keep a stable frame size (no jumping)
+   - Do not crop the image
    ========================================================================== */
 
 .dashboard__media {
   background: #fff;
   box-sizing: border-box;
 
-  /* Raise the right side to match left */
-  padding-top: clamp(14px, 2vw, 28px);
+  /* Match left: less top padding -> raises the gallery */
+  padding-top: clamp(8px, 1.2vw, 18px);
   padding-bottom: 24px;
 
   display: flex;
@@ -240,15 +235,15 @@
 .dashboard__media-frame {
   position: relative;
 
-  /* Bigger and closer to your reference */
-  width: min(820px, 100%);
+  /* Slightly bigger than before */
+  width: min(900px, 100%);
 
-  /* Tall enough, but still fits the viewport */
-  height: clamp(520px, 72vh, 820px);
+  /* Keep stable size across images, but a bit larger */
+  height: clamp(560px, 76vh, 900px);
 
   overflow: hidden;
   margin: 0 auto;
-  background: #fff; /* helps when using contain */
+  background: #fff;
 }
 
 .dashboard__media-image {
@@ -256,7 +251,7 @@
   height: 100%;
   display: block;
 
-  /* IMPORTANT: no cropping */
+  /* No cropping */
   object-fit: contain;
   object-position: center;
 }
