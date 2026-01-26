@@ -3,9 +3,11 @@
 
 /* ==========================================================================
    DASHBOARD
-   - Keep 2 columns
-   - Start both columns at the same top line
-   - Raise overall content slightly and keep a clean bottom gap
+   Goals:
+   - Both columns start on the same top line
+   - Raise the whole content a bit (more top, cleaner bottom gap)
+   - Keep the left content centered inside the left half
+   - Gallery: stable frame (no “jumping” when switching images)
    ========================================================================== */
 
 .dashboard {
@@ -13,23 +15,28 @@
   box-sizing: border-box;
 }
 
-/* Main grid layout */
+/* Main 2-column layout (true halves) */
 .dashboard__layout {
   width: 100%;
   min-height: calc(100dvh - var(--header-height));
-  padding-top: var(--header-height);
 
-  /* Add a nice bottom breathing room */
-  padding-bottom: clamp(28px, 4vh, 72px);
+  /* Keep content below the fixed header, but not too low */
+  padding-top: calc(var(--header-height) + clamp(6px, 1vh, 14px));
+
+  /* Nice bottom breathing room */
+  padding-bottom: clamp(40px, 6vh, 96px);
 
   max-width: 1440px;
   margin: 0 auto;
+
   padding-left: clamp(16px, 2.5vw, 36px);
   padding-right: clamp(16px, 2.5vw, 36px);
 
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(18px, 3vw, 44px);
+
+  /* IMPORTANT: top alignment */
   align-items: start;
   box-sizing: border-box;
 }
@@ -43,15 +50,17 @@
   color: #111;
   box-sizing: border-box;
 
-  /* Raise the whole block a bit (less top padding) */
-  padding-top: clamp(8px, 1.2vw, 18px);
-  padding-bottom: 24px;
+  /* Raise it more (remove extra vertical padding that pushed it down) */
+  padding-top: clamp(0px, 0.4vw, 8px);
+  padding-bottom: 16px;
 
+  /* Center content inside the left half */
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+/* Keep header aligned to the form width */
 .dashboard__header {
   margin-bottom: 18px;
   width: 100%;
@@ -73,11 +82,13 @@
   opacity: 0.9;
 }
 
+/* Form width */
 .dashboard__form {
   width: 100%;
   max-width: 560px;
 }
 
+/* Sections */
 .dashboard__section {
   margin-bottom: 22px;
 }
@@ -91,7 +102,7 @@
   font-weight: 600;
 }
 
-/* Grid */
+/* Inputs grid */
 .dashboard__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -145,6 +156,8 @@
 
 /* ==========================================================================
    ACTIONS
+   Desktop: 2x2 grid
+   Mobile: 1 column
    ========================================================================== */
 
 .dashboard__actions {
@@ -214,18 +227,19 @@
 
 /* ==========================================================================
    RIGHT MEDIA (gallery)
-   - Make the container slightly bigger
-   - Keep a stable frame size (no jumping)
-   - Do not crop the image
+   Key fix:
+   - Stable frame size using aspect-ratio (NO JUMPING)
+   - Image fills the frame consistently (object-fit: cover)
+   - Frame is a bit larger, but capped by viewport height
    ========================================================================== */
 
 .dashboard__media {
   background: #fff;
   box-sizing: border-box;
 
-  /* Match left: less top padding -> raises the gallery */
-  padding-top: clamp(8px, 1.2vw, 18px);
-  padding-bottom: 24px;
+  /* Raise it to match the left column */
+  padding-top: clamp(0px, 0.4vw, 8px);
+  padding-bottom: 16px;
 
   display: flex;
   justify-content: center;
@@ -235,11 +249,14 @@
 .dashboard__media-frame {
   position: relative;
 
-  /* Slightly bigger than before */
-  width: min(900px, 100%);
+  /* Bigger frame */
+  width: min(860px, 100%);
 
-  /* Keep stable size across images, but a bit larger */
-  height: clamp(560px, 76vh, 900px);
+  /* Stable height (bigger, but never too tall) */
+  height: min(78vh, 860px);
+
+  /* IMPORTANT: stable ratio so all images look same-size */
+  aspect-ratio: 4 / 5;
 
   overflow: hidden;
   margin: 0 auto;
@@ -251,9 +268,11 @@
   height: 100%;
   display: block;
 
-  /* No cropping */
-  object-fit: contain;
-  object-position: center;
+  /* IMPORTANT: no “size jumping” — always fills the same frame */
+  object-fit: cover;
+
+  /* Slightly top-biased so faces/upper body stay visible */
+  object-position: center 20%;
 }
 
 /* Dots */
