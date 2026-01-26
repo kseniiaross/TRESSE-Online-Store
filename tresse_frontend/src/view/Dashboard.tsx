@@ -1,3 +1,6 @@
+// src/view/Dashboard.tsx
+// Comments: English (as requested)
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "../../styles/Dashboard.css";
@@ -20,8 +23,7 @@ const PROFILE_STORAGE_KEY = "tresse_profile_v1";
 const API_PROFILE_URL = "/accounts/profile/";
 const API_DELETE_ACCOUNT_URL = "/accounts/delete-account/";
 
-// Keep runtime checks close to storage parsing.
-// This prevents "any" and avoids crashing on unexpected shapes.
+// Runtime type guard for safe JSON parsing.
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
 }
@@ -59,7 +61,7 @@ function readProfileFromStorage(): ProfileFormState | null {
 function writeProfileToStorage(profile: ProfileFormState) {
   localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
 
-  // Broadcast for other pages (e.g., Order) to react without hard coupling.
+  // Broadcast for other pages (e.g., Order) to react without tight coupling.
   window.dispatchEvent(new CustomEvent("tresse:profileUpdated", { detail: profile }));
 }
 
@@ -143,7 +145,7 @@ export default function Dashboard() {
   const total = galleryImages.length;
 
   useEffect(() => {
-    // Keep the interval stable and cleaned up properly.
+    // Stable interval; cleaned up on unmount.
     const t = window.setInterval(() => {
       setActiveIndex((p) => (p + 1) % total);
     }, 5500);
@@ -165,7 +167,7 @@ export default function Dashboard() {
   const [saveErr, setSaveErr] = useState("");
 
   // -------------------------
-  // Delete modal (focus management + Esc close)
+  // Delete modal (Esc close + restore focus)
   // -------------------------
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -178,7 +180,6 @@ export default function Dashboard() {
   useEffect(() => {
     if (!isDeleteOpen) return;
 
-    // Store last focused element to restore focus after closing.
     lastFocusedRef.current = document.activeElement as HTMLElement | null;
 
     const onKey = (e: KeyboardEvent) => {
@@ -187,7 +188,7 @@ export default function Dashboard() {
 
     document.addEventListener("keydown", onKey);
 
-    // Autofocus primary action for accessibility.
+    // Autofocus the primary action for accessibility.
     window.setTimeout(() => {
       const btn = modalRef.current?.querySelector<HTMLButtonElement>('[data-autofocus="true"]');
       btn?.focus();
@@ -227,7 +228,6 @@ export default function Dashboard() {
             country: prev.country || fromApi.country || "USA",
           };
 
-          // Keep local storage in sync for Order page.
           writeProfileToStorage(merged);
           return merged;
         });
@@ -257,7 +257,7 @@ export default function Dashboard() {
     setSaveMsg("");
     setSaveErr("");
 
-    // Always persist locally first to keep UX fast and resilient.
+    // Persist locally first for fast UX.
     writeProfileToStorage(form);
 
     if (!isValidEmail(form.email)) {
@@ -271,7 +271,6 @@ export default function Dashboard() {
       await api.put(API_PROFILE_URL, payload);
       setSaveMsg("Saved.");
     } catch {
-      // Local already saved; server failure should not block the user.
       setSaveMsg("Saved locally. (Server sync failed.)");
       setSaveErr("Server sync failed.");
     } finally {
@@ -309,7 +308,6 @@ export default function Dashboard() {
 
       setDeleteMsg("Your account deletion request was submitted. Please check your email.");
 
-      // Clear auth + profile data locally.
       localStorage.removeItem("access");
       localStorage.removeItem("refresh");
       localStorage.removeItem("user");
@@ -323,6 +321,7 @@ export default function Dashboard() {
 
   return (
     <section className="dashboard">
+      {/* Layout container keeps both columns aligned and consistent with other pages */}
       <div className="dashboard__layout">
         {/* LEFT */}
         <div className="dashboard__panel">
@@ -477,8 +476,13 @@ export default function Dashboard() {
               {saveErr ? <div className="dashboard__status-err">{saveErr}</div> : null}
             </div>
 
-            <div className="dashboard__actions">
-              <button className="dashboard__button dashboard__button--primary" type="submit" disabled={saving}>
+            {/* Actions: 2x2 on desktop, 1 column on mobile */}
+            <div className="dashboard__actions" aria-label="Account actions">
+              <button
+                className="dashboard__button dashboard__button--primary"
+                type="submit"
+                disabled={saving}
+              >
                 {saving ? "Saving..." : "Save changes"}
               </button>
 
@@ -510,15 +514,20 @@ export default function Dashboard() {
         {/* RIGHT */}
         <aside className="dashboard__media" aria-label="Dashboard gallery">
           <div className="dashboard__media-frame">
-            <img className="dashboard__media-image" src={activeImage} alt={`Dashboard ${activeIndex + 1}`} />
+            <img
+              className="dashboard__media-image"
+              src={activeImage}
+              alt={`Dashboard gallery image ${activeIndex + 1} of ${total}`}
+            />
 
-            <div className="dashboard__media-dots" aria-label="Gallery pagination">
+            <div className="dashboard__media-dots" role="tablist" aria-label="Gallery pagination">
               {galleryImages.map((src, i) => (
                 <button
                   key={src}
                   type="button"
                   className={`dashboard__media-dot ${i === activeIndex ? "dashboard__media-dot--active" : ""}`}
                   aria-label={`Go to image ${i + 1}`}
+                  aria-current={i === activeIndex ? "true" : undefined}
                   onClick={() => setActiveIndex(i)}
                 />
               ))}

@@ -1,6 +1,10 @@
+/* src/styles/Dashboard.css */
+/* Comments: English (as requested) */
 
 /* ==========================================================================
    DASHBOARD
+   - Use a centered container + CSS Grid so left and right start at the same top line.
+   - Prevent the gallery from being too tall (no huge bottom overflow).
    ========================================================================== */
 
 .dashboard {
@@ -8,11 +12,25 @@
   box-sizing: border-box;
 }
 
+/* Layout now uses grid for perfect alignment */
 .dashboard__layout {
-  display: flex;
   width: 100%;
   min-height: calc(100dvh - var(--header-height));
-  padding-top: var(--header-height); /* header is fixed */
+  padding-top: var(--header-height);
+
+  /* Center the whole page content like other pages */
+  max-width: 1320px;
+  margin: 0 auto;
+
+  /* Better side padding so the left block isn't stuck to the edge */
+  padding-left: clamp(16px, 4vw, 64px);
+  padding-right: clamp(16px, 4vw, 64px);
+
+  display: grid;
+  grid-template-columns: minmax(520px, 1fr) minmax(420px, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+
+  align-items: start; /* key: top-aligned (fixes your “left is lower than photo”) */
   box-sizing: border-box;
 }
 
@@ -21,16 +39,13 @@
    ========================================================================== */
 
 .dashboard__panel {
-  flex: 1;
   background: #fff;
   color: #111;
-  padding: 4rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   box-sizing: border-box;
-  position: relative;
-  z-index: 2;
+
+  /* top aligned, not vertically centered */
+  padding-top: clamp(28px, 4vw, 64px);
+  padding-bottom: 28px;
 }
 
 .dashboard__header {
@@ -48,15 +63,16 @@
 .dashboard__subtitle {
   margin: 0 0 2rem;
   font-size: 0.9rem;
-  max-width: 420px;
+  max-width: 520px;
   opacity: 0.9;
 }
 
 .dashboard__form {
   width: 100%;
-  max-width: 520px;
+  max-width: 560px;
 }
 
+/* Sections */
 .dashboard__section {
   margin-bottom: 22px;
 }
@@ -85,7 +101,7 @@
   grid-column: 1 / -1;
 }
 
-/* Inputs */
+/* Labels + Inputs */
 .dashboard__label {
   display: block;
   font-size: 11px;
@@ -110,28 +126,30 @@
   border-color: #111;
 }
 
-/* Status */
+/* Status messages */
 .dashboard__status {
   margin-top: 10px;
   min-height: 18px;
 }
 
-.dashboard__status-ok {
-  font-size: 13px;
-  letter-spacing: 0.02em;
-}
-
+.dashboard__status-ok,
 .dashboard__status-err {
   font-size: 13px;
   letter-spacing: 0.02em;
 }
 
-/* Actions */
+/* ==========================================================================
+   ACTIONS
+   - Desktop: 2 columns (2x2)
+   - Mobile: 1 column
+   ========================================================================== */
+
 .dashboard__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, 200px);
+  gap: 12px 16px;
+  align-items: start;
 }
 
 /* Unified sizing for <button> and <Link> */
@@ -157,9 +175,15 @@
   cursor: not-allowed;
 }
 
+/* Visible focus for keyboard users */
+.dashboard__button:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 2px;
+}
+
 .dashboard__button--primary {
   background: #111;
-  border: 1px solid #fff;
+  border: 1px solid #111;
   color: #fff;
 }
 
@@ -188,33 +212,30 @@
 }
 
 /* ==========================================================================
-   RIGHT MEDIA 
-   IMPORTANT:
-   - Frame has a stable size using aspect-ratio and max-height.
-   - Image fills the frame (object-fit: cover).
-   - This prevents "jumping" when images have different proportions.
+   RIGHT MEDIA (gallery)
+   - Make it smaller and consistent: no more huge bottom overflow.
+   - Frame height is capped by viewport.
    ========================================================================== */
 
 .dashboard__media {
-  flex: 1;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
   background: #fff;
   box-sizing: border-box;
 
-  /* Lower than panel */
-  position: relative;
-  z-index: 1;
+  /* align to top like left panel */
+  padding-top: clamp(28px, 4vw, 64px);
+  padding-bottom: 28px;
+
+  display: flex;
+  justify-content: center;
 }
 
 .dashboard__media-frame {
   position: relative;
-  width: min(700px, 100%);
-  height: 100%;
-  max-height: calc(100dvh - var(--header-height) - 48px);
-  min-height: 520px;
-  aspect-ratio: 4 / 3;
+  width: min(640px, 100%);
+
+  /* Key: cap the height so it matches your “second screenshot” feel */
+  height: clamp(420px, 62vh, 620px);
+
   overflow: hidden;
   margin: 0 auto;
 }
@@ -225,7 +246,7 @@
   display: block;
 
   object-fit: cover;
-  object-position: center 12%;
+  object-position: center 18%;
 }
 
 /* Dots */
@@ -234,6 +255,7 @@
   left: 50%;
   bottom: 14px;
   transform: translateX(-50%);
+
   display: flex;
   gap: 6px;
   padding: 8px 10px;
@@ -255,6 +277,11 @@
 
 .dashboard__media-dot--active {
   background: rgba(0, 0, 0, 0.75);
+}
+
+.dashboard__media-dot:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 3px;
 }
 
 /* ==========================================================================
@@ -304,46 +331,23 @@
 .dashboard__modalActions {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap; /* prevent cutting on small widths */
 }
 
 /* ==========================================================================
    Responsive (Mobile)
-   - Start position like LoginChoice
-   - Hide media column on mobile
+   - 1 column layout
+   - Actions in a single column to avoid cutting (your 3rd screenshot issue)
    ========================================================================== */
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .dashboard__layout {
-    flex-direction: column;
-    min-height: auto;
-
-    padding-top: var(--header-height);
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
 
-  .dashboard__panel {
-    width: 100%;
-    height: auto;
-    padding: 2rem;
-    box-sizing: border-box;
-
-    align-items: center;
-    text-align: center;
-    justify-content: flex-start;
-  }
-
-  .dashboard__title {
-    font-size: 1.2rem;
-    letter-spacing: 0.3rem;
-  }
-
-  .dashboard__subtitle {
-    font-size: 0.85rem;
-    max-width: 520px;
-  }
-
-  .dashboard__form {
-    width: 100%;
-    max-width: 520px;
+  .dashboard__media {
+    display: none; /* keep your original idea: hide gallery on mobile */
   }
 
   .dashboard__grid {
@@ -351,15 +355,23 @@
   }
 
   .dashboard__actions {
-    align-items: center;
+    grid-template-columns: 1fr;
+    justify-items: stretch;
   }
 
   .dashboard__button {
     width: 100%;
-    max-width: 320px;
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 520px) {
+  .dashboard__layout {
+    padding-left: 16px;
+    padding-right: 16px;
   }
 
-  .dashboard__media {
-    display: none;
+  .dashboard__panel {
+    padding-top: 22px;
   }
 }
