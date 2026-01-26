@@ -8,51 +8,11 @@ import fallbackImg from "../assets/images/fallback_product.jpg";
 import { isAuthenticated } from "../types/token";
 import { useAppDispatch } from "../utils/hooks";
 
+import type { Product } from "../types/product";
+import type { GuestCartItem } from "../types/cart";
+
 import { fetchWishlistCount } from "../store/wishListSlice";
 import * as serverCart from "../store/serverCartSlice";
-
-type ApiImage = {
-  id: number;
-  image: string;
-  sort_order?: number;
-  alt_text?: string;
-};
-
-type ApiSize = {
-  id: number; 
-  size: { id: number; name: string };
-  quantity: number;
-};
-
-type Product = {
-  id: number;
-  name: string;
-  description?: string;
-  price: string | number;
-
-  category_name?: string;
-  category_slug?: string;
-
-  available?: boolean;
-  main_image_url?: string;
-
-  images?: ApiImage[];
-  sizes?: ApiSize[];
-
-  is_in_wishlist?: boolean;
-  in_stock?: boolean;
-};
-
-type GuestCartItem = {
-  product_size: number;
-  quantity: number;
-
-  product_id: number;
-  name: string;
-  price: string | number;
-  image: string;
-  size_label: string;
-};
 
 const GUEST_CART_KEY = "guest_cart_items_v1";
 
@@ -60,6 +20,10 @@ function safeNumber(v: unknown): number | null {
   const n = typeof v === "string" ? Number(v) : typeof v === "number" ? v : NaN;
   if (!Number.isFinite(n) || n <= 0) return null;
   return n;
+}
+
+function makeLocalId(): number {
+  return Date.now() + Math.floor(Math.random() * 1000);
 }
 
 export default function ProductDetails() {
@@ -127,7 +91,6 @@ export default function ProductDetails() {
         setUiMessage(null);
 
         const res = await api.get<Product>(`/products/${productId}/`);
-
         if (!alive) return;
 
         const data = res.data;
@@ -135,7 +98,7 @@ export default function ProductDetails() {
         setSelectedSizeId(null);
         setActiveImageIndex(0);
 
-        const firstFromImages = data.images?.[0]?.image;
+        const firstFromImages = data.images?.[0]?.image_url;        
         const nextImg = data.main_image_url ?? firstFromImages ?? fallbackImg;
         setImgSrc(nextImg || fallbackImg);
       } catch {
@@ -154,10 +117,14 @@ export default function ProductDetails() {
 
   const imagesForGallery = useMemo(() => {
     const main = product?.main_image_url ? [product.main_image_url] : [];
-    const rest = (product?.images ?? []).map((x) => x.image).filter(Boolean);
-    const uniq = Array.from(new Set([...main, ...rest]));
-    return uniq.length ? uniq : [fallbackImg];
-  }, [product]);
+
+    const rest = (product?.images ?? [])
+      .map((x) => x.image_url)
+      .filter((v): v is string => Boolean(v));
+
+      const uniq = Array.from(new Set([...main, ...rest]));
+      return uniq.length ? uniq : [fallbackImg];
+    }, [product]);
 
   useEffect(() => {
     if (!imagesForGallery.length) return;
@@ -165,7 +132,6 @@ export default function ProductDetails() {
     setImgSrc(imagesForGallery[idx] || fallbackImg);
   }, [activeImageIndex, imagesForGallery]);
 
-  // guest cart helpers
   const readGuestCart = (): GuestCartItem[] => {
     try {
       const raw = localStorage.getItem(GUEST_CART_KEY);
@@ -194,20 +160,28 @@ export default function ProductDetails() {
     const sizeLabel = selectedSize?.size?.name ?? "Size";
 
     const nextItem: GuestCartItem = {
-      product_size: selectedSizeId,
+      id: makeLocalId(),
       quantity: 1,
+
       product_id: product.id,
+      product_size_id: selectedSizeId,
+      size_label: sizeLabel,
+
       name: product.name,
       price: product.price,
-      image: imgSrc || fallbackImg,
-      size_label: sizeLabel,
+      main_image_url: imgSrc || product.main_image_url || fallbackImg,
+      images: undefined,
     };
 
     const cart = readGuestCart();
-    const idx = cart.findIndex((x) => x.product_size === nextItem.product_size);
 
-    if (idx >= 0) cart[idx] = { ...cart[idx], quantity: cart[idx].quantity + 1 };
-    else cart.push(nextItem);
+    const idx = cart.findIndex((x) => x.product_size_id === nextItem.product_size_id);
+
+    if (idx >= 0) {
+      cart[idx] = { ...cart[idx], quantity: cart[idx].quantity + 1 };
+    } else {
+      cart.push(nextItem);
+    }
 
     writeGuestCart(cart);
     setUiMessage("Added to bag.");
@@ -255,8 +229,13 @@ export default function ProductDetails() {
     setUiMessage(null);
 
     try {
-      // ✅ baseURL already ends with /api
       await api.post(`/products/${product.id}/toggle_wishlist/`);
+
+      setProduct((prev) => {
+        if (!prev) return prev;
+        return { ...prev, is_in_wishlist: !Boolean(prev.is_in_wishlist) };
+      });
+
       dispatch(fetchWishlistCount());
       setUiMessage("Wishlist updated.");
     } catch {
@@ -328,8 +307,8 @@ export default function ProductDetails() {
             <div className="product-detail__price">{formatPrice(product.price)}</div>
           </div>
 
-          {product.category_name ? (
-            <div className="product-detail__meta">{String(product.category_name).toUpperCase()}</div>
+          {product.category?.name ? (
+            <div className="product-detail__meta">{String(product.category.name).toUpperCase()}</div>
           ) : null}
 
           {product.description ? (

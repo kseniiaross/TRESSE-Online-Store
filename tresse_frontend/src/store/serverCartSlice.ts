@@ -60,11 +60,7 @@ const hasToken = () =>
     localStorage.getItem("token")
   );
 
-/**
- * ✅ ВАЖНО:
- * Мерж гостевой корзины делаем через "инкремент",
- * чтобы не зависеть от того, как API интерпретирует quantity.
- */
+
 export const mergeGuestCart = createAsyncThunk<void, void, { state: RootState }>(
   "serverCart/mergeGuestCart",
   async (_, { getState, dispatch }) => {
@@ -105,17 +101,12 @@ export const fetchCart = createAsyncThunk<Cart | null>("serverCart/fetch", async
   return data as Cart;
 });
 
-/**
- * ✅ КРИТИЧЕСКИЙ ФИКС:
- * addCartItem больше НЕ принимает quantity.
- * Один клик Add to cart = quantity: 1 всегда.
- */
 export const addCartItem = createAsyncThunk<CartItem, { product_size_id: number }>(
   "serverCart/addItem",
   async ({ product_size_id }) => {
     const { data } = await api.post("/products/cart/items/", {
       product_size_id,
-      quantity: 1, // ✅ всегда 1, что бы ни пришло с UI
+      quantity: 1, 
     });
     return data as CartItem;
   }
@@ -125,7 +116,7 @@ export const updateCartItem = createAsyncThunk<CartItem, { item_id: number; quan
   "serverCart/updateItem",
   async ({ item_id, quantity }) => {
     const safeQty = clampMin1(quantity);
-    const { data } = await api.put(`/api/products/cart/items/${item_id}/`, { quantity: safeQty });
+    const { data } = await api.put(`/products/cart/items/${item_id}/`, { quantity: safeQty });
     return data as CartItem;
   }
 );

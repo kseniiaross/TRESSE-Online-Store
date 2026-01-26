@@ -1,29 +1,16 @@
-/* =========================
-   PRODUCT DETAIL — TRESSE
-   Minimal / luxury layout
-   ========================= */
-
-:root {
-  --header-offset: 88px; /* adjust to your fixed header height */
-}
-
 .product-detail {
+  --header-offset: 88px;
   width: 100%;
   box-sizing: border-box;
   padding-top: var(--header-offset);
 }
 
-/* Layout */
 .product-detail__wrap {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
   gap: 36px;
-
-  /* ✅ remove extra top padding so content sits higher (like your 2nd screenshot) */
   padding: 0 48px 60px;
   box-sizing: border-box;
-
-  /* ✅ ensure both columns start from the same top line */
   align-items: start;
 }
 
@@ -38,27 +25,18 @@
 .product-detail__main-image {
   position: relative;
   width: 100%;
-
-  /* ✅ no frame */
   background: transparent;
   border: none;
   overflow: visible;
-
-  /* a tiny spacing from the header line, not a big "air block" */
   margin-top: 6px;
 }
 
 .product-detail__main-image img {
   width: 100%;
   height: auto;
-
-  /* ✅ keep full image visible, no crop */
   object-fit: contain;
   object-position: center;
-
-  /* ✅ prevent the image from becoming "too tall" on big monitors */
   max-height: calc(100vh - (var(--header-offset) + 120px));
-
   display: block;
 }
 
@@ -75,7 +53,6 @@
   border-radius: 999px;
 }
 
-/* Thumbnails: smaller, cleaner, no "container borders" */
 .product-detail__thumbs {
   margin-top: 12px;
   display: flex;
@@ -97,14 +74,11 @@
 .product-detail__thumb {
   width: 52px;
   height: 66px;
-
   padding: 0;
   border: none;
   background: transparent;
-
   cursor: pointer;
   overflow: hidden;
-
   opacity: 0.72;
   transition: transform 160ms ease, opacity 160ms ease;
 }
@@ -133,15 +107,10 @@
 
 .product-detail__panel {
   min-width: 0;
-
-  /* ✅ keep it aligned with header and "higher" */
   position: sticky;
   top: calc(var(--header-offset) + 8px);
-
   align-self: start;
   padding-right: 8px;
-
-  /* small top offset to visually match the image top line */
   margin-top: 6px;
 }
 
@@ -376,10 +345,12 @@
 }
 
 @media (max-width: 520px) {
-  :root {
-    --header-offset: 72px;
-  }
-
+ .product-detail {
+  --header-offset: 88px;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: var(--header-offset);
+}
   .product-detail__main-image img {
     max-height: 420px;
   }
