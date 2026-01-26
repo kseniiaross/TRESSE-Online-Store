@@ -461,7 +461,10 @@ export default function ProductCatalog() {
 
       <div className="catalog__grid" role="list" aria-label="Product list">
         {products.map((apiItem) => {
-          const imgSrc = apiItem.main_image_url ?? apiItem.images?.[0]?.image ?? fallbackImg;
+        const imgSrc =
+          apiItem.main_image_url ||
+          apiItem.images?.[0]?.image_url ||
+            fallbackImg;
 
           const sizes = getProductSizes(apiItem)
             .slice()
