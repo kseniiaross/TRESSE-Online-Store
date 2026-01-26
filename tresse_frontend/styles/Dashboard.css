@@ -1,13 +1,5 @@
-/* src/styles/Dashboard.css */
-/* Comments: English (as requested) */
-
 /* ==========================================================================
    DASHBOARD
-   Goals:
-   - Both columns start on the same top line
-   - Raise the whole content a bit (more top, cleaner bottom gap)
-   - Keep the left content centered inside the left half
-   - Gallery: stable frame (no “jumping” when switching images)
    ========================================================================== */
 
 .dashboard {
@@ -15,28 +7,18 @@
   box-sizing: border-box;
 }
 
-/* Main 2-column layout (true halves) */
 .dashboard__layout {
   width: 100%;
   min-height: calc(100dvh - var(--header-height));
-
-  /* Keep content below the fixed header, but not too low */
-  padding-top: calc(var(--header-height) + clamp(6px, 1vh, 14px));
-
-  /* Nice bottom breathing room */
+  padding-top: calc(var(--header-height) + clamp(0px, 0.4vh, 6px));
   padding-bottom: clamp(40px, 6vh, 96px);
-
   max-width: 1440px;
   margin: 0 auto;
-
   padding-left: clamp(16px, 2.5vw, 36px);
   padding-right: clamp(16px, 2.5vw, 36px);
-
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(18px, 3vw, 44px);
-
-  /* IMPORTANT: top alignment */
   align-items: start;
   box-sizing: border-box;
 }
@@ -49,12 +31,8 @@
   background: #fff;
   color: #111;
   box-sizing: border-box;
-
-  /* Raise it more (remove extra vertical padding that pushed it down) */
-  padding-top: clamp(0px, 0.4vw, 8px);
+  padding-top: 0;
   padding-bottom: 16px;
-
-  /* Center content inside the left half */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -117,7 +95,6 @@
   grid-column: 1 / -1;
 }
 
-/* Labels + Inputs */
 .dashboard__label {
   display: block;
   font-size: 11px;
@@ -142,7 +119,6 @@
   border-color: #111;
 }
 
-/* Status */
 .dashboard__status {
   margin-top: 10px;
   min-height: 18px;
@@ -156,8 +132,6 @@
 
 /* ==========================================================================
    ACTIONS
-   Desktop: 2x2 grid
-   Mobile: 1 column
    ========================================================================== */
 
 .dashboard__actions {
@@ -227,18 +201,12 @@
 
 /* ==========================================================================
    RIGHT MEDIA (gallery)
-   Key fix:
-   - Stable frame size using aspect-ratio (NO JUMPING)
-   - Image fills the frame consistently (object-fit: cover)
-   - Frame is a bit larger, but capped by viewport height
    ========================================================================== */
 
 .dashboard__media {
   background: #fff;
   box-sizing: border-box;
-
-  /* Raise it to match the left column */
-  padding-top: clamp(0px, 0.4vw, 8px);
+  padding-top: 0;
   padding-bottom: 16px;
 
   display: flex;
@@ -248,16 +216,9 @@
 
 .dashboard__media-frame {
   position: relative;
-
-  /* Bigger frame */
   width: min(860px, 100%);
-
-  /* Stable height (bigger, but never too tall) */
   height: min(78vh, 860px);
-
-  /* IMPORTANT: stable ratio so all images look same-size */
   aspect-ratio: 4 / 5;
-
   overflow: hidden;
   margin: 0 auto;
   background: #fff;
@@ -267,11 +228,7 @@
   width: 100%;
   height: 100%;
   display: block;
-
-  /* IMPORTANT: no “size jumping” — always fills the same frame */
   object-fit: cover;
-
-  /* Slightly top-biased so faces/upper body stay visible */
   object-position: center 20%;
 }
 
