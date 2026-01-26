@@ -1,4 +1,3 @@
-// src/App.tsx
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -246,8 +245,6 @@ export default function App() {
             />
 
             <Route path="/order/success" element={<OrderSuccess />} />
-
-            {/* ✅ Stripe only here */}
             <Route
               path="/order"
               element={
