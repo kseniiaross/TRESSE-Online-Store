@@ -28,20 +28,22 @@ export default function WishList() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [ordering, setOrdering] = useState("-created_at");
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
 
-  const [ordering, setOrdering] = useState("-created_at");
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
 
   const pageSize = 12;
 
+  /* client-side search (как просила) */
   const filtered = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) return products;
-    return products.filter((p) => p.name.toLowerCase().includes(term));
+    const t = searchTerm.trim().toLowerCase();
+    if (!t) return products;
+    return products.filter((p) => p.name.toLowerCase().includes(t));
   }, [products, searchTerm]);
 
+  /* fetch wishlist */
   useEffect(() => {
     const ctrl = new AbortController();
     setLoading(true);
@@ -68,24 +70,26 @@ export default function WishList() {
     return () => ctrl.abort();
   }, [ordering, categoryParam]);
 
+  /* toggle wishlist (heart) */
   const handleRemove = async (id: number) => {
     try {
       await api.post(`/products/${id}/toggle_wishlist/`);
-      setProducts((p) => p.filter((x) => x.id !== id));
+      setProducts((prev) => prev.filter((p) => p.id !== id));
       setTotal((t) => Math.max(0, t - 1));
       dispatch(dec());
     } catch (e) {
-      console.error(e);
+      console.error("wishlist toggle error", e);
     }
   };
 
   return (
-    <section className="wishlist">
+    <section className="wishlist" aria-label="Wishlist">
+      {/* TITLE */}
       <h1 className="wishlist__title">
         MY WISHLIST {total ? `(${total})` : ""}
       </h1>
 
-      {/* Filters */}
+      {/* FILTERS — SAME LOGIC AS CATALOG */}
       <div className="wishlist__filters">
         <input
           className="wishlist__input"
@@ -109,6 +113,7 @@ export default function WishList() {
 
       {loading && <div className="wishlist__loader">Loading…</div>}
 
+      {/* GRID */}
       <div className="wishlist__grid">
         {filtered.map((product) => {
           const imgSrc =
@@ -118,28 +123,28 @@ export default function WishList() {
 
           return (
             <article key={product.id} className="wishlist__card">
-
-              {/* Heart */}
+              {/* HEART — SAME AS PRODUCT CATALOG */}
               <button
+                type="button"
                 className="wishlist__heart is-active"
-                onClick={() => handleRemove(product.id)}
                 aria-label="Remove from wishlist"
+                onClick={() => handleRemove(product.id)}
               />
 
-              {/* Image → Product detail */}
+              {/* IMAGE → PRODUCT DETAIL */}
               <div
                 className="wishlist__media"
-                onClick={() => navigate(`/products/${product.slug}`)}
+                onClick={() => navigate(`/product/${product.id}`)}
               >
                 <img src={imgSrc} alt={product.name} />
               </div>
 
               <div className="wishlist__meta">
-                <span>{product.name}</span>
-                <span>${product.price}</span>
+                <span className="wishlist__name">{product.name}</span>
+                <span className="wishlist__price">${product.price}</span>
               </div>
 
-              {/* Modal only here */}
+              {/* MODAL ONLY HERE */}
               <button
                 className="wishlist__addBtn"
                 onClick={() => setModalProduct(product)}
