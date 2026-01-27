@@ -34,8 +34,6 @@ export default function WishList() {
 
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
-
-  // refetch trigger (wishlist:ping)
   const [refreshKey, setRefreshKey] = useState(0);
   const bumpRefresh = () => setRefreshKey((k) => k + 1);
 
@@ -52,7 +50,6 @@ export default function WishList() {
     setPage(1);
   }, [categoryParam, ordering]);
 
-  // sync updates between tabs + refocus
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === "wishlist:ping") {
@@ -70,7 +67,6 @@ export default function WishList() {
     };
   }, []);
 
-  // fetch wishlist
   useEffect(() => {
     const ctrl = new AbortController();
 
@@ -91,7 +87,7 @@ export default function WishList() {
       })
       .catch((err) => {
         if (ctrl.signal.aborted) return;
-        console.error("Error fetching wishlist:", err);
+        console.error("Wishlist fetch error:", err);
         setProducts([]);
         setTotal(0);
       })
@@ -103,31 +99,26 @@ export default function WishList() {
   const handleRemove = async (id: number) => {
     try {
       await api.post(`/products/${id}/toggle_wishlist/`);
-
       setProducts((p) => p.filter((x) => x.id !== id));
       setTotal((t) => Math.max(0, t - 1));
       dispatch(dec());
 
       localStorage.setItem("wishlist:ping", String(Date.now()));
     } catch (e) {
-      console.error("Remove from wishlist error:", e);
+      console.error("Remove wishlist error:", e);
     }
-  };
-
-  // Add to cart from wishlist -> open modal
-  const handleAddToCart = (product: Product) => {
-    setModalProduct(product);
   };
 
   return (
     <section className="wishlist" aria-label="Wishlist">
       <div className="wishlist__container">
-        <div className="wishlist__filters" aria-label="Wishlist filters">
-          <label className="srOnly" htmlFor="wishlist_search">
-            Search in wishlist
-          </label>
+
+        <h1 className="wishlist__title">
+          MY WISHLIST {total ? `(${total})` : ""}
+        </h1>
+
+        <div className="wishlist__filters">
           <input
-            id="wishlist_search"
             type="text"
             placeholder="Search in wishlist..."
             value={searchTerm}
@@ -145,7 +136,6 @@ export default function WishList() {
               setPage(1);
             }}
             className="wishlist__select"
-            aria-label="Sort wishlist"
           >
             <option value="-created_at">Newest first</option>
             <option value="price">Price: low → high</option>
@@ -155,38 +145,27 @@ export default function WishList() {
           </select>
         </div>
 
-        <h1 className="wishlist__title">MY WISHLIST {total ? `(${total})` : ""}</h1>
+        {loading && <div className="wishlist__loader">Loading…</div>}
 
-        {loading && (
-          <div className="wishlist__loader" role="status" aria-live="polite">
-            Loading…
-          </div>
-        )}
-
-        {!loading && filtered.length === 0 && (
-          <div className="wishlist__empty" role="status" aria-live="polite">
-            No items in your wishlist.
-          </div>
-        )}
-
-        <div className="wishlist__grid" role="list" aria-label="Wishlist products">
+        <div className="wishlist__grid">
           {filtered.map((product) => {
-            const imgSrc = product.main_image_url || product.images?.[0]?.image_url || fallbackImg;
+            const imgSrc =
+              product.main_image_url ||
+              product.images?.[0]?.image_url ||
+              fallbackImg;
 
             return (
               <article
                 key={product.id}
                 className="wishlist__card"
-                role="listitem"
                 onClick={() => setModalProduct(product)}
               >
                 <button
-                  type="button"
                   className="wishlist__remove"
-                  aria-label={`Remove ${product.name} from wishlist`}
+                  aria-label="Remove from wishlist"
                   onClick={(e) => {
                     e.stopPropagation();
-                    void handleRemove(product.id);
+                    handleRemove(product.id);
                   }}
                 >
                   ×
@@ -197,45 +176,32 @@ export default function WishList() {
                     src={imgSrc}
                     alt={product.name}
                     className="wishlist__image"
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = fallbackImg;
-                    }}
                   />
                 </div>
 
                 <div className="wishlist__meta">
-                  <div className="wishlist__name">{product.name}</div>
-                  <div className="wishlist__price">${product.price}</div>
+                  <span className="wishlist__name">{product.name}</span>
+                  <span className="wishlist__price">${product.price}</span>
                 </div>
 
-                <div className="wishlist__actions" onClick={(e) => e.stopPropagation()}>
-                  <button
-                    className="wishlist__addBtn"
-                    type="button"
-                    onClick={() => handleAddToCart(product)}
-                  >
-                    ADD TO CART
-                  </button>
-                </div>
+                <button
+                  className="wishlist__addBtn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setModalProduct(product);
+                  }}
+                >
+                  ADD TO CART
+                </button>
               </article>
             );
           })}
         </div>
 
-        <nav className="wishlist__pagination" aria-label="Wishlist pagination">
-          <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            ← Back
-          </button>
-          <span className="wishlist__pageInfo">
-            {page} / {totalPages}
-          </span>
-          <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-            Forward →
-          </button>
-        </nav>
-
-        <ProductModal product={modalProduct} onClose={() => setModalProduct(null)} />
+        <ProductModal
+          product={modalProduct}
+          onClose={() => setModalProduct(null)}
+        />
       </div>
     </section>
   );
