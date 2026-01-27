@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 
@@ -11,7 +11,7 @@ import fallbackImg from "../assets/images/fallback_product.jpg";
 import { dec } from "../store/wishListSlice";
 import "../../styles/WishList.css";
 
-// Generic paginated API response type
+/** Generic paginated API response */
 type Paginated<T> = {
   count: number;
   next: string | null;
@@ -21,57 +21,53 @@ type Paginated<T> = {
 
 export default function WishList() {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const params = new URLSearchParams(location.search);
   const categoryParam = params.get("category");
 
-  // Wishlist state
+  /** Wishlist data */
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
 
-  // Sorting + pagination
+  /** Sorting + pagination */
   const [page, setPage] = useState(1);
   const [ordering, setOrdering] = useState("-created_at");
 
-  // UI state
+  /** UI state */
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
 
-  // Refetch trigger for cross-tab sync
+  /** Cross-tab refresh */
   const [refreshKey, setRefreshKey] = useState(0);
   const bumpRefresh = () => setRefreshKey((k) => k + 1);
 
   const pageSize = 12;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  // Client-side search filtering
+  /** Client-side search */
   const filtered = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return products;
     return products.filter((p) => p.name.toLowerCase().includes(term));
   }, [products, searchTerm]);
 
-  // Reset page on filter change
+  /** Reset page on filters */
   useEffect(() => {
     setPage(1);
-  }, [categoryParam, ordering]);
+  }, [ordering, categoryParam]);
 
-  // Sync wishlist updates between tabs
+  /** Sync wishlist between tabs */
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key === "wishlist:ping") {
-        setPage(1);
-        bumpRefresh();
-      }
+      if (e.key === "wishlist:ping") bumpRefresh();
     };
-
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // Fetch wishlist from API
+  /** Fetch wishlist */
   useEffect(() => {
     const ctrl = new AbortController();
     setLoading(true);
@@ -102,7 +98,7 @@ export default function WishList() {
     return () => ctrl.abort();
   }, [page, ordering, categoryParam, refreshKey]);
 
-  // Remove item from wishlist
+  /** Remove from wishlist (heart toggle) */
   const handleRemove = async (id: number) => {
     try {
       await api.post(`/products/${id}/toggle_wishlist/`);
@@ -119,31 +115,25 @@ export default function WishList() {
     <section className="wishlist" aria-label="Wishlist">
       <div className="wishlist__container">
 
-        {/* Page title */}
+        {/* Title */}
         <h1 className="wishlist__title">
           MY WISHLIST {total ? `(${total})` : ""}
         </h1>
 
-        {/* Filters – identical to product catalog */}
+        {/* Filters — identical to Product Catalog */}
         <div className="wishlist__filters">
           <input
             type="text"
+            className="wishlist__input"
             placeholder="Search in wishlist..."
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setPage(1);
-            }}
-            className="wishlist__input"
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
 
           <select
-            value={ordering}
-            onChange={(e) => {
-              setOrdering(e.target.value);
-              setPage(1);
-            }}
             className="wishlist__select"
+            value={ordering}
+            onChange={(e) => setOrdering(e.target.value)}
           >
             <option value="-created_at">Newest first</option>
             <option value="price">Price: low → high</option>
@@ -155,7 +145,7 @@ export default function WishList() {
 
         {loading && <div className="wishlist__loader">Loading…</div>}
 
-        {/* Wishlist grid */}
+        {/* Grid */}
         <div className="wishlist__grid">
           {filtered.map((product) => {
             const imgSrc =
@@ -164,24 +154,20 @@ export default function WishList() {
               fallbackImg;
 
             return (
-              <article
-                key={product.id}
-                className="wishlist__card"
-                onClick={() => setModalProduct(product)}
-              >
-                {/* Elegant remove button */}
-                <button
-                  className="wishlist__remove"
-                  aria-label="Remove from wishlist"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemove(product.id);
-                  }}
-                >
-                  ×
-                </button>
+              <article key={product.id} className="wishlist__card">
 
-                <div className="wishlist__media">
+                {/* Heart — same as product catalog */}
+                <button
+                  className="wishlist__heart is-active"
+                  aria-label="Remove from wishlist"
+                  onClick={() => handleRemove(product.id)}
+                />
+
+                {/* Image → Product details */}
+                <div
+                  className="wishlist__media"
+                  onClick={() => navigate(`/products/${product.slug}`)}
+                >
                   <img
                     src={imgSrc}
                     alt={product.name}
@@ -194,12 +180,10 @@ export default function WishList() {
                   <span className="wishlist__price">${product.price}</span>
                 </div>
 
+                {/* Modal only from Add to cart */}
                 <button
                   className="wishlist__addBtn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setModalProduct(product);
-                  }}
+                  onClick={() => setModalProduct(product)}
                 >
                   ADD TO CART
                 </button>
