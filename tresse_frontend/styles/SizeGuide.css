@@ -15,7 +15,6 @@
   color: #111;
 }
 
-/* Header */
 .sizeGuide__header{
   padding-top: 18px; 
   margin-bottom: clamp(18px, 2.5vw, 28px);
@@ -80,7 +79,6 @@
   margin-top: 10px;
 }
 
-/* Lists */
 .sizeGuide__list{
   margin: 10px 0 0;
   padding-left: 18px;
@@ -92,7 +90,6 @@
   margin: 6px 0;
 }
 
-/* Notice callout */
 .sizeGuide__notice{
   margin-top: 14px;
   padding: 14px 14px;
@@ -101,7 +98,6 @@
   background: rgba(17,17,17,.03);
 }
 
-/* Table */
 .sizeGuide__tableWrap{
   width: 100%;
   overflow: auto;
@@ -152,7 +148,6 @@
   border-bottom: none;
 }
 
-/* Footnote */
 .sizeGuide__footnote{
   margin: 12px 0 0;
   font-size: 13px;
@@ -160,7 +155,6 @@
   line-height: 1.6;
 }
 
-/* Responsive */
 @media (max-width: 640px){
   .sizeGuide__block{
     border-radius: 0px;
