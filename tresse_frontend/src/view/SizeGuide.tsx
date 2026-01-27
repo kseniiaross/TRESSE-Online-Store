@@ -1,4 +1,3 @@
-import React from "react";
 import "../../styles/SizeGuide.css";
 
 type SizeRow = {
