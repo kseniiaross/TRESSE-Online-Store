@@ -4,8 +4,7 @@ import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 
 import api from "../api/axiosInstance";
-
-import type { Product } from "../types/types";
+import type { Product } from "../types/product";
 import ProductModal from "../components/ProductModal";
 import fallbackImg from "../assets/images/fallback_product.jpg";
 
@@ -19,7 +18,7 @@ type Paginated<T> = {
   results: T[];
 };
 
-const WishList = () => {
+export default function WishList() {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
 
@@ -121,10 +120,14 @@ const WishList = () => {
   };
 
   return (
-    <div className="wishlist-page">
-      <div className="catalog-container">
-        <div className="filter-bar">
+    <section className="wishlist" aria-label="Wishlist">
+      <div className="wishlist__container">
+        <div className="wishlist__filters" aria-label="Wishlist filters">
+          <label className="srOnly" htmlFor="wishlist_search">
+            Search in wishlist
+          </label>
           <input
+            id="wishlist_search"
             type="text"
             placeholder="Search in wishlist..."
             value={searchTerm}
@@ -132,7 +135,7 @@ const WishList = () => {
               setSearchTerm(e.target.value);
               setPage(1);
             }}
-            className="pc-input"
+            className="wishlist__input"
           />
 
           <select
@@ -141,7 +144,8 @@ const WishList = () => {
               setOrdering(e.target.value);
               setPage(1);
             }}
-            className="pc-select"
+            className="wishlist__select"
+            aria-label="Sort wishlist"
           >
             <option value="-created_at">Newest first</option>
             <option value="price">Price: low → high</option>
@@ -151,81 +155,88 @@ const WishList = () => {
           </select>
         </div>
 
-        <h1 className="cart-title">MY WISHLIST {total ? `(${total})` : ""}</h1>
+        <h1 className="wishlist__title">MY WISHLIST {total ? `(${total})` : ""}</h1>
 
-        {loading && <div className="loader">Loading…</div>}
-
-        {!loading && filtered.length === 0 && (
-          <div style={{ padding: 12, opacity: 0.8 }}>No items in your wishlist.</div>
+        {loading && (
+          <div className="wishlist__loader" role="status" aria-live="polite">
+            Loading…
+          </div>
         )}
 
-        <div className="product-grid">
-          {filtered.map((product) => (
-            <div
-              key={product.id}
-              className="pc-card wishlist-card"
-              onClick={() => setModalProduct(product)}
-            >
-              {/* X remove */}
-              <button
-                type="button"
-                className="wishlist-remove-x"
-                aria-label={`Remove ${product.name} from wishlist`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  void handleRemove(product.id);
-                }}
+        {!loading && filtered.length === 0 && (
+          <div className="wishlist__empty" role="status" aria-live="polite">
+            No items in your wishlist.
+          </div>
+        )}
+
+        <div className="wishlist__grid" role="list" aria-label="Wishlist products">
+          {filtered.map((product) => {
+            const imgSrc = product.main_image_url || product.images?.[0]?.image_url || fallbackImg;
+
+            return (
+              <article
+                key={product.id}
+                className="wishlist__card"
+                role="listitem"
+                onClick={() => setModalProduct(product)}
               >
-                ×
-              </button>
-
-              <div className="pc-thumb-wrap">
-                <img
-                  src={product.main_image_url ?? product.images?.[0]?.image ?? fallbackImg}
-                  alt={product.name}
-                  className="pc-thumb"
-                  loading="lazy"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = fallbackImg;
-                  }}
-                />
-              </div>
-
-              <div className="pc-meta">
-                <div className="pc-name">{product.name}</div>
-                <div className="pc-price">${product.price}</div>
-              </div>
-
-              {/* full width button like catalog */}
-              <div className="wishlist-actions" onClick={(e) => e.stopPropagation()}>
                 <button
-                  className="add-btn wishlist-add-full"
                   type="button"
-                  onClick={() => handleAddToCart(product)}
+                  className="wishlist__remove"
+                  aria-label={`Remove ${product.name} from wishlist`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void handleRemove(product.id);
+                  }}
                 >
-                  ADD TO CART
+                  ×
                 </button>
-              </div>
-            </div>
-          ))}
+
+                <div className="wishlist__media">
+                  <img
+                    src={imgSrc}
+                    alt={product.name}
+                    className="wishlist__image"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = fallbackImg;
+                    }}
+                  />
+                </div>
+
+                <div className="wishlist__meta">
+                  <div className="wishlist__name">{product.name}</div>
+                  <div className="wishlist__price">${product.price}</div>
+                </div>
+
+                <div className="wishlist__actions" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className="wishlist__addBtn"
+                    type="button"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    ADD TO CART
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
 
-        <div className="pagination" style={{ marginTop: 16 }}>
-          <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+        <nav className="wishlist__pagination" aria-label="Wishlist pagination">
+          <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
             ← Back
           </button>
-          <span style={{ margin: "0 8px" }}>
+          <span className="wishlist__pageInfo">
             {page} / {totalPages}
           </span>
-          <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+          <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
             Forward →
           </button>
-        </div>
+        </nav>
 
         <ProductModal product={modalProduct} onClose={() => setModalProduct(null)} />
       </div>
-    </div>
+    </section>
   );
-};
-
-export default WishList;
+}
