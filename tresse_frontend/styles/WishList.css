@@ -1,29 +1,20 @@
-/* =========================
-   WISHLIST — PRODUCT CATALOG STYLE
-   ========================= */
-
 .wishlist {
-  padding-top: var(--header-height);
   max-width: 1440px;
   margin: 0 auto;
-  padding-inline: clamp(16px, 3vw, 40px);
+  padding: 120px 40px 40px;
 }
 
-/* Title */
 .wishlist__title {
-  margin: 24px 0 26px;
   text-align: center;
-  font-size: clamp(22px, 2.6vw, 34px);
-  font-weight: 600;
+  margin-bottom: 32px;
+  font-size: 32px;
   letter-spacing: 0.04em;
 }
 
-/* Filters */
 .wishlist__filters {
   display: flex;
-  gap: 32px;
-  margin-bottom: 32px;
-  justify-content: center;
+  gap: 40px;
+  margin-bottom: 40px;
 }
 
 .wishlist__input,
@@ -32,32 +23,27 @@
   border-bottom: 1px solid #cfcfcf;
   background: transparent;
   padding: 6px 0;
-  font: inherit;
   min-width: 220px;
-  outline: none;
 }
 
-/* Grid */
 .wishlist__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 28px;
 }
 
-/* Card */
 .wishlist__card {
   position: relative;
 }
 
-/* Heart (copied logic from product catalog) */
 .wishlist__heart {
   position: absolute;
   top: 12px;
   right: 12px;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: 1px solid rgba(0,0,0,.18);
+  border: 1px solid rgba(0,0,0,.2);
   background: #fff;
   cursor: pointer;
 }
@@ -66,7 +52,6 @@
   background: #111;
 }
 
-/* Media */
 .wishlist__media {
   aspect-ratio: 3 / 4;
   background: #f6f6f6;
@@ -74,18 +59,17 @@
   cursor: pointer;
 }
 
-.wishlist__image {
+.wishlist__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform .35s ease;
 }
 
-.wishlist__media:hover .wishlist__image {
+.wishlist__media:hover img {
   transform: scale(1.04);
 }
 
-/* Meta */
 .wishlist__meta {
   display: flex;
   justify-content: space-between;
@@ -93,14 +77,6 @@
   font-size: 14px;
 }
 
-.wishlist__name {
-  max-width: 75%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Add to cart */
 .wishlist__addBtn {
   margin-top: 14px;
   width: 100%;
@@ -108,23 +84,8 @@
   border: 1px solid #e0e0e0;
   background: #fff;
   cursor: pointer;
-  font-size: 13px;
-  letter-spacing: 0.04em;
 }
 
 .wishlist__addBtn:hover {
   background: #f8f8f8;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .wishlist__grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .wishlist__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
