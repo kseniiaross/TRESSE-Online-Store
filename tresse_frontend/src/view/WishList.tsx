@@ -11,6 +11,7 @@ import fallbackImg from "../assets/images/fallback_product.jpg";
 import { dec } from "../store/wishListSlice";
 import "../../styles/WishList.css";
 
+// Generic paginated API response type
 type Paginated<T> = {
   count: number;
   next: string | null;
@@ -25,31 +26,39 @@ export default function WishList() {
   const params = new URLSearchParams(location.search);
   const categoryParam = params.get("category");
 
+  // Wishlist state
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
 
+  // Sorting + pagination
   const [page, setPage] = useState(1);
   const [ordering, setOrdering] = useState("-created_at");
 
+  // UI state
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
+
+  // Refetch trigger for cross-tab sync
   const [refreshKey, setRefreshKey] = useState(0);
   const bumpRefresh = () => setRefreshKey((k) => k + 1);
 
   const pageSize = 12;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+  // Client-side search filtering
   const filtered = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return products;
     return products.filter((p) => p.name.toLowerCase().includes(term));
   }, [products, searchTerm]);
 
+  // Reset page on filter change
   useEffect(() => {
     setPage(1);
   }, [categoryParam, ordering]);
 
+  // Sync wishlist updates between tabs
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === "wishlist:ping") {
@@ -57,20 +66,16 @@ export default function WishList() {
         bumpRefresh();
       }
     };
-    const onFocus = () => bumpRefresh();
 
     window.addEventListener("storage", onStorage);
-    window.addEventListener("focus", onFocus);
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("focus", onFocus);
-    };
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  // Fetch wishlist from API
   useEffect(() => {
     const ctrl = new AbortController();
-
     setLoading(true);
+
     api
       .get<Paginated<Product>>("/products/wishlist/", {
         params: {
@@ -86,23 +91,24 @@ export default function WishList() {
         setTotal(res.data.count);
       })
       .catch((err) => {
-        if (ctrl.signal.aborted) return;
-        console.error("Wishlist fetch error:", err);
-        setProducts([]);
-        setTotal(0);
+        if (!ctrl.signal.aborted) {
+          console.error("Wishlist fetch error:", err);
+          setProducts([]);
+          setTotal(0);
+        }
       })
       .finally(() => setLoading(false));
 
     return () => ctrl.abort();
   }, [page, ordering, categoryParam, refreshKey]);
 
+  // Remove item from wishlist
   const handleRemove = async (id: number) => {
     try {
       await api.post(`/products/${id}/toggle_wishlist/`);
       setProducts((p) => p.filter((x) => x.id !== id));
       setTotal((t) => Math.max(0, t - 1));
       dispatch(dec());
-
       localStorage.setItem("wishlist:ping", String(Date.now()));
     } catch (e) {
       console.error("Remove wishlist error:", e);
@@ -113,10 +119,12 @@ export default function WishList() {
     <section className="wishlist" aria-label="Wishlist">
       <div className="wishlist__container">
 
+        {/* Page title */}
         <h1 className="wishlist__title">
           MY WISHLIST {total ? `(${total})` : ""}
         </h1>
 
+        {/* Filters – identical to product catalog */}
         <div className="wishlist__filters">
           <input
             type="text"
@@ -147,6 +155,7 @@ export default function WishList() {
 
         {loading && <div className="wishlist__loader">Loading…</div>}
 
+        {/* Wishlist grid */}
         <div className="wishlist__grid">
           {filtered.map((product) => {
             const imgSrc =
@@ -160,6 +169,7 @@ export default function WishList() {
                 className="wishlist__card"
                 onClick={() => setModalProduct(product)}
               >
+                {/* Elegant remove button */}
                 <button
                   className="wishlist__remove"
                   aria-label="Remove from wishlist"
