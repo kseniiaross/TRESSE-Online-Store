@@ -91,7 +91,7 @@ export default function Cart() {
   const items: Array<CartItemDto | GuestCartItem> = usingServer ? serverItems : guestItems;
 
   /**
-   * ✅ StrictMode guard:
+   * StrictMode guard:
    * In dev React StrictMode mounts components twice to detect side effects.
    * Without this guard, mergeGuestCart() can run twice on refresh -> quantities jump to stock max.
    */
