@@ -68,9 +68,8 @@ export default function Cart() {
   const navigate = useNavigate();
 
   /**
-   * NOTE:
    * Storage check is intentionally simple because App.tsx syncs auth into Redux.
-   * If you later rely only on Redux, replace with a selector.
+   * If later you rely only on Redux, replace with a selector.
    */
   const isAuthed = !!localStorage.getItem("access");
 
@@ -85,7 +84,7 @@ export default function Cart() {
 
   /**
    * Real-world UX:
-   * - If authed -> server cart is the source of truth.
+   * - Authed -> server cart is the source of truth.
    * - While server is empty/loading, we can temporarily show guest cart to avoid “empty flash”.
    */
   const usingServer = isAuthed && (hasServer || !hasGuest);
@@ -161,13 +160,13 @@ export default function Cart() {
 
   return (
     <section className="cart" aria-label="Shopping cart">
-      <div className="cart__head">
+      <header className="cart__head">
         <h1 className="cart__title">Shopping Cart</h1>
         {isAuthed && loading ? <p className="cart__status">Loading…</p> : null}
-      </div>
+      </header>
 
       {items.length === 0 ? (
-        <div className="cart__empty">
+        <div className="cart__empty" role="status" aria-live="polite">
           <p className="cart__emptyText">Your cart is empty.</p>
         </div>
       ) : (
@@ -222,7 +221,7 @@ export default function Cart() {
                   </div>
 
                   <div className="cart-item__body">
-                    <div className="cart-item__top">
+                    <div className="cart-item__row cart-item__row--top">
                       <div className="cart-item__name" title={name}>
                         {name}
                       </div>
@@ -237,10 +236,16 @@ export default function Cart() {
                       </button>
                     </div>
 
-                    {sizeName ? <div className="cart-item__sub">Size: {sizeName}</div> : null}
-                    {typeof maxQty === "number" ? <div className="cart-item__sub">In stock: {maxQty}</div> : null}
+                    {(sizeName || typeof maxQty === "number") && (
+                      <div className="cart-item__meta">
+                        {sizeName ? <span className="cart-item__sub">Size: {sizeName}</span> : null}
+                        {typeof maxQty === "number" ? (
+                          <span className="cart-item__sub">In stock: {maxQty}</span>
+                        ) : null}
+                      </div>
+                    )}
 
-                    <div className="cart-item__bottom">
+                    <div className="cart-item__row cart-item__row--bottom">
                       <div className="cart-item__price">${priceStr}</div>
 
                       <div className="cart-qty" aria-label="Quantity selector">
