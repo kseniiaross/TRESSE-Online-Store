@@ -36,14 +36,12 @@ export default function WishList() {
 
   const pageSize = 12;
 
-  /* client-side search (как просила) */
   const filtered = useMemo(() => {
     const t = searchTerm.trim().toLowerCase();
     if (!t) return products;
     return products.filter((p) => p.name.toLowerCase().includes(t));
   }, [products, searchTerm]);
 
-  /* fetch wishlist */
   useEffect(() => {
     const ctrl = new AbortController();
     setLoading(true);
@@ -61,7 +59,8 @@ export default function WishList() {
         setProducts(res.data.results);
         setTotal(res.data.count);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Wishlist fetch error:", err);
         setProducts([]);
         setTotal(0);
       })
@@ -70,51 +69,71 @@ export default function WishList() {
     return () => ctrl.abort();
   }, [ordering, categoryParam]);
 
-  /* toggle wishlist (heart) */
   const handleRemove = async (id: number) => {
     try {
       await api.post(`/products/${id}/toggle_wishlist/`);
       setProducts((prev) => prev.filter((p) => p.id !== id));
       setTotal((t) => Math.max(0, t - 1));
       dispatch(dec());
+      localStorage.setItem("wishlist:ping", String(Date.now()));
     } catch (e) {
-      console.error("wishlist toggle error", e);
+      console.error("Remove wishlist error:", e);
     }
+  };
+
+  const openProductDetail = (productId: number) => {
+    // ВАЖНО: в твоём ProductCatalog Link идёт на /product/:id
+    navigate(`/product/${productId}`);
   };
 
   return (
     <section className="wishlist" aria-label="Wishlist">
-      {/* TITLE */}
-      <h1 className="wishlist__title">
-        MY WISHLIST {total ? `(${total})` : ""}
-      </h1>
+      <div className="wishlist__top">
+        <h1 className="wishlist__title">
+          MY WISHLIST {total ? `(${total})` : ""}
+        </h1>
 
-      {/* FILTERS — SAME LOGIC AS CATALOG */}
-      <div className="wishlist__filters">
-        <input
-          className="wishlist__input"
-          placeholder="Search in wishlist..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="wishlist__filters" aria-label="Wishlist filters">
+          <label className="srOnly" htmlFor="wishlist_search">
+            Search in wishlist
+          </label>
 
-        <select
-          className="wishlist__select"
-          value={ordering}
-          onChange={(e) => setOrdering(e.target.value)}
-        >
-          <option value="-created_at">Newest first</option>
-          <option value="price">Price: low → high</option>
-          <option value="-price">Price: high → low</option>
-          <option value="name">Name: A → Z</option>
-          <option value="-name">Name: Z → A</option>
-        </select>
+          <input
+            id="wishlist_search"
+            className="wishlist__input"
+            placeholder="Search in wishlist..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+
+          <select
+            className="wishlist__select"
+            value={ordering}
+            onChange={(e) => setOrdering(e.target.value)}
+            aria-label="Sort wishlist"
+          >
+            <option value="-created_at">Newest first</option>
+            <option value="price">Price: low → high</option>
+            <option value="-price">Price: high → low</option>
+            <option value="name">Name: A → Z</option>
+            <option value="-name">Name: Z → A</option>
+          </select>
+        </div>
       </div>
 
-      {loading && <div className="wishlist__loader">Loading…</div>}
+      {loading && (
+        <div className="wishlist__loader" role="status" aria-live="polite">
+          Loading…
+        </div>
+      )}
 
-      {/* GRID */}
-      <div className="wishlist__grid">
+      {!loading && filtered.length === 0 && (
+        <div className="wishlist__empty" role="status" aria-live="polite">
+          No items in wishlist.
+        </div>
+      )}
+
+      <div className="wishlist__grid" role="list" aria-label="Wishlist items">
         {filtered.map((product) => {
           const imgSrc =
             product.main_image_url ||
@@ -122,32 +141,61 @@ export default function WishList() {
             fallbackImg;
 
           return (
-            <article key={product.id} className="wishlist__card">
-              {/* HEART — SAME AS PRODUCT CATALOG */}
+            <article key={product.id} className="wishlist__card" role="listitem">
+              {/* HEART — как в ProductCatalog */}
               <button
                 type="button"
-                className="wishlist__heart is-active"
+                className="catalog__wishlist-btn catalog__wishlist-btn--active wishlist__wishlistBtn"
                 aria-label="Remove from wishlist"
-                onClick={() => handleRemove(product.id)}
-              />
+                aria-pressed={true}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  void handleRemove(product.id);
+                }}
+              >
+                <span className="srOnly">Remove from wishlist</span>
+              </button>
 
               {/* IMAGE → PRODUCT DETAIL */}
               <div
                 className="wishlist__media"
-                onClick={() => navigate(`/product/${product.id}`)}
+                onClick={() => openProductDetail(product.id)}
+                role="button"
+                tabIndex={0}
+                aria-label={`Open product: ${product.name}`}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openProductDetail(product.id);
+                  }
+                }}
               >
-                <img src={imgSrc} alt={product.name} />
+                <img
+                  src={imgSrc}
+                  alt={product.name}
+                  className="wishlist__image"
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = fallbackImg;
+                  }}
+                />
               </div>
 
               <div className="wishlist__meta">
-                <span className="wishlist__name">{product.name}</span>
+                <span className="wishlist__name" title={product.name}>
+                  {product.name}
+                </span>
                 <span className="wishlist__price">${product.price}</span>
               </div>
 
               {/* MODAL ONLY HERE */}
               <button
+                type="button"
                 className="wishlist__addBtn"
-                onClick={() => setModalProduct(product)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setModalProduct(product);
+                }}
               >
                 ADD TO CART
               </button>
@@ -156,10 +204,7 @@ export default function WishList() {
         })}
       </div>
 
-      <ProductModal
-        product={modalProduct}
-        onClose={() => setModalProduct(null)}
-      />
+      <ProductModal product={modalProduct} onClose={() => setModalProduct(null)} />
     </section>
   );
 }
