@@ -19,8 +19,7 @@ import "../../styles/Cart.css";
 
 /**
  * Helpers
- * Keep local because they are cart-specific and easy to audit.
- * If we reuse them later in multiple places, move to utils/number.ts.
+ * Kept local: cart-specific, easy to audit, avoids cross-file coupling.
  */
 const toSafeInt = (v: unknown, fallback = 1) => {
   const n = typeof v === "number" ? v : Number(v);
@@ -36,18 +35,15 @@ const clampQty = (q: number, maxQty?: number) => {
   return safe;
 };
 
-/**
- * Money parsing must be defensive:
- * backend often returns price as string; invalid values should not break totals.
- */
+/** Defensive price parsing: invalid values must not break totals. */
 const toMoney = (v: unknown): number => {
   const n = typeof v === "number" ? v : Number(v);
   return Number.isFinite(n) ? n : 0;
 };
 
 /**
- * Guest image field may vary depending on how the local cart is stored.
- * This helper is intentionally defensive and avoids `any`.
+ * Guest image field may vary depending on how local cart was stored.
+ * Support both shapes: { image_url } and legacy { image }.
  */
 const getFirstGuestImage = (item: GuestCartItem): string | null => {
   const list = item.images;
@@ -56,8 +52,8 @@ const getFirstGuestImage = (item: GuestCartItem): string | null => {
   const first: unknown = list[0];
   if (!first || typeof first !== "object") return null;
 
-  // Support both shapes: { image_url } and { image }
   const rec = first as Record<string, unknown>;
+
   const url = rec["image_url"];
   if (typeof url === "string" && url.trim()) return url;
 
@@ -73,8 +69,8 @@ export default function Cart() {
 
   /**
    * NOTE:
-   * We keep auth check simple (storage) because App.tsx syncs auth into Redux.
-   * If you decide to rely only on Redux later, replace with a selector.
+   * Storage check is intentionally simple because App.tsx syncs auth into Redux.
+   * If you later rely only on Redux, replace with a selector.
    */
   const isAuthed = !!localStorage.getItem("access");
 
@@ -88,13 +84,11 @@ export default function Cart() {
   const hasServer = serverItems.length > 0;
 
   /**
-   * IMPORTANT (real-world UX):
+   * Real-world UX:
    * - If authed -> server cart is the source of truth.
-   * - While server cart is still empty/loading, we may temporarily show guest cart
-   *   to avoid "empty flash" (a common e-commerce issue).
+   * - While server is empty/loading, we can temporarily show guest cart to avoid “empty flash”.
    */
   const usingServer = isAuthed && (hasServer || !hasGuest);
-
   const items: Array<CartItemDto | GuestCartItem> = usingServer ? serverItems : guestItems;
 
   useEffect(() => {
@@ -104,19 +98,15 @@ export default function Cart() {
 
     (async () => {
       /**
-       * If guest cart exists -> merge into server once on login,
-       * then fetch the server cart. After that, server is the source of truth.
-       *
-       * `alive` guard prevents setting state/dispatching follow-ups after unmount
-       * in edge cases (fast navigation, StrictMode, etc.).
+       * Merge guest cart once on login, then fetch server cart.
+       * `alive` guard prevents follow-ups after unmount in edge cases.
        */
       try {
         if (hasGuest) await dispatch(serverCart.mergeGuestCart());
         if (!alive) return;
         await dispatch(serverCart.fetchCart());
       } catch {
-        // In a production app, you'd report this to monitoring (Sentry/Datadog),
-        // but we keep UI silent here to avoid user disruption.
+        // In production you might report to monitoring, but keep UI calm here.
       }
     })();
 
@@ -145,7 +135,7 @@ export default function Cart() {
       return;
     }
 
-    // Guest cart update: must include product_size_id to identify the variant.
+    // Guest cart update: must include product_size_id to identify variant.
     if (guestProductSizeId == null) return;
     dispatch(updateGuestQty({ id, product_size_id: guestProductSizeId, quantity: clamped }));
   };
@@ -162,7 +152,6 @@ export default function Cart() {
 
   const onPay = () => {
     if (!isAuthed) {
-      // Preserve "return-to" navigation for login flows.
       const next = encodeURIComponent("/order");
       navigate(`/login-choice?next=${next}`);
       return;
@@ -172,12 +161,15 @@ export default function Cart() {
 
   return (
     <section className="cart" aria-label="Shopping cart">
-      <h1 className="cart__title">Shopping Cart</h1>
-
-      {isAuthed && loading ? <p className="cart__status">Loading…</p> : null}
+      <div className="cart__head">
+        <h1 className="cart__title">Shopping Cart</h1>
+        {isAuthed && loading ? <p className="cart__status">Loading…</p> : null}
+      </div>
 
       {items.length === 0 ? (
-        <p className="cart__empty">Your cart is empty</p>
+        <div className="cart__empty">
+          <p className="cart__emptyText">Your cart is empty.</p>
+        </div>
       ) : (
         <>
           <div className="cart__grid" role="list" aria-label="Cart items">
@@ -190,7 +182,6 @@ export default function Cart() {
 
               const id = item.id;
 
-              // --- Shared display fields ---
               const name = usingServer
                 ? (item as CartItemDto).product_size.product.name
                 : (item as GuestCartItem).name;
@@ -199,11 +190,6 @@ export default function Cart() {
                 ? (item as CartItemDto).product_size.product.price
                 : (item as GuestCartItem).price;
 
-              /**
-               * Images strategy (real practice):
-               * - Cart uses ONLY the main image to keep payload small and stable.
-               * - Full gallery is loaded on ProductDetails page.
-               */
               const imgSrc = usingServer
                 ? ((item as CartItemDto).product_size.product.main_image_url ?? fallbackImg)
                 : ((item as GuestCartItem).main_image_url ??
@@ -223,7 +209,7 @@ export default function Cart() {
 
               return (
                 <article key={key} className="cart-item" role="listitem">
-                  <div className="cart-item__media">
+                  <div className="cart-item__media" aria-hidden="true">
                     <img
                       src={imgSrc}
                       alt={name}
@@ -236,17 +222,27 @@ export default function Cart() {
                   </div>
 
                   <div className="cart-item__body">
-                    <div className="cart-item__meta">
+                    <div className="cart-item__top">
                       <div className="cart-item__name" title={name}>
                         {name}
                       </div>
-                      <div className="cart-item__price">${priceStr}</div>
+
+                      <button
+                        type="button"
+                        className="cart-item__remove"
+                        aria-label={`Remove ${name} from cart`}
+                        onClick={() => handleRemove(id, guestProductSizeId)}
+                      >
+                        Remove
+                      </button>
                     </div>
 
-                    {sizeName ? <div className="cart-item__size">Size: {sizeName}</div> : null}
-                    {typeof maxQty === "number" ? <div className="cart-item__stock">In stock: {maxQty}</div> : null}
+                    {sizeName ? <div className="cart-item__sub">Size: {sizeName}</div> : null}
+                    {typeof maxQty === "number" ? <div className="cart-item__sub">In stock: {maxQty}</div> : null}
 
-                    <div className="cart-item__controls" aria-label={`Controls for ${name}`}>
+                    <div className="cart-item__bottom">
+                      <div className="cart-item__price">${priceStr}</div>
+
                       <div className="cart-qty" aria-label="Quantity selector">
                         <button
                           type="button"
@@ -258,7 +254,6 @@ export default function Cart() {
                           −
                         </button>
 
-                        {/* Text + inputMode numeric avoids native spinners and keeps UI consistent across browsers. */}
                         <input
                           className="cart-qty__input"
                           type="text"
@@ -283,15 +278,6 @@ export default function Cart() {
                           +
                         </button>
                       </div>
-
-                      <button
-                        type="button"
-                        className="cart-item__remove"
-                        aria-label={`Remove ${name} from cart`}
-                        onClick={() => handleRemove(id, guestProductSizeId)}
-                      >
-                        Remove
-                      </button>
                     </div>
                   </div>
                 </article>
@@ -301,7 +287,7 @@ export default function Cart() {
 
           <aside className="cart-summary" aria-label="Cart summary">
             <div className="cart-summary__row">
-              <span>Total:</span>
+              <span className="cart-summary__label">Total</span>
               <span className="cart-summary__total">${total.toFixed(2)}</span>
             </div>
 
