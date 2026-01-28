@@ -160,7 +160,7 @@
   background: #f8f8f8;
 }
 
-/* ===== Responsive (mirror catalog breakpoints) ===== */
+/* ===== Responsive  ===== */
 @media (max-width: 1200px){
   .wishlist__grid{
     grid-template-columns: repeat(3, 1fr);

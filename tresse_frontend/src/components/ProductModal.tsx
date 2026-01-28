@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 import "../../styles/ProductModal.css";
@@ -18,8 +18,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
   const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
   const [notifyLoading, setNotifyLoading] = useState(false);
   const [notifyDone, setNotifyDone] = useState(false);
-
-  // ✅ анти-даблклик на Add
   const [addBusy, setAddBusy] = useState(false);
 
   const isAuthed = !!getAccessToken();
@@ -29,7 +27,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
     return raw
       .filter((s: any) => (s?.quantity ?? 0) > 0)
       .slice()
-      .sort((a: any, b: any) => String(a?.size?.name ?? "").localeCompare(String(b?.size?.name ?? "")));
+      .sort((a: any, b: any) =>
+        String(a?.size?.name ?? "").localeCompare(String(b?.size?.name ?? ""))
+      );
   }, [product]);
 
   const isOutOfStock = availableSizes.length === 0;
@@ -37,6 +37,31 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
   const selectedSize = useMemo(() => {
     return availableSizes.find((s: any) => s.id === selectedSizeId);
   }, [availableSizes, selectedSizeId]);
+
+  useEffect(() => {
+    if (!product) return;
+
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = prev;
+    };
+  }, [product, onClose]);
+
+  useEffect(() => {
+    if (!product) return;
+    setSelectedSizeId(null);
+    setNotifyDone(false);
+    setNotifyLoading(false);
+    setAddBusy(false);
+  }, [product]);
 
   if (!product) return null;
 
@@ -48,11 +73,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
       setAddBusy(true);
 
       if (isAuthed) {
-        // ✅ серверная корзина: 1 клик = +1
         await dispatch(serverCart.addCartItem({ product_size_id: selectedSizeId })).unwrap();
         await dispatch(serverCart.fetchCart());
       } else {
-        // ✅ гостевая корзина
         dispatch(
           addToGuestCart({
             product,
@@ -77,9 +100,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
 
     try {
       setNotifyLoading(true);
-
-      // сюда вставляешь твою notify-логику, если нужно
-
       setNotifyDone(true);
       setTimeout(() => setNotifyDone(false), 2500);
     } catch (e) {
@@ -90,12 +110,13 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose} role="presentation">
+    <div className="modal-overlay" onMouseDown={onClose} role="presentation">
       <div
         className="modal-content"
-        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
+        aria-label="Product options"
       >
         <button className="modal-x" type="button" onClick={onClose} aria-label="Close">
           ×
@@ -114,11 +135,13 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
           {isOutOfStock ? (
             <div className="modal-muted">Out of stock.</div>
           ) : (
-            <div className="modal-sizes">
+            <div className="modal-sizes" role="listbox" aria-label="Sizes">
               {availableSizes.map((s: any) => (
                 <button
                   key={s.id}
                   type="button"
+                  role="option"
+                  aria-selected={selectedSizeId === s.id}
                   className={`modal-size ${selectedSizeId === s.id ? "is-active" : ""}`}
                   onClick={() => setSelectedSizeId(s.id)}
                   title={`In stock: ${s.quantity}`}
