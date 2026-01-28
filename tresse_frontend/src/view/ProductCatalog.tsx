@@ -4,15 +4,17 @@ import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 import type { Product } from "../types/product";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+
 import api from "../api/axiosInstance";
 import { getAccessToken } from "../types/token";
 import { fetchProducts } from "../api/products";
 import { fetchWishlistCount } from "../store/wishListSlice";
+
 import fallbackImg from "../assets/images/fallback_product.jpg";
 import "../../styles/ProductCatalog.css";
+
 import { addToCart } from "../utils/cartSlice";
 import * as serverCart from "../store/serverCartSlice";
-
 
 type ProductSizeItem = {
   id: number;
@@ -46,6 +48,7 @@ const safeSetSessionEmail = (email: string) => {
   try {
     sessionStorage.setItem(SESSION_EMAIL_KEY, normalizeEmail(email));
   } catch {
+    // Intentionally ignore storage write failures (Safari private mode, quota, etc.)
   }
 };
 
@@ -53,6 +56,7 @@ const safeClearSessionEmail = () => {
   try {
     sessionStorage.removeItem(SESSION_EMAIL_KEY);
   } catch {
+    // Intentionally ignore
   }
 };
 
@@ -152,6 +156,7 @@ function NotifyBlock({
       return;
     }
 
+    // If we have a remembered but invalid email, clear it to avoid bad UX loops.
     if (rememberedGuestEmail && !guestHasValidRememberedEmail) {
       setGuestNotifyEmail("");
       safeClearSessionEmail();
@@ -211,7 +216,7 @@ export default function ProductCatalog() {
   const rawCategory = params.get("category") ?? "";
   const effectiveCategory = CATEGORY_MAP[rawCategory] ?? rawCategory;
 
-  // Single source of truth
+  // Single source of truth for auth status in the catalog.
   const isAuthed = !!getAccessToken();
 
   const [ordering, setOrdering] = useState("-created_at");
@@ -228,7 +233,7 @@ export default function ProductCatalog() {
   // Size selection per product
   const [selectedSizeByProduct, setSelectedSizeByProduct] = useState<Record<number, number>>({});
 
-  // Anti double-click per product
+  // Anti double-click per product (prevents duplicate add requests)
   const [addBusyByProduct, setAddBusyByProduct] = useState<Record<number, boolean>>({});
 
   // Notify state
@@ -242,7 +247,7 @@ export default function ProductCatalog() {
     safeSetSessionEmail(v);
   };
 
-  // Debounce search term
+  // Debounce search term to avoid flooding the API on every keystroke.
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 300);
@@ -253,28 +258,28 @@ export default function ProductCatalog() {
     setPage(1);
   }, [effectiveCategory]);
 
-  // Fetch products
+  // Fetch products (AbortController prevents race conditions when filters change fast)
   useEffect(() => {
     const ctrl = new AbortController();
-
     setLoading(true);
 
-    fetchProducts({
-      page,
-      page_size: pageSize,
-      category: effectiveCategory || undefined,
-      in_stock: showAvailableOnly ? true : undefined,
-      ordering: ordering || undefined,
-      min_price: minPrice === "" ? undefined : minPrice,
-      max_price: maxPrice === "" ? undefined : maxPrice,
-      search: debouncedSearch || undefined,
-    },
-    ctrl.signal
-  )
-  .then((data) => {
-    setProducts(data.results);
-    setTotal(data.count);
-  })
+    fetchProducts(
+      {
+        page,
+        page_size: pageSize,
+        category: effectiveCategory || undefined,
+        in_stock: showAvailableOnly ? true : undefined,
+        ordering: ordering || undefined,
+        min_price: minPrice === "" ? undefined : minPrice,
+        max_price: maxPrice === "" ? undefined : maxPrice,
+        search: debouncedSearch || undefined,
+      },
+      ctrl.signal
+    )
+      .then((data) => {
+        setProducts(data.results);
+        setTotal(data.count);
+      })
       .catch((err) => {
         if (ctrl.signal.aborted) return;
         console.error("Error fetching products:", err);
@@ -297,14 +302,14 @@ export default function ProductCatalog() {
 
     try {
       await api.post(`/products/${productId}/toggle_wishlist/`);
+
+      // Sync global header counter + local card state.
       dispatch(fetchWishlistCount());
       localStorage.setItem("wishlist:ping", String(Date.now()));
 
       setProducts((prev) =>
         prev.map((p) => (p.id === productId ? { ...p, is_in_wishlist: !p.is_in_wishlist } : p))
       );
-
-      localStorage.setItem("wishlist:ping", String(Date.now()));
     } catch (e) {
       console.error("toggle_wishlist error:", e);
     }
@@ -461,10 +466,7 @@ export default function ProductCatalog() {
 
       <div className="catalog__grid" role="list" aria-label="Product list">
         {products.map((apiItem) => {
-        const imgSrc =
-          apiItem.main_image_url ||
-          apiItem.images?.[0]?.image_url ||
-            fallbackImg;
+          const imgSrc = apiItem.main_image_url || apiItem.images?.[0]?.image_url || fallbackImg;
 
           const sizes = getProductSizes(apiItem)
             .slice()
@@ -576,12 +578,7 @@ export default function ProductCatalog() {
       </div>
 
       <nav className="catalog__pagination" aria-label="Pagination">
-        <button
-          type="button"
-          disabled={page <= 1}
-          onClick={() => setPage((p) => p - 1)}
-          aria-label="Previous page"
-        >
+        <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} aria-label="Previous page">
           ← Prev
         </button>
 
@@ -589,12 +586,7 @@ export default function ProductCatalog() {
           {page} / {totalPages}
         </span>
 
-        <button
-          type="button"
-          disabled={page >= totalPages}
-          onClick={() => setPage((p) => p + 1)}
-          aria-label="Next page"
-        >
+        <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} aria-label="Next page">
           Next →
         </button>
       </nav>
