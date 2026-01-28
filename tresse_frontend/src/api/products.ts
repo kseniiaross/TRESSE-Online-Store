@@ -1,5 +1,5 @@
 import api from "./axiosInstance";
-import type { Product } from "../types/product";
+import type { Product } from "../types/product"; // <-- один-единственный Product
 
 export type Paginated<T> = {
   count: number;
@@ -19,13 +19,7 @@ export type FetchProductsParams = {
   max_price?: number;
 };
 
-export const fetchProducts = async (
-  params?: FetchProductsParams,
-  signal?: AbortSignal
-) => {
-  const response = await api.get<Paginated<Product>>("/products/", {
-    params,
-    signal,
-  });
+export const fetchProducts = async (params?: FetchProductsParams, signal?: AbortSignal) => {
+  const response = await api.get<Paginated<Product>>("/products/", { params, signal });
   return response.data;
 };
