@@ -5,17 +5,17 @@
 .wishlist {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 60px 40px 40px; /* выше (было 120) */
+  padding: 60px 40px 40px;
 }
 
 .wishlist__top {
   max-width: 1200px;
-  margin: 0 auto 40px;
+  margin: 0 auto 26px;
 }
 
 .wishlist__title {
   text-align: center;
-  margin: 0 0 26px;
+  margin: 0 0 18px;
   font-size: 32px;
   letter-spacing: 0.04em;
   font-weight: 600;
@@ -27,6 +27,7 @@
   gap: 40px;
   align-items: center;
   justify-content: flex-start;
+  flex-wrap: wrap;
 }
 
 /* Inputs */
@@ -41,10 +42,21 @@
   outline: none;
 }
 
+.wishlist__input--price {
+  min-width: 160px;
+}
+
+.wishlist__price {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+
+/* Loader/empty */
 .wishlist__loader,
 .wishlist__empty {
   max-width: 1200px;
-  margin: 16px auto 0;
+  margin: 10px auto 0;
   font-size: 14px;
 }
 
@@ -62,12 +74,40 @@
   position: relative;
 }
 
-/* Use Catalog heart button, but ensure it's on top */
+/* Heart — ensure visible ALWAYS */
 .wishlist__wishlistBtn {
   position: absolute;
   top: 12px;
   right: 12px;
-  z-index: 10; /* ВАЖНО: чтобы не пряталось */
+  z-index: 50;
+}
+
+.wishlist__wishlistBtn.catalog__wishlist-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.wishlist__wishlistBtn.catalog__wishlist-btn::before {
+  content: "♡";
+  font-size: 18px;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.wishlist__wishlistBtn.catalog__wishlist-btn--active {
+  background: #111;
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+.wishlist__wishlistBtn.catalog__wishlist-btn--active::before {
+  content: "♥";
+  color: #fff;
 }
 
 /* Media */
@@ -104,7 +144,7 @@
   text-overflow: ellipsis;
 }
 
-.wishlist__price {
+.wishlist__priceValue {
   white-space: nowrap;
 }
 
@@ -152,6 +192,16 @@
 
   .wishlist__input,
   .wishlist__select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .wishlist__price {
+    width: 100%;
+    gap: 18px;
+  }
+
+  .wishlist__input--price {
     width: 100%;
     min-width: 0;
   }

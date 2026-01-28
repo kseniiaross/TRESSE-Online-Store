@@ -29,6 +29,10 @@ export default function WishList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [ordering, setOrdering] = useState("-created_at");
+
+  const [minPrice, setMinPrice] = useState<number | "">("");
+  const [maxPrice, setMaxPrice] = useState<number | "">("");
+
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
 
   const [loading, setLoading] = useState(false);
@@ -52,6 +56,8 @@ export default function WishList() {
           page_size: pageSize,
           ordering,
           category: categoryParam || undefined,
+          min_price: minPrice === "" ? undefined : minPrice,
+          max_price: maxPrice === "" ? undefined : maxPrice,
         },
         signal: ctrl.signal,
       })
@@ -67,7 +73,7 @@ export default function WishList() {
       .finally(() => setLoading(false));
 
     return () => ctrl.abort();
-  }, [ordering, categoryParam]);
+  }, [ordering, categoryParam, minPrice, maxPrice]);
 
   const handleRemove = async (id: number) => {
     try {
@@ -82,7 +88,6 @@ export default function WishList() {
   };
 
   const openProductDetail = (productId: number) => {
-    // ВАЖНО: в твоём ProductCatalog Link идёт на /product/:id
     navigate(`/product/${productId}`);
   };
 
@@ -118,6 +123,38 @@ export default function WishList() {
             <option value="name">Name: A → Z</option>
             <option value="-name">Name: Z → A</option>
           </select>
+
+          <div className="wishlist__price" role="group" aria-label="Price range">
+            <label className="srOnly" htmlFor="wishlist_min_price">
+              Minimum price
+            </label>
+            <input
+              id="wishlist_min_price"
+              type="number"
+              placeholder="Min price"
+              value={minPrice}
+              onChange={(e) => {
+                const v = e.target.value;
+                setMinPrice(v === "" ? "" : Number(v));
+              }}
+              className="wishlist__input wishlist__input--price"
+            />
+
+            <label className="srOnly" htmlFor="wishlist_max_price">
+              Maximum price
+            </label>
+            <input
+              id="wishlist_max_price"
+              type="number"
+              placeholder="Max price"
+              value={maxPrice}
+              onChange={(e) => {
+                const v = e.target.value;
+                setMaxPrice(v === "" ? "" : Number(v));
+              }}
+              className="wishlist__input wishlist__input--price"
+            />
+          </div>
         </div>
       </div>
 
@@ -136,13 +173,10 @@ export default function WishList() {
       <div className="wishlist__grid" role="list" aria-label="Wishlist items">
         {filtered.map((product) => {
           const imgSrc =
-            product.main_image_url ||
-            product.images?.[0]?.image_url ||
-            fallbackImg;
+            product.main_image_url || product.images?.[0]?.image_url || fallbackImg;
 
           return (
             <article key={product.id} className="wishlist__card" role="listitem">
-              {/* HEART — как в ProductCatalog */}
               <button
                 type="button"
                 className="catalog__wishlist-btn catalog__wishlist-btn--active wishlist__wishlistBtn"
@@ -156,7 +190,6 @@ export default function WishList() {
                 <span className="srOnly">Remove from wishlist</span>
               </button>
 
-              {/* IMAGE → PRODUCT DETAIL */}
               <div
                 className="wishlist__media"
                 onClick={() => openProductDetail(product.id)}
@@ -185,10 +218,9 @@ export default function WishList() {
                 <span className="wishlist__name" title={product.name}>
                   {product.name}
                 </span>
-                <span className="wishlist__price">${product.price}</span>
+                <span className="wishlist__priceValue">${product.price}</span>
               </div>
 
-              {/* MODAL ONLY HERE */}
               <button
                 type="button"
                 className="wishlist__addBtn"
