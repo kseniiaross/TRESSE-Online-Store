@@ -1,16 +1,20 @@
 /* =========================
-   WISHLIST — aligned with ProductCatalog
+   WISHLIST
    ========================= */
 
 .wishlist {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 60px 40px 40px;
+
+  /* match catalog-like page padding */
+  padding-top: var(--header-height, 120px);
+  padding-bottom: 40px;
+  padding-inline: clamp(16px, 3vw, 40px);
 }
 
 .wishlist__top {
-  max-width: 1200px;
-  margin: 0 auto 26px;
+  width: 100%;
+  margin: 0 0 26px;
 }
 
 .wishlist__title {
@@ -21,13 +25,20 @@
   font-weight: 600;
 }
 
-/* Filters — left like Catalog */
 .wishlist__filters {
+  width: 100%;
   display: flex;
   gap: 40px;
   align-items: center;
   justify-content: flex-start;
   flex-wrap: wrap;
+}
+
+.wishlist__grid,
+.wishlist__loader,
+.wishlist__empty {
+  width: 100%;
+  margin: 0;
 }
 
 /* Inputs */
@@ -52,18 +63,13 @@
   align-items: center;
 }
 
-/* Loader/empty */
 .wishlist__loader,
 .wishlist__empty {
-  max-width: 1200px;
-  margin: 10px auto 0;
+  margin-top: 10px;
   font-size: 14px;
 }
 
-/* Grid */
 .wishlist__grid {
-  max-width: 1200px;
-  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 28px;
