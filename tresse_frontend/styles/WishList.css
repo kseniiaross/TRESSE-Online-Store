@@ -1,25 +1,35 @@
+/* =========================
+   WISHLIST — aligned with ProductCatalog
+   ========================= */
+
 .wishlist {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 120px 40px 40px;
+  padding: 60px 40px 40px; /* выше (было 120) */
 }
 
-/* TITLE */
+.wishlist__top {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+}
+
 .wishlist__title {
   text-align: center;
-  margin-bottom: 32px;
+  margin: 0 0 26px;
   font-size: 32px;
   letter-spacing: 0.04em;
+  font-weight: 600;
 }
 
-/* FILTERS — LEFT, LIKE CATALOG */
+/* Filters — left like Catalog */
 .wishlist__filters {
   display: flex;
   gap: 40px;
-  margin-bottom: 40px;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-/* INPUTS */
+/* Inputs */
 .wishlist__input,
 .wishlist__select {
   border: none;
@@ -31,36 +41,36 @@
   outline: none;
 }
 
-/* GRID */
+.wishlist__loader,
+.wishlist__empty {
+  max-width: 1200px;
+  margin: 16px auto 0;
+  font-size: 14px;
+}
+
+/* Grid */
 .wishlist__grid {
+  max-width: 1200px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 28px;
 }
 
-/* CARD */
+/* Card */
 .wishlist__card {
   position: relative;
 }
 
-/* HEART — SAME VISUAL AS CATALOG */
-.wishlist__heart {
+/* Use Catalog heart button, but ensure it's on top */
+.wishlist__wishlistBtn {
   position: absolute;
   top: 12px;
   right: 12px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid rgba(0,0,0,.2);
-  background: #fff;
-  cursor: pointer;
+  z-index: 10; /* ВАЖНО: чтобы не пряталось */
 }
 
-.wishlist__heart.is-active {
-  background: #111;
-}
-
-/* MEDIA */
+/* Media */
 .wishlist__media {
   aspect-ratio: 3 / 4;
   background: #f6f6f6;
@@ -68,18 +78,18 @@
   cursor: pointer;
 }
 
-.wishlist__media img {
+.wishlist__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform .35s ease;
+  transition: transform 0.35s ease;
 }
 
-.wishlist__media:hover img {
+.wishlist__media:hover .wishlist__image {
   transform: scale(1.04);
 }
 
-/* META */
+/* Meta */
 .wishlist__meta {
   display: flex;
   justify-content: space-between;
@@ -94,7 +104,11 @@
   text-overflow: ellipsis;
 }
 
-/* ADD BUTTON */
+.wishlist__price {
+  white-space: nowrap;
+}
+
+/* Add */
 .wishlist__addBtn {
   margin-top: 14px;
   width: 100%;
@@ -102,8 +116,43 @@
   border: 1px solid #e0e0e0;
   background: #fff;
   cursor: pointer;
+  font-size: 13px;
+  letter-spacing: 0.04em;
 }
 
 .wishlist__addBtn:hover {
   background: #f8f8f8;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .wishlist {
+    padding: 50px 24px 32px;
+  }
+
+  .wishlist__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .wishlist__filters {
+    gap: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .wishlist__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wishlist__filters {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .wishlist__input,
+  .wishlist__select {
+    width: 100%;
+    min-width: 0;
+  }
 }
