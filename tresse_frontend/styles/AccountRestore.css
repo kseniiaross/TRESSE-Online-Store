@@ -1,7 +1,7 @@
 /* src/styles/AccountRestore.css */
 
 .accountRestore {
-  /* как Policy/Help: футер ниже */
+  /* Layout parity with Policy/Help pages (footer stays below). */
   min-height: calc(100vh - var(--header-height));
   display: flex;
   flex-direction: column;
@@ -94,6 +94,12 @@
   border-color: rgba(0, 0, 0, 0.42);
 }
 
+/* Accessible focus for keyboard users, consistent with the rest of the app. */
+.accountRestore__input:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.28);
+  outline-offset: 3px;
+}
+
 .accountRestore__error {
   margin: 8px 0 0;
   font-size: 14px;
@@ -105,10 +111,12 @@
   margin-top: 18px;
 }
 
+/* Success uses a calm tone (no neon), keeps luxury feel. */
 .accountRestore__success {
   margin-top: 12px;
   font-size: 14px;
   line-height: 1.6;
+  color: rgba(0, 0, 0, 0.78);
 }
 
 .accountRestore__link {
@@ -133,6 +141,7 @@
     padding-right: 14px;
     padding-bottom: 120px;
   }
+
   .accountRestore__title {
     letter-spacing: 0.10em;
   }
