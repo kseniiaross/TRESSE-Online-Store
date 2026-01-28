@@ -1,180 +1,278 @@
-/* =========================
-   PRODUCT MODAL
-   ========================= */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.38);
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  z-index: 9999;
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(17,17,17,.35);
+  display:grid;
+  place-items:center;
+  padding:24px;
+  z-index:9999;
 }
 
-.modal-content {
-  width: min(620px, 92vw);
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.18);
-  padding: 18px 18px 16px;
-  position: relative;
+.modal-content{
+  width:min(760px, calc(100vw - 48px));
+  background:#fff;
+  border:1px solid rgba(0,0,0,.10);
+  box-shadow:0 28px 90px rgba(0,0,0,.18);
+  border-radius:14px;
+  padding:20px 20px 16px;
+  position:relative;
 }
 
-/* close X */
-.modal-x {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.14);
-  background: rgba(255, 255, 255, 0.95);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  font-size: 20px;
-  line-height: 1;
+.modal-x{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:38px;
+  height:38px;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,.12);
+  background:#fff;
+  color:#111;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  font-size:20px;
+  line-height:1;
+  transition:transform .08s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
-/* header */
-.modal-head {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  align-items: baseline;
-  margin-bottom: 14px;
-  
+.modal-x:hover{
+  border-color:rgba(0,0,0,.22);
+  box-shadow:0 1px 0 rgba(17,17,17,.06);
+  background:#fff;
 }
 
-.modal-title {
-  font-size: 16px;
-  letter-spacing: 0.02em;
-  /* чтобы не резало цену и не ломало layout */
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.modal-x:active{
+  transform:scale(.96);
 }
 
-.modal-price {
-  font-size: 15px;
-  font-weight: 500;
-  white-space: nowrap; /* цена всегда полностью видна */
+.modal-x:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(17,17,17,.12);
 }
 
-/* section */
-.modal-section {
-  margin-top: 6px;
+.modal-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding-right:52px;
+  margin-bottom:14px;
 }
 
-.modal-label {
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
+.modal-title{
+  font-size:16px;
+  font-weight:500;
+  letter-spacing:.02em;
+  color:#111;
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
-.modal-muted {
-  opacity: 0.7;
-  font-size: 13px;
+.modal-price{
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:.02em;
+  color:#111;
+  white-space:nowrap;
 }
 
-/* sizes */
-.modal-sizes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+.modal-section{
+  margin-top:6px;
 }
 
-.modal-size {
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.18);
-  background: #fff;
-  cursor: pointer;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.modal-label{
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+  color:#111;
 }
 
-.modal-size.is-active {
-  border-color: #111;
-  background: #111;
-  color: #fff;
+.modal-muted{
+  opacity:.75;
+  font-size:13px;
+  color:#111;
 }
 
-/* actions */
-.modal-actions {
-  margin-top: 16px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
+.modal-sizes{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  min-height:40px;
 }
 
-/* делаем “ADD TO CART” как твой add-btn, но чуть стабильнее в модалке */
-.modal-primary {
-  flex: 1;
+.modal-size{
+  appearance:none;
+  font:inherit;
+  height:34px;
+  min-width:46px;
+  padding:0 12px;
+  border-radius:6px;
+  border:1px solid rgba(0,0,0,.16);
+  background:#fff;
+  color:#111;
+  cursor:pointer;
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  transition:border-color .2s ease, box-shadow .2s ease, transform .08s ease, background .2s ease, color .2s ease;
 }
 
-/* NOTIFY ME — рядом с Add to cart */
-.modal-notify {
-  height: 44px;
-  padding: 0 14px;
-  border: 1px solid rgba(0, 0, 0, 0.18);
-  background: #fff;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 11px;
-  white-space: nowrap;
-  transition: border-color 160ms ease, transform 120ms ease;
+.modal-size:hover{
+  border-color:rgba(0,0,0,.30);
+  box-shadow:0 1px 0 rgba(17,17,17,.06);
 }
 
-.modal-notify:hover {
-  border-color: rgba(0, 0, 0, 0.32);
+.modal-size:active{
+  transform:translateY(1px);
 }
 
-.modal-notify:active {
-  transform: translateY(1px);
+.modal-size:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(17,17,17,.12);
 }
 
-.modal-notify:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+.modal-size.is-active{
+  border-color:#111;
+  background:#111;
+  color:#fff;
 }
 
-/* Close */
-.modal-secondary {
-  height: 44px;
-  padding: 0 14px;
-  border: 1px solid rgba(0, 0, 0, 0.18);
-  background: #fff;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 11px;
-  white-space: nowrap;
+.modal-actions{
+  margin-top:18px;
+  display:flex;
+  gap:12px;
+  align-items:center;
 }
 
-/* Mobile */
-@media (max-width: 520px) {
-  .modal-content {
-    padding: 16px 14px 14px;
+.modal-primary{
+  flex:1;
+  height:38px;
+  padding:0 16px;
+  border-radius:10px;
+  border:1px solid #111;
+  background:#111;
+  color:#fff;
+  font-size:13px;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:transform .08s ease, box-shadow .2s ease, opacity .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.modal-primary:hover{
+  box-shadow:0 1px 0 rgba(17,17,17,.10);
+}
+
+.modal-primary:active{
+  transform:translateY(1px);
+}
+
+.modal-primary:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(17,17,17,.14);
+}
+
+.modal-primary:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+  border-color:rgba(17,17,17,.35);
+  background:rgba(17,17,17,.35);
+  box-shadow:none;
+  transform:none;
+}
+
+.modal-notify{
+  height:38px;
+  padding:0 16px;
+  border:1px solid rgba(0,0,0,.16);
+  border-radius:10px;
+  background:#fff;
+  color:#111;
+  cursor:pointer;
+  text-transform:uppercase;
+  letter-spacing:.10em;
+  font-size:12px;
+  white-space:nowrap;
+  transition:border-color .2s ease, box-shadow .2s ease, transform .08s ease, background .2s ease;
+}
+
+.modal-notify:hover{
+  border-color:rgba(0,0,0,.28);
+  background:#fafafa;
+  box-shadow:0 1px 0 rgba(17,17,17,.06);
+}
+
+.modal-notify:active{
+  transform:translateY(1px);
+}
+
+.modal-notify:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(17,17,17,.12);
+}
+
+.modal-notify:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  box-shadow:none;
+  transform:none;
+}
+
+.modal-secondary{
+  height:38px;
+  padding:0 16px;
+  border:1px solid rgba(0,0,0,.16);
+  border-radius:10px;
+  background:#fff;
+  color:#111;
+  cursor:pointer;
+  text-transform:uppercase;
+  letter-spacing:.10em;
+  font-size:12px;
+  white-space:nowrap;
+  transition:border-color .2s ease, box-shadow .2s ease, transform .08s ease, background .2s ease;
+}
+
+.modal-secondary:hover{
+  border-color:rgba(0,0,0,.28);
+  background:#fafafa;
+  box-shadow:0 1px 0 rgba(17,17,17,.06);
+}
+
+.modal-secondary:active{
+  transform:translateY(1px);
+}
+
+.modal-secondary:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(17,17,17,.12);
+}
+
+@media (max-width:520px){
+  .modal-overlay{
+    padding:16px;
   }
 
-  .modal-actions {
-    flex-wrap: wrap;
+  .modal-content{
+    width:calc(100vw - 32px);
+    padding:18px 16px 14px;
   }
 
-  .modal-primary {
-    flex: 1 1 100%;
+  .modal-actions{
+    flex-wrap:wrap;
+  }
+
+  .modal-primary{
+    flex:1 1 100%;
   }
 
   .modal-notify,
-  .modal-secondary {
-    flex: 1 1 calc(50% - 6px);
+  .modal-secondary{
+    flex:1 1 calc(50% - 6px);
   }
 }
