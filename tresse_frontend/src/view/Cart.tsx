@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import fallbackImg from "../assets/images/fallback_product.jpg";
@@ -90,22 +90,28 @@ export default function Cart() {
   const usingServer = isAuthed && (hasServer || !hasGuest);
   const items: Array<CartItemDto | GuestCartItem> = usingServer ? serverItems : guestItems;
 
+  /**
+   * ✅ StrictMode guard:
+   * In dev React StrictMode mounts components twice to detect side effects.
+   * Without this guard, mergeGuestCart() can run twice on refresh -> quantities jump to stock max.
+   */
+  const didInitRef = useRef(false);
+
   useEffect(() => {
     if (!isAuthed) return;
+
+    if (didInitRef.current) return;
+    didInitRef.current = true;
 
     let alive = true;
 
     (async () => {
-      /**
-       * Merge guest cart once on login, then fetch server cart.
-       * `alive` guard prevents follow-ups after unmount in edge cases.
-       */
       try {
         if (hasGuest) await dispatch(serverCart.mergeGuestCart());
         if (!alive) return;
         await dispatch(serverCart.fetchCart());
       } catch {
-        // In production you might report to monitoring, but keep UI calm here.
+        // keep UI calm
       }
     })();
 
