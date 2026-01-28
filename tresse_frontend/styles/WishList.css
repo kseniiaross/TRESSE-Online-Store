@@ -13,8 +13,9 @@
 }
 
 .wishlist__top {
+  max-width: 1200px;
+  margin: 0 auto 26px;
   width: 100%;
-  margin: 0 0 26px;
 }
 
 .wishlist__title {
@@ -34,12 +35,6 @@
   flex-wrap: wrap;
 }
 
-.wishlist__grid,
-.wishlist__loader,
-.wishlist__empty {
-  width: 100%;
-  margin: 0;
-}
 
 /* Inputs */
 .wishlist__input,
@@ -65,11 +60,14 @@
 
 .wishlist__loader,
 .wishlist__empty {
-  margin-top: 10px;
-  font-size: 14px;
+  max-width: 1200px;
+  margin: 10px auto 0;
+  text-align: left;
 }
 
 .wishlist__grid {
+  max-width: 1200px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 28px;
