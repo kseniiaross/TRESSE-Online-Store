@@ -1,5 +1,5 @@
 /* =========================
-   Catalog (TRESSE) — BEM
+   Catalog 
    ========================= */
 
 .catalog{
@@ -20,8 +20,6 @@
   flex-wrap:wrap;
   align-items:center;
   gap:14px;
-
-  /* ✅ align with grid padding */
   margin: 12px 0 6px;
 }
 
@@ -78,8 +76,6 @@
   display:grid;
   grid-template-columns:repeat(4, 1fr);
   gap:var(--gap);
-
-  /* ✅ align with filters */
   padding: 20px 0 32px;
 }
 
