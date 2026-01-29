@@ -26,7 +26,6 @@ function safeLocalStorageSet(key: string, value: string): void {
   try {
     localStorage.setItem(key, value);
   } catch {
-    // ignore
   }
 }
 
@@ -44,7 +43,6 @@ function isStringArray(value: unknown): value is string[] {
 
 export function isValidEmail(value: string): boolean {
   const email = value.trim();
-  // достаточно строгий и безопасный regex для фронта
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
@@ -77,11 +75,6 @@ export function canShowNewsletterModal(isLoggedIn: boolean): boolean {
 }
 
 function extractBestErrorMessage(data: unknown): string | null {
-  // DRF часто возвращает:
-  // { detail: "..." }
-  // { email: ["..."] }
-  // { non_field_errors: ["..."] }
-  // или даже строку
 
   if (isString(data)) return data;
 
@@ -96,7 +89,6 @@ function extractBestErrorMessage(data: unknown): string | null {
   const emailField = data["email"];
   if (isStringArray(emailField) && emailField.length > 0) return emailField[0];
 
-  // если пришли любые другие поля с массивом строк — возьмём первое
   for (const key of Object.keys(data)) {
     const v = data[key];
     if (isStringArray(v) && v.length > 0) return v[0];
@@ -117,7 +109,6 @@ export async function subscribeNewsletter(email: string, source: SubscribeSource
   }
 
   try {
-    // axiosInstance уже смотрит в VITE_API_URL и добавляет /api при создании baseURL
     await axiosInstance.post(
       "/newsletter/subscribe/",
       { email: clean, source },
@@ -126,10 +117,8 @@ export async function subscribeNewsletter(email: string, source: SubscribeSource
 
     markNewsletterSubscribed();
   } catch (err: unknown) {
-    // базовое сообщение
     let msg = "Subscription failed. Please try again.";
 
-    // таймаут / нет ответа
     if (isRecord(err) && isString(err["message"])) {
       const m = err["message"].toLowerCase();
       if (m.includes("timeout")) {
@@ -144,7 +133,6 @@ export async function subscribeNewsletter(email: string, source: SubscribeSource
       const extracted = extractBestErrorMessage(data);
       if (extracted) msg = extracted;
 
-      // чуть более дружелюбные сообщения по статусу (если detail нет)
       if (!extracted && typeof status === "number") {
         if (status === 400) msg = "Please check your email and try again.";
         if (status === 404) msg = "Subscribe endpoint not found. Please contact support.";

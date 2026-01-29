@@ -1,4 +1,3 @@
-// src/features/payments/stripe.ts
 import type { Stripe } from "@stripe/stripe-js";
 
 let cachedPromise: Promise<Stripe | null> | null = null;
@@ -9,7 +8,6 @@ function getPublishableKey(): string | null {
   if (typeof pk !== "string") return null;
   const key = pk.trim();
 
-  // publishable key должен начинаться с pk_
   if (!key || !key.startsWith("pk_")) return null;
 
   return key;
@@ -26,7 +24,6 @@ export function getStripePromise(): Promise<Stripe | null> {
     return cachedPromise;
   }
 
-  // ✅ ВАЖНО: stripe-js загружается только когда реально нужен checkout
   cachedPromise = import("@stripe/stripe-js").then(({ loadStripe }) => loadStripe(key));
 
   return cachedPromise;

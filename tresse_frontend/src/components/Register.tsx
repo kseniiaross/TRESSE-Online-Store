@@ -1,4 +1,3 @@
-// src/components/Register.tsx
 import { useState } from "react";
 import * as Yup from "yup";
 import { useForm } from "react-hook-form";
@@ -17,10 +16,7 @@ import { fetchCart, mergeGuestCart } from "../store/serverCartSlice";
 import "../../styles/Register.css";
 import registerImage from "../assets/images/Register.jpg";
 
-/**
- * Keep validation close to the UI:
- * it's easier to iterate on rules and error copy per screen.
- */
+
 const schema = Yup.object({
   first_name: Yup.string().required("First name is required"),
   last_name: Yup.string().required("Last name is required"),
@@ -41,10 +37,7 @@ function toNonEmptyStringOrNull(v: unknown): string | null {
   return typeof v === "string" && v.trim() ? v.trim() : null;
 }
 
-/**
- * Runtime validation for API payloads.
- * We never trust network data blindly — keeps auth state resilient.
- */
+
 function toUserOrNull(v: unknown): User | null {
   if (!isRecord(v)) return null;
 
@@ -127,7 +120,6 @@ export default function Register() {
 
       dispatch(setCredentials({ token: access, user }));
 
-      // Keep cart + wishlist in sync immediately after registration
       await dispatch(mergeGuestCart()).unwrap();
       await dispatch(fetchCart()).unwrap();
       dispatch(fetchWishlistCount());
@@ -261,7 +253,6 @@ export default function Register() {
           </form>
         </div>
 
-        {/* Decorative image. Keep it out of the accessibility tree to reduce noise. */}
         <div className="auth__right" aria-hidden="true">
           <img className="auth__image" src={registerImage} alt="" />
         </div>

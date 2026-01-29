@@ -226,7 +226,6 @@ export default function Footer() {
             </button>
           </form>
 
-          {/* Announce status changes to assistive tech */}
           {msg ? (
             <p
               id="footer-newsletter-msg"
@@ -253,7 +252,6 @@ export default function Footer() {
 
       {/* ------------------------------------------------------------------
          Bottom: copyright + social links
-         - Avoid href="#" to prevent focus jumps / scroll-to-top issues
          ------------------------------------------------------------------ */}
       <div className="footer__bottom">
         <div className="footer__copy">© {new Date().getFullYear()} — TRESSE</div>

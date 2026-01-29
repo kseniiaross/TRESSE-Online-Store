@@ -1,4 +1,3 @@
-# products/models.py
 from __future__ import annotations
 
 from django.conf import settings
@@ -97,14 +96,12 @@ class Product(models.Model):
         db_table = "products"
         ordering = ["-created_at"]
 
-    # ✅ базовая категория: woman/man/kids
     category = models.ForeignKey(
         Category,
         related_name="products",
-        on_delete=models.PROTECT,  # лучше, чем CASCADE
+        on_delete=models.PROTECT, 
     )
 
-    # ✅ витрины/лейблы: the-new/exclusives/bestsellers
     collections = models.ManyToManyField(
         Collection,
         related_name="products",

@@ -1,46 +1,15 @@
-/* ==========================================================================
-   Policy.css
-   Scope: Policy pages (Shipping / Terms / Privacy, etc.)
-
-   Why this file exists:
-   - Page-scoped styling (no global tag resets here)
-   - Predictable typography + spacing across all policy pages
-   - Layout contract: keep footer below the first viewport on short pages
-
-   Layout note (important):
-   - "Footer appears after first scroll" cannot be solved by content alone
-     when the page is short. We enforce min-height: 100svh on the page
-     container. This is not a fake spacer; it's a layout guarantee.
-
-   WCAG 2.1 notes:
-   - Visible focus for keyboard users (2.4.7 Focus Visible)
-   - Comfortable line-height for readability (1.4.12 Text Spacing friendly)
-   ========================================================================== */
 
 .policy {
-  /* Keep content below the fixed header */
   padding-top: calc(var(--header-height) + var(--policy-top-gap));
-
-  /* App-wide horizontal padding token */
   padding-left: var(--container-x);
   padding-right: var(--container-x);
-
-  /* Breathing room above footer */
   padding-bottom: 60px;
-
   background: var(--c-white);
   color: var(--text);
-
-  /* Ensures footer starts after the first viewport on short pages */
   min-height: 100svh;
 }
 
-/* --------------------------------------------------------------------------
-   Content wrapper
-   Requirement from design:
-   - Content starts from the left (not centered)
-   - Still has a max width for readability on large screens
-   -------------------------------------------------------------------------- */
+
 .policy__content {
   width: 100%;
   max-width: 980px;
@@ -50,8 +19,8 @@
 
 /* Header */
 .policy__header {
-  margin-bottom: 1.25rem; /* было 1.75rem — делаем компактнее */
-  padding-bottom: 0.85rem; /* чуть меньше */
+  margin-bottom: 1.25rem; 
+  padding-bottom: 0.85rem; 
   border-bottom: 1px solid var(--border);
 }
 
@@ -90,7 +59,6 @@
   font-weight: 400;
 }
 
-/* Lists — keep normal body typography */
 .policy__list {
   margin: 0.6rem 0;
   padding-left: 1.25rem;
@@ -113,7 +81,6 @@
   opacity: 0.9;
 }
 
-/* WCAG 2.1: visible keyboard focus on interactive text */
 .policy__link:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: var(--focus-offset);

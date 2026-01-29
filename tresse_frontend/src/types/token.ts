@@ -1,5 +1,3 @@
-// src/utils/token.ts
-
 const ACCESS_KEY = "access";
 const REFRESH_KEY = "refresh";
 const USER_KEY = "user";

@@ -1,15 +1,3 @@
-/* ==========================================================================
-   Register.css
-   Scope: Register screen only.
-
-   Goals:
-   - Use the same spacing + layout primitives as Authorization/LoginChoice
-   - Keep form styling local and predictable
-   - Avoid page-level hacks (no margin-top, no 100vh math here)
-
-   WCAG/a11y notes:
-   - Error messages use readable size + distinct color
-   ========================================================================== */
 
 .auth-page {
   --auth-top-gap: 40px;
@@ -20,8 +8,6 @@
 
   --auth-frame-padding: 24px;
   --auth-image-max-width: 700px;
-
-  /* Header offset is already applied by .layout-main */
   padding-top: var(--auth-top-gap);
   padding-bottom: var(--auth-bottom-gap);
   background: #fff;
@@ -52,13 +38,6 @@
   margin: 0 0 1.5rem;
   text-transform: uppercase;
 }
-
-/* --------------------------------------------------------------------------
-   Register form
-   IMPORTANT:
-   - Keep existing TSX classes working (.register-form / .input-group)
-   - Provide BEM aliases for future consistency (.auth__form / .auth__group)
-   -------------------------------------------------------------------------- */
 
 .register-form,
 .auth__form {
@@ -128,7 +107,6 @@
   box-sizing: border-box;
 }
 
-/* Shared CTA (Register button) */
 
 .auth__cta {
   width: var(--auth-control-width);

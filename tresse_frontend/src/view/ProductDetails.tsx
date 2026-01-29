@@ -122,12 +122,7 @@ export default function ProductDetails() {
   }, [productId]);
 
   const imagesForGallery = useMemo(() => {
-    /**
-     * Gallery is derived data:
-     * - keep main image first
-     * - dedupe URLs
-     * - always provide at least one safe fallback
-     */
+   
     const main = product?.main_image_url ? [product.main_image_url] : [];
     const rest = (product?.images ?? [])
       .map((x) => x.image_url)

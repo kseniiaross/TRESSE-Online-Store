@@ -1,9 +1,3 @@
-/* src/styles/Cart.css
-   Cart page styles (BEM).
-   Goal: ProductCatalog-like layout (clean, airy, consistent card rhythm).
-   No line-clamp tricks: we use max-height based on line-height for 2 lines.
-*/
-
 .cart {
   max-width: 1180px;
   margin: 0 auto;
@@ -54,17 +48,13 @@
   gap: 14px;
 }
 
-/* Compact row-card */
 .cart-item {
   border: 1px solid var(--border);
   border-radius: 0px;
   background: #fff;
   overflow: hidden;
-
   display: grid;
   grid-template-columns: 132px 1fr;
-
-  /* Make cards feel “catalog clean” */
   min-height: 132px;
 }
 
@@ -105,14 +95,9 @@
   font-size: 13px;
   letter-spacing: var(--track-sm);
   text-transform: uppercase;
-
   line-height: 1.2;
-
-  /* No clamp "magic": just a predictable 2-line cap */
   max-height: calc(1.2em * 2);
   overflow: hidden;
-
-  /* Keep text readable and prevent huge blocks */
   min-width: 0;
 }
 
@@ -157,7 +142,6 @@
   opacity: 0.75;
 }
 
-/* Quantity – same “pill” feeling as your UI */
 .cart-qty {
   display: inline-flex;
   align-items: center;
@@ -192,7 +176,6 @@
   padding: 6px 0;
 }
 
-/* Summary: neat bottom bar */
 .cart-summary {
   position: sticky;
   bottom: 0;

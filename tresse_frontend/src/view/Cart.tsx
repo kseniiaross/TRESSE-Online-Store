@@ -17,10 +17,7 @@ import type { CartItemDto, GuestCartItem } from "../types/cart";
 
 import "../../styles/Cart.css";
 
-/**
- * Helpers
- * Kept local: cart-specific, easy to audit, avoids cross-file coupling.
- */
+
 const toSafeInt = (v: unknown, fallback = 1) => {
   const n = typeof v === "number" ? v : Number(v);
   if (!Number.isFinite(n)) return fallback;
@@ -67,10 +64,7 @@ export default function Cart() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  /**
-   * Storage check is intentionally simple because App.tsx syncs auth into Redux.
-   * If later you rely only on Redux, replace with a selector.
-   */
+ 
   const isAuthed = !!localStorage.getItem("access");
 
   const cart = useAppSelector((s: RootState) => s.serverCart.cart);
@@ -82,19 +76,9 @@ export default function Cart() {
   const hasGuest = guestItems.length > 0;
   const hasServer = serverItems.length > 0;
 
-  /**
-   * Real-world UX:
-   * - Authed -> server cart is the source of truth.
-   * - While server is empty/loading, we can temporarily show guest cart to avoid “empty flash”.
-   */
   const usingServer = isAuthed && (hasServer || !hasGuest);
   const items: Array<CartItemDto | GuestCartItem> = usingServer ? serverItems : guestItems;
 
-  /**
-   * StrictMode guard:
-   * In dev React StrictMode mounts components twice to detect side effects.
-   * Without this guard, mergeGuestCart() can run twice on refresh -> quantities jump to stock max.
-   */
   const didInitRef = useRef(false);
 
   useEffect(() => {
@@ -111,7 +95,6 @@ export default function Cart() {
         if (!alive) return;
         await dispatch(serverCart.fetchCart());
       } catch {
-        // keep UI calm
       }
     })();
 
@@ -135,12 +118,10 @@ export default function Cart() {
     const clamped = clampQty(nextQty, maxQty);
 
     if (usingServer) {
-      // Server cart update: `id` is cart item id.
       void dispatch(serverCart.updateCartItem({ item_id: id, quantity: clamped }));
       return;
     }
 
-    // Guest cart update: must include product_size_id to identify variant.
     if (guestProductSizeId == null) return;
     dispatch(updateGuestQty({ id, product_size_id: guestProductSizeId, quantity: clamped }));
   };

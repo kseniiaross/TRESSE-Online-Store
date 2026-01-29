@@ -14,7 +14,7 @@ type OrderStatus = "pending" | "paid" | "canceled";
 
 type Order = {
   id: number;
-  public_id?: string; // ✅ safe public order number
+  public_id?: string; 
   created_at: string;
   status: OrderStatus;
   total_amount: string;

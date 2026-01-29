@@ -12,10 +12,8 @@ const rawEnv =
   import.meta.env.VITE_BACKEND_URL ||
   "http://127.0.0.1:8000";
 
-// ✅ IMPORTANT: remove spaces + trailing slashes
 const normalized = String(rawEnv).trim().replace(/\/+$/, "");
 
-// ✅ avoid double "/api"
 const baseURL = normalized.endsWith("/api") ? normalized : `${normalized}/api`;
 
 const axiosInstance = axios.create({

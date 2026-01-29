@@ -56,7 +56,6 @@ const safeClearSessionEmail = () => {
   try {
     sessionStorage.removeItem(SESSION_EMAIL_KEY);
   } catch {
-    // Intentionally ignore
   }
 };
 
@@ -71,11 +70,7 @@ const getAuthedEmail = (): string => {
   }
 };
 
-/**
- * Custom size order (real-store style, not alphabetical)
- * XS, S, M, L, ONE SIZE, OVER SIZE
- * Everything else goes to the end and is sorted alphabetically there.
- */
+
 const SIZE_ORDER = ["XS", "S", "M", "L", "ONE SIZE", "OVER SIZE"] as const;
 
 const normalizeSizeLabel = (name: string) =>
@@ -156,7 +151,6 @@ function NotifyBlock({
       return;
     }
 
-    // If we have a remembered but invalid email, clear it to avoid bad UX loops.
     if (rememberedGuestEmail && !guestHasValidRememberedEmail) {
       setGuestNotifyEmail("");
       safeClearSessionEmail();

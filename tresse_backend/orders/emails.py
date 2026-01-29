@@ -49,7 +49,6 @@ def _send_txt_email(*, subject: str, to_email: str, template: str, context: dict
 
 
 def _order_label(order) -> str:
-    # ✅ prefer public_id, fallback to id
     public_id = (getattr(order, "public_id", "") or "").strip()
     return public_id or f"#{getattr(order, 'id', '')}"
 

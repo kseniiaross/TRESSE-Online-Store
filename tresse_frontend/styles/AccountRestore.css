@@ -1,7 +1,4 @@
-/* src/styles/AccountRestore.css */
-
 .accountRestore {
-  /* Layout parity with Policy/Help pages (footer stays below). */
   min-height: calc(100vh - var(--header-height));
   display: flex;
   flex-direction: column;

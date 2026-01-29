@@ -77,7 +77,6 @@ export default function Home() {
     });
   }, [gallery]);
 
-  // slideshow
   useEffect(() => {
     let timer: number | null = null;
     let step = 0;
@@ -108,7 +107,6 @@ export default function Home() {
     };
   }, [gallery]);
 
-  // open modal with delay
   useEffect(() => {
     if (!canShowNewsletterModal(isLoggedIn)) return;
 
@@ -123,7 +121,6 @@ export default function Home() {
     markNewsletterDismissed();
   }, []);
 
-  // modal focus + focus trap
   useEffect(() => {
     if (!isNewsletterOpen) return;
 
@@ -143,7 +140,6 @@ export default function Home() {
         return;
       }
 
-      // focus trap
       if (e.key === "Tab") {
         const focusables = getModalFocusableElements();
         if (focusables.length === 0) return;

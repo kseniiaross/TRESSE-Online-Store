@@ -4,10 +4,6 @@
   color: var(--c-white);
 }
 
-/* --------------------------------------------------------------------------
-   Top strip (store highlights)
-   -------------------------------------------------------------------------- */
-
 .footer__top {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -126,7 +122,6 @@
   text-underline-offset: 3px;
 }
 
-/* Inline legal links */
 .footer__link-inline {
   color: var(--w-80);
   text-decoration: underline;
@@ -262,7 +257,6 @@
 
 /* --------------------------------------------------------------------------
    Accessibility (WCAG 2.1 / Section 508)
-   - Global :focus-visible exists, but Footer is dark, so we reinforce it here.
    -------------------------------------------------------------------------- */
 
 .footer__link:focus-visible,

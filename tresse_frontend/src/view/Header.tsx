@@ -37,7 +37,7 @@ const Header: React.FC = () => {
   const sidebarRef = useRef<HTMLElement | null>(null);
 
   // =========================
-  // SEARCH (dropdown suggestions)
+  // SEARCH 
   // =========================
   const [query, setQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -58,8 +58,6 @@ const Header: React.FC = () => {
 
   const cartCount = isAuthed ? serverCount : guestCount;
 
-  // Home page: white text/icons on hero
-  // Other pages: dark text/icons (white background)
   const isDarkText = location.pathname !== "/";
 
   const menuId = "user-dropdown-menu";
@@ -86,7 +84,6 @@ const Header: React.FC = () => {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, [isUserMenuOpen]);
 
-  // click outside for search dropdown
   useEffect(() => {
     const onClickOutside = (e: MouseEvent) => {
       if (!isSearchOpen) return;
@@ -99,7 +96,6 @@ const Header: React.FC = () => {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, [isSearchOpen]);
 
-  // close all on route change
   useEffect(() => {
     setIsUserMenuOpen(false);
     setIsSearchOpen(false);
@@ -131,7 +127,7 @@ const Header: React.FC = () => {
   const closeMenu = () => setIsMenuOpen(false);
 
   // =========================
-  // Search API (debounce)
+  // Search API 
   // =========================
   const trimmed = useMemo(() => query.trim(), [query]);
 

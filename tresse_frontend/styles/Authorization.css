@@ -1,39 +1,10 @@
-/* ==========================================================================
-   Authorization.css
-   Scope: Authorization (Login) screen only.
-
-   Why this file exists:
-   - Page-scoped styles only (no global resets, no tag overrides)
-   - Shared auth layout primitives (.auth-page / .auth / columns)
-   - Predictable sizing for inputs + CTAs (desktop + mobile)
-   - WCAG-friendly focus-visible and readable error styles
-
-   Reviewer notes:
-   - Base CTA has NO hover (variants control hover)
-   - Secondary CTA stays white on hover/focus
-   ========================================================================== */
-
-/* -------------------------------------------------------------------------- */
-/* Page wrapper: consistent gaps under fixed header and above footer           */
-/* IMPORTANT:
-   - Header offset is applied globally by .layout-main (index.css).
-   - So THIS page adds only a visual gap, not the header height again.
-*/
-/* -------------------------------------------------------------------------- */
-
 .auth-page {
-  /* Visual gaps like the mock */
   --auth-top-gap: 40px;
   --auth-bottom-gap: 50px;
-
-  /* Control sizing */
   --auth-control-width: 300px;
   --auth-control-width-mobile: 320px;
-
-  /* Image frame */
   --auth-frame-padding: 24px;
   --auth-image-max-width: 700px;
-
   padding-top: var(--auth-top-gap);
   padding-bottom: var(--auth-bottom-gap);
   background: #fff;
@@ -47,8 +18,6 @@
   display: flex;
   width: 100%;
   box-sizing: border-box;
-
-  /* Keep layout premium on large screens */
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -140,7 +109,6 @@
   align-items: flex-start;
 }
 
-/* CTA base — NO hover here on purpose */
 .auth__cta {
   width: var(--auth-control-width);
   max-width: var(--auth-control-width);
@@ -159,7 +127,6 @@
   text-transform: uppercase;
 }
 
-/* Focus (WCAG) — shared */
 .auth__cta:focus-visible {
   outline: 2px solid #000;
   outline-offset: 3px;
@@ -183,7 +150,6 @@
   cursor: not-allowed;
 }
 
-/* Secondary — stays white */
 .auth__cta--secondary {
   background: #fff;
   color: #000;
@@ -192,7 +158,7 @@
 
 .auth__cta--secondary:hover,
 .auth__cta--secondary:focus-visible {
-  background: #fff; /* stays white */
+  background: #fff; 
   color: #000;
   border-color: rgba(0, 0, 0, 0.75);
 }
@@ -211,8 +177,6 @@
 
   padding: var(--auth-frame-padding) var(--auth-frame-padding) 0;
   box-sizing: border-box;
-
-  /* Visual control on huge screens (no header math here anymore) */
   max-height: 720px;
 }
 

@@ -1,4 +1,3 @@
-# tresse/settings.py
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
@@ -39,10 +38,8 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https:\/\/.*\.vercel\.app$",
 ]
 
-# If you use cookies in the future, keep it True. For pure JWT-in-header it can be False.
 CORS_ALLOW_CREDENTIALS = config("CORS_ALLOW_CREDENTIALS", default=False, cast=bool)
 
-# Django expects scheme+domain entries here (http/https)
 CSRF_TRUSTED_ORIGINS = [
     FRONTEND_URL,
     FRONTEND_URL.replace("://www.", "://"),
@@ -128,7 +125,6 @@ if DATABASE_URL:
         )
     }
 else:
-    # ✅ Local database (your Mac)
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -265,7 +261,7 @@ STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")
 STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
 
 # ------------------------------------------------------------
-# reCAPTCHA (optional)
+# reCAPTCHA 
 # ------------------------------------------------------------
 RECAPTCHA_SECRET_KEY = config("RECAPTCHA_SECRET_KEY", default="")
 RECAPTCHA_SITE_KEY = config("RECAPTCHA_SITE_KEY", default="")
@@ -308,7 +304,7 @@ LOGGING = {
     },
 }
 
-# Account restore window (days)
+# Account restore window 
 ACCOUNT_RESTORE_WINDOW_DAYS = config("ACCOUNT_RESTORE_WINDOW_DAYS", default=30, cast=int)
 
 

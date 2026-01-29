@@ -149,7 +149,6 @@ export default function Order() {
     (s: RootState) => (s.serverCart.cart?.items ?? []) as ServerCartItem[]
   );
 
-  // Build client-friendly cart lines for summary + total.
   const cartLines = useMemo(
     () =>
       serverItems.map((it) => ({
@@ -204,7 +203,6 @@ export default function Order() {
   const lastQueryRef = useRef("");
   const abortRef = useRef<AbortController | null>(null);
 
-  // Stable ids for labels/a11y (do not regenerate on re-render).
   const ids = useMemo(
     () => ({
       fullName: "checkout_full_name",
@@ -571,7 +569,6 @@ export default function Order() {
 
   const disableSubmit = submitting || intentLoading || cartIsEmpty || !stripe;
 
-  // Used for a11y: connect errors to inputs + allow screen readers to announce status.
   const hasCardErrors = Boolean(cardNumberError || cardExpiryError || cardCvcError);
 
   return (
