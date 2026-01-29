@@ -1,4 +1,3 @@
-// src/view/.../AccessibilityStatement.tsx  (оставь свой путь как есть)
 import "../../../styles/Policy.css";
 
 export default function AccessibilityStatement() {
@@ -55,7 +54,6 @@ export default function AccessibilityStatement() {
           </p>
         </section>
 
-        {/* ✅ Spacer: если ты хочешь, чтобы футер был ниже экрана и появлялся только при скролле */}
         <div className="policy__footerSpacer" aria-hidden="true" />
       </div>
     </section>

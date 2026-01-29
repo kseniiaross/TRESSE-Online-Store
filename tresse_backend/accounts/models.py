@@ -1,4 +1,3 @@
-# accounts/models.py
 from __future__ import annotations
 
 from django.db import models
@@ -73,8 +72,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
 
     date_joined = models.DateTimeField(auto_now_add=True)
-
-    # ✅ NEW: allow restore window
     deleted_at = models.DateTimeField(null=True, blank=True)
 
     groups = models.ManyToManyField(

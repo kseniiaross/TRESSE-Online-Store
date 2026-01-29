@@ -1,4 +1,3 @@
-# accounts/views.py
 from __future__ import annotations
 
 import logging
@@ -40,7 +39,6 @@ from .serializers import (
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
-# ✅ Restore window (days)
 RESTORE_WINDOW_DAYS = getattr(settings, "ACCOUNT_RESTORE_WINDOW_DAYS", 30)
 
 
@@ -98,7 +96,6 @@ def _from_email() -> str:
 
 
 def _generic_restore_message() -> str:
-    # ✅ Important: do not leak whether email exists
     return "If an account with that email exists, we sent a restore link."
 
 

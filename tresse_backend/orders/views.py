@@ -1,4 +1,3 @@
-# orders/views.py
 from __future__ import annotations
 
 from decimal import Decimal, ROUND_HALF_UP
@@ -87,7 +86,6 @@ def _extract_card_details_from_intent(intent: dict[str, Any]) -> Tuple[str, str,
         except Exception:
             pass
 
-    # Fallback: try PaymentMethod for name (sometimes empty)
     if not cardholder_name:
         payment_method_id = _safe_str(intent.get("payment_method"))
         if payment_method_id:
@@ -102,7 +100,6 @@ def _extract_card_details_from_intent(intent: dict[str, Any]) -> Tuple[str, str,
 
 
 def _build_items_payload(order: Order) -> list[dict[str, Any]]:
-    # order.items должны быть prefetched
     payload: list[dict[str, Any]] = []
     for it in order.items.all():
         payload.append(
@@ -144,11 +141,9 @@ class CreateOrderAPIView(APIView):
         if not payment_intent_id:
             return Response({"detail": "payment_intent_id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 1) валидируем только поля доставки/контакта
         create_ser = OrderCreateSerializer(data=request.data)
         create_ser.is_valid(raise_exception=True)
 
-        # 2) корзина
         cart, _ = Cart.objects.get_or_create(user=request.user)
         cart_items = (
             CartItem.objects.filter(cart=cart).select_related("product_size__product", "product_size__size")
@@ -156,7 +151,6 @@ class CreateOrderAPIView(APIView):
         if not cart_items.exists():
             return Response({"detail": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 3) total + сток
         total = Decimal("0.00")
         for ci in cart_items:
             ps = ci.product_size
@@ -176,7 +170,6 @@ class CreateOrderAPIView(APIView):
 
         expected_cents = _to_cents(total)
 
-        # 4) PaymentIntent (expand latest_charge!)
         try:
             intent = stripe.PaymentIntent.retrieve(
                 payment_intent_id,
@@ -204,12 +197,10 @@ class CreateOrderAPIView(APIView):
 
         card_brand, card_last4, cardholder_name = _extract_card_details_from_intent(intent)
 
-        # 5) idempotency: если этот PI уже привязан — не создаём дубль
         existing = Order.objects.filter(user=request.user, stripe_payment_intent=payment_intent_id).first()
         if existing:
             return Response(OrderReadSerializer(existing).data, status=status.HTTP_200_OK)
 
-        # 6) создаём заказ атомарно + чистим корзину
         with transaction.atomic():
             order = Order.objects.create(
                 user=request.user,

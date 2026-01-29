@@ -42,7 +42,7 @@ class OrderReadSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             "id",
-            "public_id",  # ✅ add public order number
+            "public_id",  
             "full_name",
             "address",
             "city",

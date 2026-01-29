@@ -1,4 +1,3 @@
-// src/utils/token.ts
 
 const ACCESS_KEY = "access";
 const REFRESH_KEY = "refresh";
@@ -7,8 +6,6 @@ const USER_KEY = "user";
 const AUTH_EVENT = "tresse:authChanged";
 
 function notifyAuthChanged() {
-  // безопасно: если кто-то слушает — обновится UI,
-  // если никто не слушает — ничего не ломаем
   window.dispatchEvent(new CustomEvent(AUTH_EVENT));
 }
 
@@ -42,24 +39,20 @@ export function removeRefreshToken(): void {
   notifyAuthChanged();
 }
 
-/** Simple "am I authenticated?" helper (token exists) */
 export function isAuthenticated(): boolean {
   return Boolean(getAccessToken());
 }
 
-/** Clears ONLY tokens (used by axios refresh logic) */
 export function clearTokens(): void {
   localStorage.removeItem(ACCESS_KEY);
   localStorage.removeItem(REFRESH_KEY);
 
-  // cleanup legacy keys if they exist
   localStorage.removeItem("token");
   localStorage.removeItem("access_token");
 
   notifyAuthChanged();
 }
 
-/** Clears tokens + user (used by UI logout flow) */
 export function clearAuthStorage(): void {
   clearTokens();
   localStorage.removeItem(USER_KEY);

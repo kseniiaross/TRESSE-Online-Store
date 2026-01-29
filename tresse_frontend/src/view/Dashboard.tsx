@@ -1,6 +1,3 @@
-// src/view/Dashboard.tsx
-// Comments: English (as requested)
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "../../styles/Dashboard.css";
@@ -82,7 +79,6 @@ function buildDefaultProfile(): ProfileFormState {
       }
     }
   } catch {
-    // ignore
   }
 
   return {
@@ -133,7 +129,7 @@ function mapFormToApi(form: ProfileFormState): ProfileUpdatePayload {
 
 function isValidEmail(v: string): boolean {
   const s = v.trim();
-  if (!s) return true; // Optional email: empty is allowed.
+  if (!s) return true; 
   return s.includes("@") && s.includes(".");
 }
 
@@ -470,13 +466,11 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* Status messages */}
             <div className="dashboard__status" aria-live="polite">
               {saveMsg ? <div className="dashboard__status-ok">{saveMsg}</div> : null}
               {saveErr ? <div className="dashboard__status-err">{saveErr}</div> : null}
             </div>
 
-            {/* Actions: 2x2 on desktop, 1 column on mobile */}
             <div className="dashboard__actions" aria-label="Account actions">
               <button
                 className="dashboard__button dashboard__button--primary"

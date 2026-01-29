@@ -1,6 +1,5 @@
-// src/utils/authSlice.ts
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { User } from "../types/types";
+import type { User } from "../types/user";
 
 type AuthState = {
   token: string | null;
@@ -97,7 +96,6 @@ const authSlice = createSlice({
         localStorage.setItem(REFRESH_KEY, refresh);
       }
 
-      // cleanup legacy keys
       localStorage.removeItem("token");
       localStorage.removeItem("access_token");
     },

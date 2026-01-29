@@ -1,8 +1,3 @@
-/* ==========================================================================
-   base.css
-   Purpose: minimal base rules + global a11y utilities.
-   Why: avoids duplicating the same utilities in each component stylesheet.
-   ========================================================================== */
 
 *,
 *::before,
@@ -10,14 +5,12 @@
   box-sizing: border-box;
 }
 
-/* Avoid default body margin causing subtle layout shifts */
 html,
 body {
   margin: 0;
   padding: 0;
 }
 
-/* Make media elements predictable */
 img,
 video {
   max-width: 100%;
@@ -34,8 +27,7 @@ video {
 }
 
 /* --------------------------------------------------------------------------
-   A11y utility: visually hidden (screen reader only)
-   Use: <span className="srOnly">Label</span>
+   A11y utility:
    -------------------------------------------------------------------------- */
 .srOnly {
   position: absolute;

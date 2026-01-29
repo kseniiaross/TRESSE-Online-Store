@@ -1,4 +1,3 @@
-// src/api/axiosInstance.ts
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { getAccessToken, getRefreshToken, setAccessToken, clearTokens } from "../types/token";
 
@@ -30,12 +29,10 @@ export const setOnUnauthorized = (cb: (() => void) | null) => {
 
 function isNoAuthRequest(config: InternalAxiosRequestConfig): boolean {
   const url = String(config.url || "");
-  // config.url может быть "/accounts/token/" или абсолютный url
   return NO_AUTH.some((p) => url.startsWith(p) || url.includes(p));
 }
 
 axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  // ✅ ВАЖНО: не добавляем Authorization на auth endpoints
   if (isNoAuthRequest(config)) return config;
 
   const token = getAccessToken();
@@ -64,7 +61,6 @@ async function refreshAccessToken(): Promise<string> {
   const refresh = getRefreshToken();
   if (!refresh) throw new Error("No refresh token");
 
-  // ✅ чистый axios без interceptor’ов
   const resp = await axios.post<RefreshResponse>(`${baseURL}/accounts/token/refresh/`, { refresh });
   const access = resp.data?.access;
 

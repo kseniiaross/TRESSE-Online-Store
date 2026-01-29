@@ -1,4 +1,3 @@
-// src/view/AccountRestore.tsx
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
@@ -12,7 +11,6 @@ type FormData = {
   confirmPassword: string;
 };
 
-// Typed schema: prevents TS/Yup mismatch and makes validation predictable.
 const schema: Yup.ObjectSchema<FormData> = Yup.object({
   password: Yup.string()
     .min(8, "Password must be at least 8 characters")
@@ -22,11 +20,7 @@ const schema: Yup.ObjectSchema<FormData> = Yup.object({
     .required("Please confirm your password"),
 }).required();
 
-/**
- * Extracts a user-friendly message from unknown API errors.
- * - Works with Fetch/Axios-like error shapes without importing Axios types.
- * - Prevents showing "[object Object]" or generic "Something went wrong".
- */
+
 function getErrorMessage(e: unknown): string {
   if (e instanceof Error && e.message) return e.message;
 
@@ -85,7 +79,6 @@ export default function AccountRestore() {
     setServerError(null);
     setSuccessMsg(null);
 
-    // Guard clause: prevents pointless API calls and improves UX.
     if (!uidb64 || !token) {
       setServerError("Invalid or expired restore link.");
       return;

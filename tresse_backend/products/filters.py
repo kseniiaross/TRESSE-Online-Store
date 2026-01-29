@@ -1,4 +1,3 @@
-# products/filters.py
 from django_filters import rest_framework as filters
 from django.db.models import Exists, OuterRef
 
@@ -11,8 +10,6 @@ class ProductFilter(filters.FilterSet):
     in_stock = filters.BooleanFilter(method="filter_in_stock")
     min_price = filters.NumberFilter(field_name="price", lookup_expr="gte")
     max_price = filters.NumberFilter(field_name="price", lookup_expr="lte")
-
-    # ✅ коллекция по slug: new / exclusives / bestsellers
     collection = filters.CharFilter(field_name="collections__slug", lookup_expr="iexact")
 
     class Meta:
@@ -31,17 +28,14 @@ class ProductFilter(filters.FilterSet):
         v = str(value).strip().lower()
 
         aliases = {
-            # ✅ WOMAN
             "women": "woman",
             "womens": "woman",
             "woman": "woman",
 
-            # ✅ MAN
             "men": "man",
             "mens": "man",
             "man": "man",
 
-            # ✅ KIDS (если у тебя есть)
             "kid": "kids",
             "kids": "kids",
         }

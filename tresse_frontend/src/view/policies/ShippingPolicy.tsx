@@ -3,10 +3,6 @@ import "../../../styles/Policy.css";
 export default function ShippingPolicy() {
   return (
     <section className="policy" aria-labelledby="policyTitle">
-      {/* 
-        Content wrapper exists for consistent max-width + left alignment.
-        Avoid styling h1/p globally — policy pages are intentionally scoped.
-      */}
       <div className="policy__content">
         <header className="policy__header">
           <h1 id="policyTitle" className="policy__title">

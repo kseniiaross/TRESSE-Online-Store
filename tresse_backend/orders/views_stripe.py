@@ -63,7 +63,6 @@ def create_payment_intent(request):
 
     idempotency_key = f"pi_u{request.user.id}_c{cart.id}_a{amount_cents}_{cart_sig}_att{attempt_id}"
 
-    # Optional: if you have email on user
     user_email = getattr(request.user, "email", "") or None
 
     try:
@@ -71,7 +70,7 @@ def create_payment_intent(request):
             amount=amount_cents,
             currency="usd",
             automatic_payment_methods={"enabled": True},
-            receipt_email=user_email,  # Stripe receipts (only if enabled in Stripe Dashboard)
+            receipt_email=user_email,  
             description=f"TRESSE order payment (cart #{cart.id})",
             metadata={
                 "user_id": str(request.user.id),
@@ -121,16 +120,5 @@ def stripe_webhook(request):
     except Exception:
         return Response({"detail": "Invalid webhook"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # NOTE: You are not using webhook to create orders yet.
-    # This is fine. Keep it minimal & safe.
-    # If later you want to store last4/brand here, expand charges:
-    #
-    # if event["type"] == "payment_intent.succeeded":
-    #     pi = event["data"]["object"]
-    #     pi_full = stripe.PaymentIntent.retrieve(
-    #         pi["id"],
-    #         expand=["charges.data.payment_method_details", "charges.data.billing_details"],
-    #     )
-    #     ... extract brand/last4 ...
 
     return Response({"ok": True}, status=status.HTTP_200_OK)

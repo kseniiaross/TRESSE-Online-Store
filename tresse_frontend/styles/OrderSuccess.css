@@ -25,7 +25,6 @@
   position: relative;
 }
 
-/* subtle divider */
 .order-success__header::after {
   content: "";
   display: block;
@@ -58,11 +57,9 @@
 .order-success__summary {
   margin: 14px auto 18px;
   max-width: 520px;
-
   border: 1px solid #ededed;
   border-radius: 14px;
   overflow: hidden;
-
   background: #fff;
 }
 

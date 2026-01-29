@@ -10,11 +10,7 @@ from .views import (
 )
 
 router = DefaultRouter()
-
-# ✅ ВАЖНО: сначала wishlist
 router.register(r"wishlist", WishlistViewSet, basename="wishlist")
-
-# ✅ потом products с пустым префиксом (иначе он перехватит /wishlist/ как pk="wishlist")
 router.register(r"", ProductViewSet, basename="product")
 
 urlpatterns = [

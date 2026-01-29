@@ -1,4 +1,3 @@
-# products/serializers.py
 from __future__ import annotations
 
 from rest_framework import serializers
@@ -76,16 +75,11 @@ class ProductMiniSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     sizes = ProductSizeInlineSerializer(many=True, read_only=True)
-
     category = CategorySerializer(read_only=True)
     collections = CollectionSerializer(many=True, read_only=True)
-
     main_image_url = serializers.SerializerMethodField()
-
-    # для бейджей на фронте (удобные поля)
     collections_slugs = serializers.SerializerMethodField()
     collections_names = serializers.SerializerMethodField()
-
     is_in_wishlist = serializers.SerializerMethodField()
     in_stock = serializers.SerializerMethodField()
 

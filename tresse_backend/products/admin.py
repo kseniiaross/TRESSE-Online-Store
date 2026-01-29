@@ -1,4 +1,3 @@
-# products/admin.py
 from __future__ import annotations
 
 from django import forms
@@ -79,18 +78,9 @@ class ProductAdminForm(forms.ModelForm):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     form = ProductAdminForm
-
     list_display = ("id", "name", "category", "price", "available", "created_at")
-
-    # ✅ keep only clean filters
-    # (collections filter removed because you said you don't need those annoying filters)
     list_filter = ("available", "category")
-
     search_fields = ("name", "description")
-
-    # ❌ remove the dual-list UI
-    # filter_horizontal = ("collections",)
-
     inlines = (ProductSizeInline, ProductImageInline)
     autocomplete_fields = ("category",)
 

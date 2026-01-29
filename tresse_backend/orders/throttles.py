@@ -1,4 +1,3 @@
-# orders/throttles.py
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 

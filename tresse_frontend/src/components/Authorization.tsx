@@ -1,4 +1,3 @@
-// src/components/Authorization.tsx
 import { useState } from "react";
 import * as Yup from "yup";
 import { useForm } from "react-hook-form";
@@ -15,10 +14,7 @@ import type { User } from "../types/user";
 import "../../styles/Authorization.css";
 import loginImage from "../assets/images/Login.jpg";
 
-/**
- * Keep validation close to the UI:
- * it's easier to iterate on copy/rules without touching shared code.
- */
+
 const schema = Yup.object({
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string().required("Password is required"),
@@ -28,19 +24,12 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
 }
 
-/**
- * Avoid open redirects:
- * allow only internal paths like "/products/123".
- */
+
 function isSafePath(p: string | null): p is string {
   return !!p && p.startsWith("/") && !p.startsWith("//");
 }
 
-/**
- * Runtime validation for API payloads.
- * TS types don't protect you at runtime — this prevents breaking auth state
- * if backend returns unexpected data.
- */
+
 function toUserOrNull(v: unknown): User | null {
   if (!isRecord(v)) return null;
 
@@ -119,7 +108,6 @@ export default function Authorization() {
         return;
       }
 
-      // Refresh token may be optional depending on backend strategy.
       if (refresh) localStorage.setItem("refresh", refresh);
 
       dispatch(setCredentials({ token: access, user }));
@@ -229,7 +217,6 @@ export default function Authorization() {
           </form>
         </div>
 
-        {/* Decorative image. Keep it out of the accessibility tree to reduce noise. */}
         <div className="auth__right" aria-hidden="true">
           <img className="auth__image" src={loginImage} alt="" />
         </div>

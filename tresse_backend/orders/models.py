@@ -32,7 +32,6 @@ class Order(models.Model):
         related_name="orders",
     )
 
-    # ✅ Public, safe, user-facing order number
     public_id = models.CharField(max_length=24, unique=True, db_index=True, blank=True, null=True)
 
     full_name = models.CharField(max_length=100)
@@ -82,9 +81,7 @@ class Order(models.Model):
         if self.user_id and not self.email:
             self.email = self.user.email
 
-        # ✅ generate public_id once
         if not self.public_id:
-            # try a few times to avoid extremely rare collision
             for _ in range(7):
                 candidate = _gen_public_id("TR")
                 if not Order.objects.filter(public_id=candidate).exists():

@@ -1,4 +1,3 @@
-# accounts/serializers.py
 from __future__ import annotations
 
 from django.contrib.auth import get_user_model
@@ -19,13 +18,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         attrs["username"] = email
         attrs["password"] = password
 
-        # Let SimpleJWT authenticate first
         data = super().validate(attrs)
 
         user = self.user
-
-        # ✅ If account is deactivated -> explicit error (more UX friendly than "No active account...")
-        # NOTE: In practice, SimpleJWT already blocks inactive users, but we keep this in case you customize auth later.
         if hasattr(user, "is_active") and not user.is_active:
             raise serializers.ValidationError({"detail": "Account is deactivated. Please restore it via email."})
 
@@ -57,7 +52,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         phone = (value or "").strip()
         if not phone:
             raise serializers.ValidationError("Phone number is required.")
-        # ✅ IMPORTANT: no uniqueness check for phone (for now)
         return phone
 
     def validate_password(self, value: str):

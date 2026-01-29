@@ -17,7 +17,7 @@ type AddToCartPayload = {
   product_size_id: number;
   sizeName?: string;
   maxQty?: number;
-  quantity?: number; // ❗ игнорируем
+  quantity?: number; 
 };
 
 const isBrowser = typeof window !== "undefined" && typeof localStorage !== "undefined";
@@ -96,7 +96,7 @@ const cartSlice = createSlice({
           product_size_id,
           sizeName,
           maxQty: limit,
-          quantity: clampToMax(1, limit), // ✅ первый add всегда 1
+          quantity: clampToMax(1, limit), 
         });
       }
 

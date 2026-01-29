@@ -1,5 +1,5 @@
 .order-history{
-  padding: 120px 16px 240px; /* ✅ extra space so footer goes down + extra scroll */
+  padding: 120px 16px 240px; 
 }
 
 .order-history__wrap{

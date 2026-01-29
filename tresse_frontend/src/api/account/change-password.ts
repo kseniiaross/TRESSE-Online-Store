@@ -1,4 +1,3 @@
-// src/api/account/change-password.ts
 import api from "../axiosInstance";
 
 export type ChangePasswordPayload = {

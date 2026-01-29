@@ -1,7 +1,6 @@
 /* ==========================================================================
    DASHBOARD
    ========================================================================== */
-
 .dashboard {
   width: 100%;
   box-sizing: border-box;
@@ -38,7 +37,6 @@
   align-items: center;
 }
 
-/* Keep header aligned to the form width */
 .dashboard__header {
   margin-bottom: 18px;
   width: 100%;

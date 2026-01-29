@@ -1,6 +1,4 @@
-# products/views.py
 from __future__ import annotations
-
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db import transaction
@@ -180,7 +178,6 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             )
         )
 
-        # Optional filters via query params:
         # /api/products/?category=woman
         category_slug = self.request.query_params.get("category")
         if category_slug:

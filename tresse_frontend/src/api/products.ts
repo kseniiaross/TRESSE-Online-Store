@@ -1,6 +1,5 @@
 import api from "./axiosInstance";
-import type { Product } from "../types/product"; // <-- один-единственный Product
-
+import type { Product } from "../types/product"; 
 export type Paginated<T> = {
   count: number;
   next: string | null;
