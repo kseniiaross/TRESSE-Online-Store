@@ -1,4 +1,3 @@
-import placeholderWishlistReducer from './placeholderWishlistSlice';
 import { configureStore } from "@reduxjs/toolkit";
 
 import authReducer from '../utils/authSlice';
@@ -12,7 +11,6 @@ export const store = configureStore({
     serverCart: serverCartReducer,
     wishlist: wishlistReducer,
     cart: clientCartReducer,
-    placeholderWishlist: placeholderWishlistReducer,
   },
 });
 
