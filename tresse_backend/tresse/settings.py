@@ -7,8 +7,7 @@ from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-CLOUDINARY_URL = config("CLOUDINARY_URL").strip()
-
+CLOUDINARY_URL = config("CLOUDINARY_URL", default="").strip()
 # ------------------------------------------------------------
 # Core security
 # ------------------------------------------------------------
@@ -308,4 +307,5 @@ LOGGING = {
 ACCOUNT_RESTORE_WINDOW_DAYS = config("ACCOUNT_RESTORE_WINDOW_DAYS", default=30, cast=int)
 
 
-CLOUDINARY_URL = config("CLOUDINARY_URL", default="").strip()
+
+
