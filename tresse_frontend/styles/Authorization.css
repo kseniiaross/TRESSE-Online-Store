@@ -1,71 +1,76 @@
-.auth-page {
+/* ================= Scope ================= */
+.auth-page--login {
   --auth-top-gap: 40px;
   --auth-bottom-gap: 50px;
 
   --auth-control-width: 300px;
   --auth-control-width-mobile: 320px;
 
-  --auth-image-width: 520px;
-  --auth-image-height: 680px;
-
   padding-top: var(--auth-top-gap);
   padding-bottom: var(--auth-bottom-gap);
   background: #fff;
 }
 
-.auth {
+/* ================= Layout (как choice) ================= */
+.auth-page--login .auth {
   display: flex;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   box-sizing: border-box;
 }
 
-.auth__left {
-  flex: 1;
-  padding: 4rem;
+/* ================= Left (как choice) ================= */
+.auth-page--login .auth__left {
+  flex: 0 0 40%;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  padding: 0 3rem;
 }
 
-.auth__title {
+/* чтобы текст/форма не растягивались */
+.auth-page--login .auth__title,
+.auth-page--login .auth__subtitle,
+.auth-page--login .auth__form {
+  width: 100%;
+  max-width: var(--auth-control-width);
+}
+
+.auth-page--login .auth__title {
   margin: 0 0 1rem;
   font-size: 1.4rem;
   letter-spacing: 0.5rem;
   text-transform: uppercase;
 }
 
-.auth__subtitle {
+.auth-page--login .auth__subtitle {
   margin: 0 0 2rem;
   font-size: 0.9rem;
-  max-width: 420px;
   line-height: 1.4;
 }
 
-/* Form */
-
-.auth__form {
+/* ================= Form ================= */
+.auth-page--login .auth__form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.auth__field {
+.auth-page--login .auth__field {
   display: flex;
   flex-direction: column;
 }
 
-.auth__label {
+.auth-page--login .auth__label {
   font-size: 0.875rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
 }
 
-.auth__input {
-  width: var(--auth-control-width);
-  max-width: 100%;
+.auth-page--login .auth__input {
+  width: 100%;
   padding: 0.8rem;
   font-size: 1rem;
   border: 1px solid #000;
@@ -73,36 +78,34 @@
   box-sizing: border-box;
 }
 
-.auth__input:focus-visible {
+.auth-page--login .auth__input:focus-visible {
   outline: 2px solid #000;
   outline-offset: 2px;
 }
 
-/* Messages */
-
-.auth__message {
+/* ================= Messages ================= */
+.auth-page--login .auth__message {
   margin-top: 0.35rem;
   font-size: 0.85rem;
   line-height: 1.35;
 }
 
-.auth__message--error {
+.auth-page--login .auth__message--error {
   color: #b00020;
 }
 
-.auth__message--server {
+.auth-page--login .auth__message--server {
   margin-top: 1rem;
   padding: 0.6rem 0.8rem;
   background: #ffeaea;
   color: rgba(0, 0, 0, 0.85);
   border-radius: 4px;
-  width: var(--auth-control-width);
+  width: 100%;
   box-sizing: border-box;
 }
 
-/* Actions */
-
-.auth__actions {
+/* ================= Actions ================= */
+.auth-page--login .auth__actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -110,8 +113,8 @@
   align-items: flex-start;
 }
 
-.auth__cta {
-  width: var(--auth-control-width);
+.auth-page--login .auth__cta {
+  width: 100%;
   height: 44px;
 
   display: inline-flex;
@@ -125,96 +128,88 @@
   font-size: 0.9rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-
   box-sizing: border-box;
 }
 
-.auth__cta:focus-visible {
+.auth-page--login .auth__cta:focus-visible {
   outline: 2px solid #000;
   outline-offset: 3px;
 }
 
-/* Primary */
-
-.auth__cta--primary {
+.auth-page--login .auth__cta--primary {
   background: #000;
   color: #fff;
   border: 1px solid #000;
   cursor: pointer;
 }
 
-.auth__cta--primary:hover,
-.auth__cta--primary:focus-visible {
+.auth-page--login .auth__cta--primary:hover,
+.auth-page--login .auth__cta--primary:focus-visible {
   background: #111;
 }
 
-.auth__cta--primary:disabled {
+.auth-page--login .auth__cta--primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Secondary */
-
-.auth__cta--secondary {
+.auth-page--login .auth__cta--secondary {
   background: #fff;
   color: #000;
   border: 1px solid rgba(0, 0, 0, 0.35);
 }
 
-.auth__cta--secondary:hover,
-.auth__cta--secondary:focus-visible {
+.auth-page--login .auth__cta--secondary:hover,
+.auth-page--login .auth__cta--secondary:focus-visible {
   border-color: rgba(0, 0, 0, 0.75);
 }
 
-/* Right Image — unified look */
-
-.auth__right {
+/* ================= Right Image (как choice) ================= */
+.auth-page--login .auth__right {
   flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
-.auth__image {
-  width: var(--auth-image-width);
-  height: var(--auth-image-height);
+.auth-page--login .auth__image {
+  width: min(720px, 100%);
+  max-height: 85vh;
+  height: auto;
+
+  display: block;
   object-fit: cover;
   object-position: center;
-  display: block;
 
+  margin-left: 80px;
   filter: grayscale(12%) contrast(1.03);
 }
 
-/* Mobile */
-
-@media (max-width: 768px) {
-  .auth-page {
-    padding-top: 20px;
-    padding-bottom: 30px;
-  }
-
-  .auth {
+/* ================= Mobile ================= */
+@media (max-width: 900px) {
+  .auth-page--login .auth {
     flex-direction: column;
   }
 
-  .auth__left {
+  .auth-page--login .auth__left {
+    flex: none;
     padding: 2rem 1.5rem;
-    align-items: center;
+  }
+
+  .auth-page--login .auth__title,
+  .auth-page--login .auth__subtitle,
+  .auth-page--login .auth__form {
+    max-width: var(--auth-control-width-mobile);
+    margin-left: auto;
+    margin-right: auto;
     text-align: center;
   }
 
-  .auth__input,
-  .auth__cta,
-  .auth__message--server {
-    width: 100%;
-    max-width: var(--auth-control-width-mobile);
-  }
-
-  .auth__actions {
+  .auth-page--login .auth__actions {
     align-items: center;
   }
 
-  .auth__right {
+  .auth-page--login .auth__right {
     display: none;
   }
 }

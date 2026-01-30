@@ -145,8 +145,7 @@ export default function Register() {
   };
 
   return (
-    <section className="auth-page" aria-label="Registration">
-      <div className="auth">
+      <section className="auth-page auth-page--register" aria-label="Registration">      <div className="auth">
         <div className="auth__left">
           <h2 className="auth__title">CREATE YOUR ACCOUNT</h2>
 
