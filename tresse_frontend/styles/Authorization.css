@@ -13,8 +13,6 @@
   background: #fff;
 }
 
-/* ================= Layout ================= */
-
 .auth {
   display: flex;
   width: 100%;
@@ -22,8 +20,6 @@
   margin: 0 auto;
   box-sizing: border-box;
 }
-
-/* ================= Left ================= */
 
 .auth__left {
   flex: 1;
@@ -48,7 +44,7 @@
   line-height: 1.4;
 }
 
-/* ================= Form ================= */
+/* Form */
 
 .auth__form {
   display: flex;
@@ -82,7 +78,7 @@
   outline-offset: 2px;
 }
 
-/* ================= Messages ================= */
+/* Messages */
 
 .auth__message {
   margin-top: 0.35rem;
@@ -104,7 +100,7 @@
   box-sizing: border-box;
 }
 
-/* ================= Actions ================= */
+/* Actions */
 
 .auth__actions {
   display: flex;
@@ -129,6 +125,7 @@
   font-size: 0.9rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+
   box-sizing: border-box;
 }
 
@@ -169,7 +166,7 @@
   border-color: rgba(0, 0, 0, 0.75);
 }
 
-/* ================= Right (Image) ================= */
+/* Right Image — unified look */
 
 .auth__right {
   flex: 1;
@@ -184,9 +181,11 @@
   object-fit: cover;
   object-position: center;
   display: block;
+
+  filter: grayscale(12%) contrast(1.03);
 }
 
-/* ================= Mobile ================= */
+/* Mobile */
 
 @media (max-width: 768px) {
   .auth-page {

@@ -2,43 +2,44 @@ import { Link, useLocation } from "react-router-dom";
 import "../../styles/LoginChoice.css";
 import loginChoiceImage from "../assets/images/LoginChoice.jpg";
 
+function isSafePath(p: string | null): p is string {
+  return !!p && p.startsWith("/") && !p.startsWith("//");
+}
+
 export default function LoginChoice() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
 
-  const rawNext = params.get("next") || "";
-  const safeNext =
-    rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "";
+  const rawNext = params.get("next");
+  const safeNext = isSafePath(rawNext) ? rawNext : null;
 
   const nextParam = safeNext ? `?next=${encodeURIComponent(safeNext)}` : "";
 
   return (
-    <section className="auth-page" aria-label="Login choice">
-      <div className="auth auth--choice">
+    <section className="choice-page" aria-label="Login choice">
+      <div className="choice-layout">
         {/* LEFT */}
-        <div className="auth__left auth__left--centered">
-          <h1 className="visually-hidden">Welcome to TRESSE</h1>
+        <div className="choice-left">
+          <h1 className="choice-visually-hidden">Welcome to TRESSE</h1>
 
-          <div className="auth__content">
-            <h2 className="auth__title">
-              ENJOY THE BEST EXPERIENCE WITH US
-            </h2>
+          <div className="choice-content">
+            <h2 className="choice-title">ENJOY THE BEST EXPERIENCE WITH US</h2>
 
-            <p className="auth__subtitle">
+            <p className="choice-subtitle">
               Sign in to enjoy a personalized experience and get access to all our services.
             </p>
 
-            <div className="auth__actions">
+            <div className="choice-actions">
               <Link
                 to={`/authorization${nextParam}`}
-                className="auth__cta auth__cta--primary"
+                className="choice-cta choice-cta--primary"
               >
                 LOG IN
               </Link>
 
               <Link
                 to={`/register${nextParam}`}
-                className="auth__cta auth__cta--secondary"
+                className="choice-cta choice-cta--secondary"
               >
                 REGISTER
               </Link>
@@ -47,12 +48,8 @@ export default function LoginChoice() {
         </div>
 
         {/* RIGHT */}
-        <div className="auth__right auth__right--image" aria-hidden="true">
-          <img
-            className="auth__image"
-            src={loginChoiceImage}
-            alt=""
-          />
+        <div className="choice-right" aria-hidden="true">
+          <img className="choice-image" src={loginChoiceImage} alt="" />
         </div>
       </div>
     </section>
