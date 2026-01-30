@@ -48,15 +48,13 @@ const safeGetSessionEmail = (): string => {
 const safeSetSessionEmail = (email: string) => {
   try {
     sessionStorage.setItem(SESSION_EMAIL_KEY, normalizeEmail(email));
-  } catch {
-  }
+  } catch {}
 };
 
 const safeClearSessionEmail = () => {
   try {
     sessionStorage.removeItem(SESSION_EMAIL_KEY);
-  } catch {
-  }
+  } catch {}
 };
 
 const getAuthedEmail = (): string => {
@@ -272,7 +270,7 @@ export default function ProductCatalog() {
         {
           page: nextPage,
           page_size: pageSize,
-          collection: effectiveCategory || undefined,
+          category: effectiveCategory || undefined,
           in_stock: showAvailableOnly ? true : undefined,
           ordering: ordering || undefined,
           min_price: minPrice === "" ? undefined : minPrice,
