@@ -1,83 +1,62 @@
-.auth-page {
-  --auth-control-width: 300px;
-  --auth-control-width-mobile: 320px;
+/* LoginChoice.css — fully isolated (no shared class names) */
 
+.choice-page {
+  --choice-top-gap: 40px;
+  --choice-bottom-gap: 60px;
+
+  --choice-control-width: 300px;
+  --choice-control-width-mobile: 320px;
+
+  padding: var(--choice-top-gap) 0 var(--choice-bottom-gap);
   background: #fff;
-  padding: 40px 0 60px;
 }
 
-/* ================= Layout ================= */
-
-.auth {
+.choice-layout {
   display: flex;
   width: 100%;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   box-sizing: border-box;
-}
 
-.auth--choice {
   min-height: calc(100vh - 120px);
 }
 
-/* ================= Left ================= */
-
-.auth__left {
-  flex: 0 0 40%;
+.choice-left {
+  flex: 1;
+  padding: 4rem;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
   box-sizing: border-box;
 }
 
-.auth__left--centered {
-  padding: 0 3rem;
+.choice-content {
+  width: 100%;
+  max-width: var(--choice-control-width);
 }
 
-.auth__content {
-  width: 100%;
-  max-width: var(--auth-control-width);
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-/* ================= Text ================= */
-
-.auth__title {
-  width: 100%;
-  max-width: var(--auth-control-width);
-
+.choice-title {
   margin: 0 0 1rem;
   font-size: 1.4rem;
-  letter-spacing: 0.45rem;
+  letter-spacing: 0.5rem;
   text-transform: uppercase;
-  text-align: center;
 }
 
-.auth__subtitle {
-  width: 100%;
-  max-width: var(--auth-control-width);
-
-  margin: 0 0 2.2rem;
+.choice-subtitle {
+  margin: 0 0 2rem;
   font-size: 0.9rem;
-  line-height: 1.45;
-  text-align: center;
+  line-height: 1.4;
+  max-width: 420px;
 }
 
-/* ================= Actions ================= */
-
-.auth__actions {
-  width: 100%;
+.choice-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
-.auth__cta {
-  width: 100%;
+.choice-cta {
+  width: var(--choice-control-width);
   height: 44px;
 
   display: inline-flex;
@@ -95,60 +74,53 @@
   box-sizing: border-box;
 }
 
-.auth__cta:focus-visible {
+.choice-cta:focus-visible {
   outline: 2px solid #000;
   outline-offset: 3px;
 }
 
-/* Primary */
-
-.auth__cta--primary {
+.choice-cta--primary {
   background: #000;
   color: #fff;
   border: 1px solid #000;
 }
 
-.auth__cta--primary:hover {
+.choice-cta--primary:hover,
+.choice-cta--primary:focus-visible {
   background: #111;
 }
 
-/* Secondary */
-
-.auth__cta--secondary {
+.choice-cta--secondary {
   background: #fff;
   color: #000;
   border: 1px solid rgba(0, 0, 0, 0.35);
 }
 
-.auth__cta--secondary:hover {
+.choice-cta--secondary:hover,
+.choice-cta--secondary:focus-visible {
   border-color: rgba(0, 0, 0, 0.75);
 }
 
-/* ================= Right (Image) ================= */
-
-.auth__right {
+.choice-right {
   flex: 1;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 }
 
-.auth__image {
-  width: min(720px, 100%);
-  max-height: 85vh;
-  height: auto;
-
-  display: block;
-
+.choice-image {
+  width: 520px;
+  height: 680px;
   object-fit: cover;
   object-position: center;
+  display: block;
 
-  margin-left: 80px; /* ← СДВИГ ВПРАВО */
+  filter: grayscale(12%) contrast(1.03);
 }
 
-/* ================= Utilities ================= */
+/* A11y helper */
 
-.visually-hidden {
+.choice-visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -157,28 +129,33 @@
   clip: rect(0, 0, 0, 0);
 }
 
-/* ================= Mobile ================= */
+/* Mobile */
 
-@media (max-width: 900px) {
-  .auth {
+@media (max-width: 768px) {
+  .choice-page {
+    padding: 20px 0 30px;
+  }
+
+  .choice-layout {
     flex-direction: column;
   }
 
-  .auth__left {
-    flex: none;
+  .choice-left {
     padding: 2rem 1.5rem;
+    align-items: center;
+    text-align: center;
   }
 
-  .auth__right {
+  .choice-content {
+    max-width: var(--choice-control-width-mobile);
+  }
+
+  .choice-cta {
+    width: 100%;
+    max-width: var(--choice-control-width-mobile);
+  }
+
+  .choice-right {
     display: none;
-  }
-
-  .auth__content {
-    max-width: var(--auth-control-width-mobile);
-  }
-
-  .auth__title,
-  .auth__subtitle {
-    max-width: var(--auth-control-width-mobile);
   }
 }
