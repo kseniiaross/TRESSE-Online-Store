@@ -129,7 +129,7 @@ export default function Authorization() {
   const passwordErrorId = errors.password ? "login_password_error" : undefined;
 
   return (
-    <section className="auth-page" aria-label="Authorization">
+    <section className="auth-page auth-page--login" aria-label="Authorization">
       <div className="auth">
         <div className="auth__left">
           <h2 className="auth__title">ENJOY THE BEST EXPERIENCE WITH US</h2>
