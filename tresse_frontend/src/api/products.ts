@@ -1,5 +1,6 @@
 import api from "./axiosInstance";
-import type { Product } from "../types/product"; 
+import type { Product } from "../types/product";
+
 export type Paginated<T> = {
   count: number;
   next: string | null;
@@ -10,6 +11,7 @@ export type Paginated<T> = {
 export type FetchProductsParams = {
   search?: string;
   category?: string;
+  collection?: string;
   page?: number;
   page_size?: number;
   in_stock?: boolean;
