@@ -205,8 +205,10 @@ export default function ProductCatalog() {
 
   const params = new URLSearchParams(location.search);
   const rawCategory = params.get("category") ?? "";
-  const effectiveCategory = CATEGORY_MAP[rawCategory] ?? rawCategory;
+  const rawCollection = params.get("collection") ?? "";
 
+  const effectiveCategory = CATEGORY_MAP[rawCategory] ?? rawCategory;
+  const effectiveCollection = rawCollection;
   const isAuthed = !!getAccessToken();
 
   const [ordering, setOrdering] = useState("-created_at");
@@ -247,13 +249,14 @@ export default function ProductCatalog() {
     () =>
       JSON.stringify({
         effectiveCategory,
+        effectiveCollection,
         showAvailableOnly,
         minPrice,
         maxPrice,
         ordering,
         debouncedSearch,
       }),
-    [effectiveCategory, showAvailableOnly, minPrice, maxPrice, ordering, debouncedSearch]
+    [effectiveCategory, effectiveCollection, showAvailableOnly, minPrice, maxPrice, ordering, debouncedSearch]
   );
 
   const loadPage = async (nextPage: number, mode: "reset" | "append") => {
@@ -270,7 +273,8 @@ export default function ProductCatalog() {
         {
           page: nextPage,
           page_size: pageSize,
-          category: effectiveCategory || undefined,
+          category: effectiveCollection ? undefined : (effectiveCategory || undefined),
+          collection: effectiveCollection || undefined,
           in_stock: showAvailableOnly ? true : undefined,
           ordering: ordering || undefined,
           min_price: minPrice === "" ? undefined : minPrice,
@@ -619,4 +623,4 @@ export default function ProductCatalog() {
       <div ref={sentinelRef} className="catalog__sentinel" aria-hidden="true" />
     </section>
   );
-}
+} 
