@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 import type { Product } from "../types/product";
@@ -48,7 +48,6 @@ const safeSetSessionEmail = (email: string) => {
   try {
     sessionStorage.setItem(SESSION_EMAIL_KEY, normalizeEmail(email));
   } catch {
-    // Intentionally ignore storage write failures (Safari private mode, quota, etc.)
   }
 };
 
@@ -69,7 +68,6 @@ const getAuthedEmail = (): string => {
     return "";
   }
 };
-
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "ONE SIZE", "OVER SIZE"] as const;
 
@@ -210,7 +208,6 @@ export default function ProductCatalog() {
   const rawCategory = params.get("category") ?? "";
   const effectiveCategory = CATEGORY_MAP[rawCategory] ?? rawCategory;
 
-  // Single source of truth for auth status in the catalog.
   const isAuthed = !!getAccessToken();
 
   const [ordering, setOrdering] = useState("-created_at");
@@ -219,18 +216,17 @@ export default function ProductCatalog() {
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [minPrice, setMinPrice] = useState<number | "">("");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
+
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(12);
+  const [pageSize] = useState(16);
   const [total, setTotal] = useState(0);
+
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  // Size selection per product
   const [selectedSizeByProduct, setSelectedSizeByProduct] = useState<Record<number, number>>({});
-
-  // Anti double-click per product (prevents duplicate add requests)
   const [addBusyByProduct, setAddBusyByProduct] = useState<Record<number, boolean>>({});
 
-  // Notify state
   const [guestNotifyEmail, setGuestNotifyEmail] = useState<string>(() => safeGetSessionEmail());
   const [notifyOpenByProduct, setNotifyOpenByProduct] = useState<Record<number, boolean>>({});
   const [notifyDoneByProduct, setNotifyDoneByProduct] = useState<Record<number, boolean>>({});
@@ -241,51 +237,99 @@ export default function ProductCatalog() {
     safeSetSessionEmail(v);
   };
 
-  // Debounce search term to avoid flooding the API on every keystroke.
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 300);
     return () => clearTimeout(t);
   }, [searchTerm]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [effectiveCategory]);
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total, pageSize]);
+  const hasMore = page < totalPages;
 
-  // Fetch products (AbortController prevents race conditions when filters change fast)
+  const queryKey = useMemo(() => {
+    return JSON.stringify({
+      category: effectiveCategory || "",
+      in_stock: showAvailableOnly ? true : undefined,
+      ordering: ordering || undefined,
+      min_price: minPrice === "" ? undefined : minPrice,
+      max_price: maxPrice === "" ? undefined : maxPrice,
+      search: debouncedSearch || undefined,
+      page_size: pageSize,
+    });
+  }, [effectiveCategory, showAvailableOnly, ordering, minPrice, maxPrice, debouncedSearch, pageSize]);
+
+  const prevQueryKeyRef = useRef<string>("");
+
+  useEffect(() => {
+    if (prevQueryKeyRef.current === queryKey) return;
+    prevQueryKeyRef.current = queryKey;
+    setProducts([]);
+    setPage(1);
+    setTotal(0);
+  }, [queryKey]);
+
   useEffect(() => {
     const ctrl = new AbortController();
-    setLoading(true);
 
-    fetchProducts(
-      {
-        page,
-        page_size: pageSize,
-        category: effectiveCategory || undefined,
-        in_stock: showAvailableOnly ? true : undefined,
-        ordering: ordering || undefined,
-        min_price: minPrice === "" ? undefined : minPrice,
-        max_price: maxPrice === "" ? undefined : maxPrice,
-        search: debouncedSearch || undefined,
-      },
-      ctrl.signal
-    )
-      .then((data) => {
-        setProducts(data.results);
+    const run = async () => {
+      const isFirstPage = page === 1;
+      if (isFirstPage) setLoading(true);
+      else setLoadingMore(true);
+
+      try {
+        const data = await fetchProducts(
+          {
+            page,
+            page_size: pageSize,
+            category: effectiveCategory || undefined,
+            in_stock: showAvailableOnly ? true : undefined,
+            ordering: ordering || undefined,
+            min_price: minPrice === "" ? undefined : minPrice,
+            max_price: maxPrice === "" ? undefined : maxPrice,
+            search: debouncedSearch || undefined,
+          },
+          ctrl.signal
+        );
+
         setTotal(data.count);
-      })
-      .catch((err) => {
+        setProducts((prev) => (page === 1 ? data.results : [...prev, ...data.results]));
+      } catch (err) {
         if (ctrl.signal.aborted) return;
         console.error("Error fetching products:", err);
-        setProducts([]);
-        setTotal(0);
-      })
-      .finally(() => setLoading(false));
+        if (page === 1) {
+          setProducts([]);
+          setTotal(0);
+        }
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    };
 
+    void run();
     return () => ctrl.abort();
-  }, [effectiveCategory, showAvailableOnly, minPrice, maxPrice, ordering, page, pageSize, debouncedSearch]);
+  }, [page, pageSize, effectiveCategory, showAvailableOnly, minPrice, maxPrice, ordering, debouncedSearch]);
 
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total, pageSize]);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (!first?.isIntersecting) return;
+        if (loading || loadingMore) return;
+        if (!hasMore) return;
+        setPage((p) => p + 1);
+      },
+      { root: null, rootMargin: "600px 0px", threshold: 0 }
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasMore, loading, loadingMore]);
 
   const handleToggleWishlist = async (productId: number) => {
     if (!isAuthed) {
@@ -296,8 +340,6 @@ export default function ProductCatalog() {
 
     try {
       await api.post(`/products/${productId}/toggle_wishlist/`);
-
-      // Sync global header counter + local card state.
       dispatch(fetchWishlistCount());
       localStorage.setItem("wishlist:ping", String(Date.now()));
 
@@ -378,7 +420,6 @@ export default function ProductCatalog() {
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
-            setPage(1);
           }}
           className="catalog__input"
         />
@@ -389,7 +430,6 @@ export default function ProductCatalog() {
             checked={showAvailableOnly}
             onChange={(e) => {
               setShowAvailableOnly(e.target.checked);
-              setPage(1);
             }}
           />
           Only available
@@ -399,7 +439,6 @@ export default function ProductCatalog() {
           value={ordering}
           onChange={(e) => {
             setOrdering(e.target.value);
-            setPage(1);
           }}
           className="catalog__select"
           aria-label="Sort products"
@@ -423,7 +462,6 @@ export default function ProductCatalog() {
             onChange={(e) => {
               const v = e.target.value;
               setMinPrice(v === "" ? "" : Number(v));
-              setPage(1);
             }}
             className="catalog__input catalog__input--price"
           />
@@ -439,7 +477,6 @@ export default function ProductCatalog() {
             onChange={(e) => {
               const v = e.target.value;
               setMaxPrice(v === "" ? "" : Number(v));
-              setPage(1);
             }}
             className="catalog__input catalog__input--price"
           />
@@ -571,19 +608,13 @@ export default function ProductCatalog() {
         })}
       </div>
 
-      <nav className="catalog__pagination" aria-label="Pagination">
-        <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} aria-label="Previous page">
-          ← Prev
-        </button>
+      <div ref={sentinelRef} className="catalog__sentinel" aria-hidden="true" />
 
-        <span className="catalog__pageInfo" aria-label="Current page">
-          {page} / {totalPages}
-        </span>
-
-        <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} aria-label="Next page">
-          Next →
-        </button>
-      </nav>
+      {loadingMore && (
+        <div className="catalog__loader" role="status" aria-live="polite">
+          Loading more…
+        </div>
+      )}
     </section>
   );
 }

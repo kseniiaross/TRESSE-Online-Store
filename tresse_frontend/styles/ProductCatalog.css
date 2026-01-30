@@ -1,14 +1,14 @@
 .catalog{
   width:100%;
   box-sizing:border-box;
-  max-width:1440px;
+  max-width:1680px;
   margin:0 auto;
 
   padding-top:calc(var(--header-height) - 24px);
   padding-bottom:0;
 
-  padding-left:clamp(6px, 1vw, 14px);
-  padding-right:clamp(6px, 1vw, 14px);
+  padding-left:clamp(4px, .6vw, 10px);
+  padding-right:clamp(4px, .6vw, 10px);
 
   --catalog-top-ui: 100px;
 }
@@ -18,7 +18,7 @@
   flex-wrap:wrap;
   align-items:center;
   gap:8px;
-  margin:6px 0 2px;
+  margin:6px 0 6px;
 }
 
 .catalog__input,
@@ -61,7 +61,7 @@
 
 .catalog__loader,
 .catalog__empty{
-  margin:8px 0;
+  margin:10px 0;
 }
 
 .catalog__grid{
@@ -73,8 +73,6 @@
   padding:6px 0 0;
   margin:0;
 
-  height:calc(100dvh - var(--header-height) - var(--catalog-top-ui));
-  overflow:hidden;
   align-items:start;
 }
 
@@ -83,13 +81,11 @@
   display:flex;
   flex-direction:column;
   min-width:0;
-  height:100%;
 }
 
 .catalog__link{
   display:flex;
   flex-direction:column;
-  height:100%;
   min-width:0;
   text-decoration:none;
   color:inherit;
@@ -105,9 +101,8 @@
   width:100%;
   background:#f7f7f7;
   overflow:hidden;
-  flex:1 1 auto;
-  min-height:0;
   border-radius:2px;
+  aspect-ratio: 3 / 4;
 }
 
 .catalog__image{
@@ -342,42 +337,20 @@
   letter-spacing:.02em;
 }
 
-.catalog__pagination{
-  display:flex;
-  gap:8px;
-  align-items:center;
-  justify-content:center;
-  margin:6px 0 12px;
-}
-
-.catalog__pagination button{
-  padding:.45rem .75rem;
-  border:1px solid #ddd;
-  background:#fff;
-  cursor:pointer;
-}
-
-.catalog__pagination button:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-.catalog__pageInfo{
-  margin:0 8px;
+.catalog__sentinel{
+  height:1px;
+  width:100%;
 }
 
 @media (max-width:1200px){
   .catalog{
-    --catalog-top-ui: 148px;
-    padding-left:clamp(8px, 1.2vw, 18px);
-    padding-right:clamp(8px, 1.2vw, 18px);
+    padding-left:clamp(6px, .9vw, 14px);
+    padding-right:clamp(6px, .9vw, 14px);
   }
 
   .catalog__grid{
     grid-template-columns:repeat(3, minmax(0, 1fr));
     --gap:12px;
-    height:auto;
-    overflow:visible;
   }
 }
 
@@ -390,8 +363,6 @@
   .catalog__grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
     --gap:12px;
-    height:auto;
-    overflow:visible;
   }
 
   .catalog__input,
