@@ -10,7 +10,7 @@
   padding-left:clamp(6px, 1vw, 14px);
   padding-right:clamp(6px, 1vw, 14px);
 
-  --catalog-top-ui: 106px;
+  --catalog-top-ui: 100px;
 }
 
 .catalog__filters{
