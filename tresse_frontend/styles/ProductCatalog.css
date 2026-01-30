@@ -5,14 +5,17 @@
 .catalog{
   width:100%;
   box-sizing:border-box;
-  padding-top:calc(var(--header-height) - 18px);
-  min-height:calc(100dvh - var(--header-height));
-  padding-bottom:clamp(28px, 4vh, 72px);
+
+  /* a bit tighter so 1st row fits */
+  padding-top: calc(var(--header-height) - 20px);
+  padding-bottom: 26px;
 
   max-width:1440px;
   margin:0 auto;
-  padding-left:clamp(16px, 2.5vw, 36px);
-  padding-right:clamp(16px, 2.5vw, 36px);
+  padding-left:clamp(14px, 2vw, 30px);
+  padding-right:clamp(14px, 2vw, 30px);
+
+  min-height:calc(100dvh - var(--header-height));
 }
 
 /* =========================
@@ -23,19 +26,21 @@
   display:flex;
   flex-wrap:wrap;
   align-items:center;
-  gap:14px;
-  margin:12px 0 6px;
+
+  /* tighter */
+  gap:10px;
+  margin:10px 0 6px;
 }
 
 .catalog__input,
 .catalog__select{
   font:inherit;
-  padding:6px 0;
+  padding:5px 0;
   border:none;
   border-bottom:1px solid #cfcfcf;
   background:transparent;
   outline:none;
-  min-width:220px;
+  min-width:210px;
 }
 
 .catalog__input::placeholder{
@@ -43,9 +48,7 @@
   letter-spacing:.05em;
 }
 
-.catalog__select{
-  min-width:200px;
-}
+.catalog__select{ min-width:190px; }
 
 .catalog__checkbox{
   display:flex;
@@ -58,48 +61,49 @@
 
 .catalog__price{
   display:flex;
-  gap:12px;
+  gap:10px;
 }
 
 .catalog__input--price{
-  min-width:160px;
+  min-width:150px;
 }
 
 /* =========================
    States
    ========================= */
 
-.catalog__loader{
-  margin:12px 0;
-}
-
+.catalog__loader,
 .catalog__empty{
-  margin:12px 0;
+  margin:10px 0;
 }
 
 /* =========================
-   Grid (Zara-like)
+   Grid (Zara-like: 4 on first screen)
    ========================= */
 
 .catalog__grid{
-  --gap:24px;
+  --gap:18px;                 /* smaller gaps */
   display:grid;
   grid-template-columns:repeat(4, minmax(0, 1fr));
   gap:var(--gap);
-  padding:20px 0 32px;
+
+  /* tighter vertical padding so row fits */
+  padding: 12px 0 18px;
   align-items:start;
 }
 
 /* =========================
-   Card (locked structure so sizes don't jump)
+   Card (fixed row height so 2nd row starts after scroll)
    ========================= */
 
 .catalog__card{
   position:relative;
   display:flex;
   flex-direction:column;
-  height:100%;
   min-width:0;
+
+  /* IMPORTANT: locks each card height so first row is stable */
+  height: clamp(520px, 68vh, 640px);
 }
 
 .catalog__link{
@@ -114,16 +118,22 @@
 .catalog__link:focus-visible{
   outline:2px solid rgba(17,17,17,.35);
   outline-offset:4px;
-  border-radius:8px;
+  border-radius:0px;
 }
 
-/* image box ALWAYS same */
+/* =========================
+   Media (make it taller but controlled)
+   ========================= */
+
 .catalog__media{
   width:100%;
-  aspect-ratio:3/4;
   overflow:hidden;
   background:#f7f7f7;
-  border-radius:2px; /* Zara feel */
+  border-radius:2px;
+
+  /* instead of only aspect-ratio, we CONTROL the media height */
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .catalog__image{
@@ -141,19 +151,20 @@
 }
 
 /* =========================
-   Meta (fixed height, multi-line clamp)
+   Meta (fixed height)
    ========================= */
 
 .catalog__meta{
   display:flex;
   justify-content:space-between;
   gap:10px;
-  margin-top:10px;
-  font-size:14px;
-  line-height:1.3;
 
-  /* locks layout so titles don't change card height */
-  min-height:38px;
+  margin-top:10px;
+  font-size:13px;
+  line-height:1.25;
+
+  /* fixed so cards never jump */
+  min-height:34px;
   align-items:flex-start;
 }
 
@@ -164,7 +175,7 @@
 
   display:-webkit-box;
   -webkit-box-orient:vertical;
-  -webkit-line-clamp:2; /* allow up to 2 lines, consistent */
+  -webkit-line-clamp:2;
   overflow:hidden;
   white-space:normal;
 }
@@ -193,7 +204,7 @@
 }
 
 /* =========================
-   Wishlist (clean like Zara)
+   Wishlist
    ========================= */
 
 .catalog__wishlist-btn{
@@ -217,13 +228,8 @@
   transition:border-color .2s ease, transform .1s ease, background .2s ease, color .2s ease;
 }
 
-.catalog__card:hover .catalog__wishlist-btn{
-  border-color:#cfcfcf;
-}
-
-.catalog__wishlist-btn:active{
-  transform:scale(.96);
-}
+.catalog__card:hover .catalog__wishlist-btn{ border-color:#cfcfcf; }
+.catalog__wishlist-btn:active{ transform:scale(.96); }
 
 .catalog__wishlist-btn:focus-visible{
   outline:none;
@@ -248,22 +254,25 @@
 }
 
 /* =========================
-   Sizes (kept neat and consistent height)
+   Sizes (fixed slot)
    ========================= */
 
 .catalog__sizes{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
-  padding:10px 0 6px;
 
-  /* prevents row height differences */
-  min-height:34px;
+  /* tighter */
+  padding:8px 0 6px;
+
+  /* fixed slot height */
+  min-height:32px;
 }
 
 .catalog__size{
   appearance:none;
   font:inherit;
+
   border:1px solid rgba(0,0,0,.18);
   background:transparent;
   padding:6px 10px;
@@ -273,9 +282,7 @@
   cursor:pointer;
 }
 
-.catalog__size--active{
-  border-color:rgba(0,0,0,.75);
-}
+.catalog__size--active{ border-color:rgba(0,0,0,.75); }
 
 .catalog__size:disabled{
   opacity:.35;
@@ -289,29 +296,30 @@
 }
 
 /* =========================
-   Actions (pinned to bottom for perfect grid alignment)
+   Actions (always same bottom)
    ========================= */
 
 .catalog__actions{
-  margin-top:auto; /* IMPORTANT: align buttons across all cards */
   display:flex;
   align-items:center;
   justify-content:flex-end;
   gap:10px;
-  padding-top:10px;
+
+  /* compact + fixed zone */
+  padding-top:8px;
 }
 
 .catalog__addBtn{
   flex:1;
-  height:36px;
+  height:34px;
   padding:0 14px;
 
   border:1px solid #e6e6e6;
-  border-radius:999px;
+  border-radius:0px;
   background:#fff;
   color:#111;
 
-  font-size:14px;
+  font-size:13px;
   letter-spacing:.02em;
 
   cursor:pointer;
@@ -324,9 +332,7 @@
   box-shadow:0 1px 0 rgba(17,17,17,.06);
 }
 
-.catalog__addBtn:active{
-  transform:translateY(1px);
-}
+.catalog__addBtn:active{ transform:translateY(1px); }
 
 .catalog__addBtn:focus-visible{
   outline:none;
@@ -339,7 +345,7 @@
 }
 
 /* =========================
-   Notify block (keeps same "button zone" look)
+   Notify (same bottom area)
    ========================= */
 
 .catalog__notify{
@@ -348,72 +354,10 @@
   flex-direction:column;
   align-items:stretch;
   gap:8px;
-  margin-top:auto; /* keeps layout consistent when notify replaces add */
 }
 
 .catalog__notify-btn{
   width:100%;
-  height:36px;
-  padding:0 14px;
-
-  border:1px solid #e6e6e6;
-  border-radius:999px;
-  background:#fff;
-  color:#111;
-
-  font-size:14px;
-  letter-spacing:.02em;
-
-  cursor:pointer;
-  transition:border-color .2s ease, box-shadow .2s ease, transform .1s ease, background .2s ease;
-}
-
-.catalog__notify-btn:hover{
-  border-color:#cfcfcf;
-  background:#f9f9f9;
-  box-shadow:0 1px 0 rgba(17,17,17,.06);
-}
-
-.catalog__notify-btn:active{
-  transform:translateY(1px);
-}
-
-.catalog__notify-btn:focus-visible{
-  outline:none;
-  box-shadow:0 0 0 3px rgba(17,17,17,.12);
-}
-
-.catalog__notify-status{
-  font-size:12px;
-  line-height:1.35;
-  color:#222;
-  letter-spacing:.02em;
-}
-
-.catalog__notify-inline{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  width:100%;
-}
-
-.catalog__notify-inline input{
-  flex:1;
-  font:inherit;
-  padding:6px 0;
-  border:none;
-  border-bottom:1px solid #cfcfcf;
-  background:transparent;
-  outline:none;
-  min-width:0;
-}
-
-.catalog__notify-inline input::placeholder{
-  color:#9a9a9a;
-  letter-spacing:.05em;
-}
-
-.catalog__notify-inline button{
   height:34px;
   padding:0 14px;
 
@@ -429,24 +373,24 @@
   transition:border-color .2s ease, box-shadow .2s ease, transform .1s ease, background .2s ease;
 }
 
-.catalog__notify-inline button:hover{
+.catalog__notify-btn:hover{
   border-color:#cfcfcf;
   background:#f9f9f9;
   box-shadow:0 1px 0 rgba(17,17,17,.06);
 }
 
-.catalog__notify-inline button:active{
-  transform:translateY(1px);
-}
+.catalog__notify-btn:active{ transform:translateY(1px); }
 
-.catalog__notify-inline button:focus-visible{
+.catalog__notify-btn:focus-visible{
   outline:none;
   box-shadow:0 0 0 3px rgba(17,17,17,.12);
 }
 
-.catalog__notify-inline button[disabled]{
-  opacity:.55;
-  cursor:not-allowed;
+.catalog__notify-status{
+  font-size:12px;
+  line-height:1.35;
+  color:#222;
+  letter-spacing:.02em;
 }
 
 /* =========================
@@ -458,7 +402,7 @@
   gap:8px;
   align-items:center;
   justify-content:center;
-  margin:8px 0 16px;
+  margin:6px 0 12px;
 }
 
 .catalog__pagination button{
@@ -473,9 +417,7 @@
   cursor:not-allowed;
 }
 
-.catalog__pageInfo{
-  margin:0 8px;
-}
+.catalog__pageInfo{ margin:0 8px; }
 
 /* =========================
    Responsive
@@ -485,12 +427,21 @@
   .catalog__grid{
     grid-template-columns:repeat(3, minmax(0, 1fr));
   }
+
+  /* let height relax a bit */
+  .catalog__card{
+    height: clamp(520px, 72vh, 700px);
+  }
 }
 
 @media (max-width:768px){
   .catalog__grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
-    --gap:16px;
+    --gap:14px;
+  }
+
+  .catalog__card{
+    height:auto; /* on mobile we don't force "1 row only" */
   }
 
   .catalog__meta{
@@ -507,33 +458,10 @@
     width:32px;
     height:32px;
   }
-
-  .catalog__addBtn{
-    height:34px;
-    padding:0 12px;
-  }
-
-  .catalog__notify-btn{
-    height:34px;
-    padding:0 12px;
-  }
 }
 
 @media (max-width:420px){
-  .catalog__grid{
-    gap:12px;
-  }
-
-  .catalog__meta{
-    font-size:12px;
-    min-height:34px;
-  }
-
-  .catalog__actions{
-    justify-content:space-between;
-  }
-
-  .catalog__addBtn{
-    flex:1;
-  }
+  .catalog__grid{ gap:12px; }
+  .catalog__meta{ font-size:12px; min-height:34px; }
+  .catalog__actions{ justify-content:space-between; }
 }
