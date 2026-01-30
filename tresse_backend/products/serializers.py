@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from urllib.parse import urlparse, urlunparse
+
 from rest_framework import serializers
 
 from .models import (
@@ -8,12 +10,46 @@ from .models import (
     Category,
     Collection,
     Product,
-    Review,
     ProductImage,
     ProductSize,
     ProductWishlist,
+    Review,
     Size,
 )
+
+
+def force_https(url: str) -> str:
+    """
+    Forces https scheme for absolute URLs (fixes proxy/http issues in prod).
+    Leaves relative URLs untouched.
+    """
+    if not url:
+        return url
+
+    parsed = urlparse(url)
+
+    # Relative path like "/media/..." -> keep; we will absolutize later
+    if not parsed.scheme:
+        return url
+
+    if parsed.scheme == "http":
+        parsed = parsed._replace(scheme="https")
+        return urlunparse(parsed)
+
+    return url
+
+
+def build_abs_https(request, url: str) -> str:
+    """
+    Builds absolute URL (if relative) and forces https scheme.
+    """
+    if not url:
+        return url
+
+    if request and url.startswith("/"):
+        url = request.build_absolute_uri(url)
+
+    return force_https(url)
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -28,7 +64,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
             return None
         request = self.context.get("request")
         url = obj.image.url
-        return request.build_absolute_uri(url) if request else url
+        return build_abs_https(request, url)
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -69,7 +105,7 @@ class ProductMiniSerializer(serializers.ModelSerializer):
             return None
         request = self.context.get("request")
         url = obj.main_image.url
-        return request.build_absolute_uri(url) if request else url
+        return build_abs_https(request, url)
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -77,6 +113,7 @@ class ProductSerializer(serializers.ModelSerializer):
     sizes = ProductSizeInlineSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
     collections = CollectionSerializer(many=True, read_only=True)
+
     main_image_url = serializers.SerializerMethodField()
     collections_slugs = serializers.SerializerMethodField()
     collections_names = serializers.SerializerMethodField()
@@ -107,7 +144,7 @@ class ProductSerializer(serializers.ModelSerializer):
             return None
         request = self.context.get("request")
         url = obj.main_image.url
-        return request.build_absolute_uri(url) if request else url
+        return build_abs_https(request, url)
 
     def get_collections_slugs(self, obj):
         return [c.slug for c in obj.collections.all()]
