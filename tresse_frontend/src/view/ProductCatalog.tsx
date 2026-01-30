@@ -218,11 +218,9 @@ export default function ProductCatalog() {
   const [maxPrice, setMaxPrice] = useState<number | "">("");
 
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(16);
-  const [total, setTotal] = useState(0);
-
+  const [pageSize] = useState(12);
   const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasNext, setHasNext] = useState(true);
 
   const [selectedSizeByProduct, setSelectedSizeByProduct] = useState<Record<number, number>>({});
   const [addBusyByProduct, setAddBusyByProduct] = useState<Record<number, boolean>>({});
@@ -230,6 +228,9 @@ export default function ProductCatalog() {
   const [guestNotifyEmail, setGuestNotifyEmail] = useState<string>(() => safeGetSessionEmail());
   const [notifyOpenByProduct, setNotifyOpenByProduct] = useState<Record<number, boolean>>({});
   const [notifyDoneByProduct, setNotifyDoneByProduct] = useState<Record<number, boolean>>({});
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const ctrlRef = useRef<AbortController | null>(null);
 
   const saveGuestEmail = (email: string) => {
     const v = normalizeEmail(email);
@@ -243,93 +244,96 @@ export default function ProductCatalog() {
     return () => clearTimeout(t);
   }, [searchTerm]);
 
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total, pageSize]);
-  const hasMore = page < totalPages;
+  const queryKey = useMemo(
+    () =>
+      JSON.stringify({
+        effectiveCategory,
+        showAvailableOnly,
+        minPrice,
+        maxPrice,
+        ordering,
+        debouncedSearch,
+      }),
+    [effectiveCategory, showAvailableOnly, minPrice, maxPrice, ordering, debouncedSearch]
+  );
 
-  const queryKey = useMemo(() => {
-    return JSON.stringify({
-      category: effectiveCategory || "",
-      in_stock: showAvailableOnly ? true : undefined,
-      ordering: ordering || undefined,
-      min_price: minPrice === "" ? undefined : minPrice,
-      max_price: maxPrice === "" ? undefined : maxPrice,
-      search: debouncedSearch || undefined,
-      page_size: pageSize,
-    });
-  }, [effectiveCategory, showAvailableOnly, ordering, minPrice, maxPrice, debouncedSearch, pageSize]);
+  const loadPage = async (nextPage: number, mode: "reset" | "append") => {
+    if (loading) return;
 
-  const prevQueryKeyRef = useRef<string>("");
-
-  useEffect(() => {
-    if (prevQueryKeyRef.current === queryKey) return;
-    prevQueryKeyRef.current = queryKey;
-    setProducts([]);
-    setPage(1);
-    setTotal(0);
-  }, [queryKey]);
-
-  useEffect(() => {
+    ctrlRef.current?.abort();
     const ctrl = new AbortController();
+    ctrlRef.current = ctrl;
 
-    const run = async () => {
-      const isFirstPage = page === 1;
-      if (isFirstPage) setLoading(true);
-      else setLoadingMore(true);
+    setLoading(true);
 
-      try {
-        const data = await fetchProducts(
-          {
-            page,
-            page_size: pageSize,
-            category: effectiveCategory || undefined,
-            in_stock: showAvailableOnly ? true : undefined,
-            ordering: ordering || undefined,
-            min_price: minPrice === "" ? undefined : minPrice,
-            max_price: maxPrice === "" ? undefined : maxPrice,
-            search: debouncedSearch || undefined,
-          },
-          ctrl.signal
-        );
+    try {
+      const data = await fetchProducts(
+        {
+          page: nextPage,
+          page_size: pageSize,
+          category: effectiveCategory || undefined,
+          in_stock: showAvailableOnly ? true : undefined,
+          ordering: ordering || undefined,
+          min_price: minPrice === "" ? undefined : minPrice,
+          max_price: maxPrice === "" ? undefined : maxPrice,
+          search: debouncedSearch || undefined,
+        },
+        ctrl.signal
+      );
 
-        setTotal(data.count);
-        setProducts((prev) => (page === 1 ? data.results : [...prev, ...data.results]));
-      } catch (err) {
-        if (ctrl.signal.aborted) return;
-        console.error("Error fetching products:", err);
-        if (page === 1) {
-          setProducts([]);
-          setTotal(0);
-        }
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
+      setHasNext(!!data.next);
+
+      setProducts((prev) => {
+        const incoming = data.results;
+        if (mode === "reset") return incoming;
+
+        const map = new Map<number, Product>();
+        for (const p of prev) map.set(p.id, p);
+        for (const p of incoming) map.set(p.id, p);
+        return Array.from(map.values());
+      });
+
+      setPage(nextPage);
+    } catch (err) {
+      if (ctrl.signal.aborted) return;
+      console.error("Error fetching products:", err);
+      if (mode === "reset") {
+        setProducts([]);
+        setHasNext(false);
+        setPage(1);
       }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setHasNext(true);
+    setPage(1);
+    void loadPage(1, "reset");
+    return () => {
+      ctrlRef.current?.abort();
     };
-
-    void run();
-    return () => ctrl.abort();
-  }, [page, pageSize, effectiveCategory, showAvailableOnly, minPrice, maxPrice, ordering, debouncedSearch]);
-
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  }, [queryKey]);
 
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el) return;
 
-    const io = new IntersectionObserver(
+    const obs = new IntersectionObserver(
       (entries) => {
         const first = entries[0];
         if (!first?.isIntersecting) return;
-        if (loading || loadingMore) return;
-        if (!hasMore) return;
-        setPage((p) => p + 1);
+        if (loading) return;
+        if (!hasNext) return;
+        void loadPage(page + 1, "append");
       },
-      { root: null, rootMargin: "600px 0px", threshold: 0 }
+      { root: null, rootMargin: "700px 0px", threshold: 0 }
     );
 
-    io.observe(el);
-    return () => io.disconnect();
-  }, [hasMore, loading, loadingMore]);
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [page, loading, hasNext, queryKey]);
 
   const handleToggleWishlist = async (productId: number) => {
     if (!isAuthed) {
@@ -483,7 +487,7 @@ export default function ProductCatalog() {
         </div>
       </div>
 
-      {loading && (
+      {loading && products.length === 0 && (
         <div className="catalog__loader" role="status" aria-live="polite">
           Loading…
         </div>
@@ -519,9 +523,7 @@ export default function ProductCatalog() {
                   void handleToggleWishlist(apiItem.id);
                 }}
               >
-                <span className="srOnly">
-                  {apiItem.is_in_wishlist ? "Remove from wishlist" : "Add to wishlist"}
-                </span>
+                <span className="srOnly">{apiItem.is_in_wishlist ? "Remove from wishlist" : "Add to wishlist"}</span>
               </button>
 
               <Link to={`/product/${apiItem.id}`} className="catalog__link" aria-label={`Open product: ${apiItem.name}`}>
@@ -608,13 +610,13 @@ export default function ProductCatalog() {
         })}
       </div>
 
-      <div ref={sentinelRef} className="catalog__sentinel" aria-hidden="true" />
-
-      {loadingMore && (
+      {loading && products.length > 0 && (
         <div className="catalog__loader" role="status" aria-live="polite">
-          Loading more…
+          Loading…
         </div>
       )}
+
+      <div ref={sentinelRef} className="catalog__sentinel" aria-hidden="true" />
     </section>
   );
 }

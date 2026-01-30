@@ -1,16 +1,17 @@
 .catalog{
   width:100%;
   box-sizing:border-box;
-  max-width:1680px;
+  max-width:1760px;
   margin:0 auto;
 
   padding-top:calc(var(--header-height) - 24px);
-  padding-bottom:0;
+  padding-bottom:84px;
 
-  padding-left:clamp(4px, .6vw, 10px);
-  padding-right:clamp(4px, .6vw, 10px);
+  padding-left:clamp(2px, .5vw, 10px);
+  padding-right:clamp(2px, .5vw, 10px);
 
-  --catalog-top-ui: 100px;
+  --catalog-top-ui: 118px;
+  --card-h: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
 }
 
 .catalog__filters{
@@ -18,7 +19,7 @@
   flex-wrap:wrap;
   align-items:center;
   gap:8px;
-  margin:6px 0 6px;
+  margin:6px 0 10px;
 }
 
 .catalog__input,
@@ -65,12 +66,12 @@
 }
 
 .catalog__grid{
-  --gap:12px;
+  --gap:18px;
   display:grid;
   grid-template-columns:repeat(4, minmax(0, 1fr));
   gap:var(--gap);
 
-  padding:6px 0 0;
+  padding:8px 0 0;
   margin:0;
 
   align-items:start;
@@ -81,12 +82,17 @@
   display:flex;
   flex-direction:column;
   min-width:0;
+
+  height:var(--card-h);
+  max-height:860px;
+  min-height:640px;
 }
 
 .catalog__link{
   display:flex;
   flex-direction:column;
   min-width:0;
+  height:100%;
   text-decoration:none;
   color:inherit;
 }
@@ -102,7 +108,9 @@
   background:#f7f7f7;
   overflow:hidden;
   border-radius:2px;
-  aspect-ratio: 3 / 4;
+
+  flex:1 1 auto;
+  min-height:0;
 }
 
 .catalog__image{
@@ -137,6 +145,7 @@
   display:-webkit-box;
   -webkit-box-orient:vertical;
   -webkit-line-clamp:2;
+  line-clamp:2;
   overflow:hidden;
   white-space:normal;
 }
@@ -344,13 +353,25 @@
 
 @media (max-width:1200px){
   .catalog{
-    padding-left:clamp(6px, .9vw, 14px);
-    padding-right:clamp(6px, .9vw, 14px);
+    padding-left:clamp(8px, 1.2vw, 18px);
+    padding-right:clamp(8px, 1.2vw, 18px);
+    --catalog-top-ui: 156px;
   }
 
   .catalog__grid{
     grid-template-columns:repeat(3, minmax(0, 1fr));
-    --gap:12px;
+    --gap:16px;
+  }
+
+  .catalog__card{
+    height:auto;
+    min-height:0;
+    max-height:none;
+  }
+
+  .catalog__media{
+    aspect-ratio:3/4;
+    flex:0 0 auto;
   }
 }
 
@@ -363,6 +384,17 @@
   .catalog__grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
     --gap:12px;
+  }
+
+  .catalog__card{
+    height:auto;
+    min-height:0;
+    max-height:none;
+  }
+
+  .catalog__media{
+    aspect-ratio:3/4;
+    flex:0 0 auto;
   }
 
   .catalog__input,
