@@ -482,7 +482,7 @@
     height: auto;
     padding: 12px 14px 10px;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
     gap: 10px;
   }
@@ -500,8 +500,25 @@
 
   .right-section {
     width: 100%;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .header-search {
+    order: 1;
+  }
+
+  .login-button {
+    order: 2;
+  }
+
+  .help-button {
+    order: 3;
+  }
+
+  .shopping-bag {
+    order: 4;
   }
 
   .search-input {
@@ -509,10 +526,10 @@
   }
 
   .search-dropdown {
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
     right: auto;
-    width: min(360px, calc(100vw - 24px));
+    transform: none;
+    width: min(360px, calc(100vw - 28px));
   }
 
   .login-button,

@@ -383,11 +383,16 @@
   .catalog{
     padding-left:14px;
     padding-right:14px;
+    --catalog-top-ui: 190px;
+  }
+
+  .catalog__filters{
+    gap:10px;
   }
 
   .catalog__grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-    --gap:12px;
+    grid-template-columns:1fr;
+    --gap:14px;
   }
 
   .catalog__card{
@@ -403,7 +408,17 @@
 
   .catalog__input,
   .catalog__select{
-    min-width:160px;
+    min-width:0;
+    width:100%;
+  }
+
+  .catalog__price{
+    width:100%;
+  }
+
+  .catalog__input--price{
+    min-width:0;
+    width:100%;
   }
 
   .catalog__wishlist-btn{
