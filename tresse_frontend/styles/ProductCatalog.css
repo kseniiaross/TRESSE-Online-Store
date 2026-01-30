@@ -1,24 +1,25 @@
 /* =========================
-   Catalog (Zara-like: 4 cards visible on first screen)
+   Catalog (Zara-like: 4 cards, 1 row per viewport)
    ========================= */
 
 .catalog{
   width:100%;
   box-sizing:border-box;
-
   max-width:1440px;
   margin:0 auto;
 
-  padding-top: calc(var(--header-height) - 20px);
-  padding-bottom: 20px;
+  /* tighter, Zara-like */
+  padding-top: calc(var(--header-height) - 22px);
+  padding-bottom: 0;
 
-  padding-left: clamp(12px, 1.8vw, 28px);
-  padding-right: clamp(12px, 1.8vw, 28px);
+  padding-left: clamp(10px, 1.6vw, 24px);
+  padding-right: clamp(10px, 1.6vw, 24px);
 
-  min-height: calc(100dvh - var(--header-height));
-
-  /* TWEAK THIS if needed to make ONLY 1 row visible without showing 2nd row */
-  --catalog-top-ui: 130px; /* filters/search row height estimate */
+  /* IMPORTANT: define how much space filters take.
+     Smaller value = taller cards = 2nd row won’t peek.
+     If 2nd row still shows, reduce by 8–12px.
+  */
+  --catalog-top-ui: 112px;
 }
 
 /* =========================
@@ -31,27 +32,27 @@
   align-items:center;
 
   gap:10px;
-  margin:10px 0 6px;
+  margin: 8px 0 4px;
 }
 
 .catalog__input,
 .catalog__select{
   font:inherit;
-  padding:5px 0;
+  padding: 4px 0;
   border:none;
   border-bottom:1px solid #cfcfcf;
   background:transparent;
   outline:none;
 
-  min-width: 200px;
+  min-width: 190px;
 }
+
+.catalog__select{ min-width: 170px; }
 
 .catalog__input::placeholder{
   color:#9a9a9a;
   letter-spacing:.05em;
 }
-
-.catalog__select{ min-width: 180px; }
 
 .catalog__checkbox{
   display:flex;
@@ -67,9 +68,7 @@
   gap:10px;
 }
 
-.catalog__input--price{
-  min-width: 140px;
-}
+.catalog__input--price{ min-width: 130px; }
 
 /* =========================
    States
@@ -77,25 +76,28 @@
 
 .catalog__loader,
 .catalog__empty{
-  margin:10px 0;
+  margin: 8px 0;
 }
 
 /* =========================
-   Grid (4 across, 1 row in viewport)
+   Grid (tight gaps + no bottom padding so row fills viewport)
    ========================= */
 
 .catalog__grid{
-  --gap:18px;
+  --gap: 14px; /* Zara-like small gap */
   display:grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--gap);
 
-  padding: 10px 0 14px;
+  /* remove extra vertical space */
+  padding: 8px 0 0;
+  margin: 0;
+
   align-items: start;
 }
 
 /* =========================
-   Card (force same height so 2nd row starts after scroll)
+   Card (this is the KEY: 1 row fills the viewport)
    ========================= */
 
 .catalog__card{
@@ -104,10 +106,12 @@
   flex-direction:column;
   min-width:0;
 
-  /* KEY: card height uses viewport minus header+filters so only 1 row fits */
+  /* One-row rule (desktop): card height = viewport minus header + filters */
   height: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
-  max-height: 760px;
-  min-height: 560px;
+
+  /* helps keep it elegant on very tall screens */
+  max-height: 820px;
+  min-height: 610px;
 }
 
 .catalog__link{
@@ -115,7 +119,6 @@
   flex-direction:column;
   height:100%;
   min-width:0;
-
   text-decoration:none;
   color:inherit;
 }
@@ -126,12 +129,16 @@
   border-radius:0;
 }
 
-/* media fills remaining height nicely */
+/* =========================
+   Media (fills remaining height nicely)
+   ========================= */
+
 .catalog__media{
   width:100%;
-  overflow:hidden;
   background:#f7f7f7;
+  overflow:hidden;
 
+  /* This makes image area grow so 1st row becomes taller */
   flex: 1 1 auto;
   min-height: 0;
 
@@ -155,7 +162,7 @@
 }
 
 /* =========================
-   Meta (fixed slot so nothing jumps)
+   Meta (fixed slot so cards never jump)
    ========================= */
 
 .catalog__meta{
@@ -163,7 +170,7 @@
   justify-content:space-between;
   gap:10px;
 
-  margin-top:10px;
+  margin-top:8px;
   font-size:13px;
   line-height:1.25;
 
@@ -223,6 +230,7 @@
 
   cursor:pointer;
   z-index:3;
+
   transition:border-color .2s ease, transform .1s ease, background .2s ease, color .2s ease;
 }
 
@@ -260,8 +268,8 @@
   flex-wrap:wrap;
   gap:8px;
 
-  padding:8px 0 6px;
-  min-height:32px;
+  padding: 6px 0 6px;
+  min-height: 30px;
 }
 
 .catalog__size{
@@ -302,7 +310,7 @@
   justify-content:flex-end;
   gap:10px;
 
-  padding-top:8px;
+  padding-top:6px;
 }
 
 .catalog__addBtn{
@@ -341,7 +349,7 @@
 }
 
 /* =========================
-   Notify (kept clean; not asked to be square)
+   Notify (kept clean)
    ========================= */
 
 .catalog__notify{
@@ -398,7 +406,7 @@
   gap:8px;
   align-items:center;
   justify-content:center;
-  margin:6px 0 12px;
+  margin: 6px 0 12px;
 }
 
 .catalog__pagination button{
@@ -422,28 +430,29 @@
 @media (max-width:1200px){
   .catalog__grid{
     grid-template-columns:repeat(3, minmax(0, 1fr));
+    --gap: 14px;
   }
 
-  .catalog{
-    --catalog-top-ui: 150px;
-  }
+  /* filters typically wrap -> reserve a bit more */
+  .catalog{ --catalog-top-ui: 148px; }
 
   .catalog__card{
     height: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
-    min-height: 560px;
+    min-height: 600px;
   }
 }
 
 @media (max-width:768px){
   .catalog__grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
-    --gap:14px;
+    --gap: 12px;
   }
 
-  /* on mobile don’t force the “only one row” rule */
+  /* on mobile don’t force “only one row” */
   .catalog__card{
     height:auto;
     min-height:0;
+    max-height:none;
   }
 
   .catalog__input,
@@ -458,7 +467,7 @@
 }
 
 @media (max-width:420px){
-  .catalog__grid{ gap:12px; }
+  .catalog__grid{ gap:10px; }
   .catalog__meta{ font-size:12px; min-height:34px; }
   .catalog__actions{ justify-content:space-between; }
 }
