@@ -9,6 +9,7 @@ import api from "../api/axiosInstance";
 import { getAccessToken } from "../types/token";
 import { fetchProducts } from "../api/products";
 import { fetchWishlistCount } from "../store/wishListSlice";
+import { toHttps } from "../utils/images";
 
 import fallbackImg from "../assets/images/fallback_product.jpg";
 import "../../styles/ProductCatalog.css";
@@ -271,7 +272,7 @@ export default function ProductCatalog() {
         {
           page: nextPage,
           page_size: pageSize,
-          category: effectiveCategory || undefined,
+          collection: effectiveCategory || undefined,
           in_stock: showAvailableOnly ? true : undefined,
           ordering: ordering || undefined,
           min_price: minPrice === "" ? undefined : minPrice,
@@ -501,7 +502,8 @@ export default function ProductCatalog() {
 
       <div className="catalog__grid" role="list" aria-label="Product list">
         {products.map((apiItem) => {
-          const imgSrc = apiItem.main_image_url || apiItem.images?.[0]?.image_url || fallbackImg;
+          const rawImg = apiItem.main_image_url || apiItem.images?.[0]?.image_url || "";
+          const imgSrc = toHttps(rawImg) || fallbackImg;
 
           const sizes = getProductSizes(apiItem)
             .slice()
