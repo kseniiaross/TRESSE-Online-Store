@@ -1,21 +1,24 @@
 /* =========================
-   Catalog
+   Catalog (Zara-like: 4 cards visible on first screen)
    ========================= */
 
 .catalog{
   width:100%;
   box-sizing:border-box;
 
-  /* a bit tighter so 1st row fits */
-  padding-top: calc(var(--header-height) - 20px);
-  padding-bottom: 26px;
-
   max-width:1440px;
   margin:0 auto;
-  padding-left:clamp(14px, 2vw, 30px);
-  padding-right:clamp(14px, 2vw, 30px);
 
-  min-height:calc(100dvh - var(--header-height));
+  padding-top: calc(var(--header-height) - 20px);
+  padding-bottom: 20px;
+
+  padding-left: clamp(12px, 1.8vw, 28px);
+  padding-right: clamp(12px, 1.8vw, 28px);
+
+  min-height: calc(100dvh - var(--header-height));
+
+  /* TWEAK THIS if needed to make ONLY 1 row visible without showing 2nd row */
+  --catalog-top-ui: 130px; /* filters/search row height estimate */
 }
 
 /* =========================
@@ -27,7 +30,6 @@
   flex-wrap:wrap;
   align-items:center;
 
-  /* tighter */
   gap:10px;
   margin:10px 0 6px;
 }
@@ -40,7 +42,8 @@
   border-bottom:1px solid #cfcfcf;
   background:transparent;
   outline:none;
-  min-width:210px;
+
+  min-width: 200px;
 }
 
 .catalog__input::placeholder{
@@ -48,7 +51,7 @@
   letter-spacing:.05em;
 }
 
-.catalog__select{ min-width:190px; }
+.catalog__select{ min-width: 180px; }
 
 .catalog__checkbox{
   display:flex;
@@ -65,7 +68,7 @@
 }
 
 .catalog__input--price{
-  min-width:150px;
+  min-width: 140px;
 }
 
 /* =========================
@@ -78,22 +81,21 @@
 }
 
 /* =========================
-   Grid (Zara-like: 4 on first screen)
+   Grid (4 across, 1 row in viewport)
    ========================= */
 
 .catalog__grid{
-  --gap:18px;                 /* smaller gaps */
+  --gap:18px;
   display:grid;
-  grid-template-columns:repeat(4, minmax(0, 1fr));
-  gap:var(--gap);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap);
 
-  /* tighter vertical padding so row fits */
-  padding: 12px 0 18px;
-  align-items:start;
+  padding: 10px 0 14px;
+  align-items: start;
 }
 
 /* =========================
-   Card (fixed row height so 2nd row starts after scroll)
+   Card (force same height so 2nd row starts after scroll)
    ========================= */
 
 .catalog__card{
@@ -102,8 +104,10 @@
   flex-direction:column;
   min-width:0;
 
-  /* IMPORTANT: locks each card height so first row is stable */
-  height: clamp(520px, 68vh, 640px);
+  /* KEY: card height uses viewport minus header+filters so only 1 row fits */
+  height: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
+  max-height: 760px;
+  min-height: 560px;
 }
 
 .catalog__link{
@@ -111,6 +115,7 @@
   flex-direction:column;
   height:100%;
   min-width:0;
+
   text-decoration:none;
   color:inherit;
 }
@@ -118,32 +123,31 @@
 .catalog__link:focus-visible{
   outline:2px solid rgba(17,17,17,.35);
   outline-offset:4px;
-  border-radius:0px;
+  border-radius:0;
 }
 
-/* =========================
-   Media (make it taller but controlled)
-   ========================= */
-
+/* media fills remaining height nicely */
 .catalog__media{
   width:100%;
   overflow:hidden;
   background:#f7f7f7;
-  border-radius:2px;
 
-  /* instead of only aspect-ratio, we CONTROL the media height */
   flex: 1 1 auto;
   min-height: 0;
+
+  border-radius:2px;
 }
 
 .catalog__image{
   width:100%;
   height:100%;
+  display:block;
+
   object-fit:cover;
   object-position:center;
+
   transform:scale(1);
   transition:transform .35s ease;
-  display:block;
 }
 
 .catalog__card:hover .catalog__image{
@@ -151,7 +155,7 @@
 }
 
 /* =========================
-   Meta (fixed height)
+   Meta (fixed slot so nothing jumps)
    ========================= */
 
 .catalog__meta{
@@ -163,7 +167,6 @@
   font-size:13px;
   line-height:1.25;
 
-  /* fixed so cards never jump */
   min-height:34px;
   align-items:flex-start;
 }
@@ -188,7 +191,7 @@
 }
 
 /* =========================
-   Badge
+   Badge + Wishlist
    ========================= */
 
 .catalog__badge{
@@ -202,10 +205,6 @@
   border-radius:3px;
   z-index:2;
 }
-
-/* =========================
-   Wishlist
-   ========================= */
 
 .catalog__wishlist-btn{
   position:absolute;
@@ -224,7 +223,6 @@
 
   cursor:pointer;
   z-index:3;
-
   transition:border-color .2s ease, transform .1s ease, background .2s ease, color .2s ease;
 }
 
@@ -262,10 +260,7 @@
   flex-wrap:wrap;
   gap:8px;
 
-  /* tighter */
   padding:8px 0 6px;
-
-  /* fixed slot height */
   min-height:32px;
 }
 
@@ -275,19 +270,21 @@
 
   border:1px solid rgba(0,0,0,.18);
   background:transparent;
+
   padding:6px 10px;
   font-size:12px;
   letter-spacing:.06em;
   text-transform:uppercase;
+
   cursor:pointer;
 }
 
-.catalog__size--active{ border-color:rgba(0,0,0,.75); }
+.catalog__size--active{ border-color: rgba(0,0,0,.75); }
 
 .catalog__size:disabled{
   opacity:.35;
   cursor:not-allowed;
-  text-decoration:line-through;
+  text-decoration: line-through;
 }
 
 .catalog__size:focus-visible{
@@ -296,7 +293,7 @@
 }
 
 /* =========================
-   Actions (always same bottom)
+   Actions (square Add to cart)
    ========================= */
 
 .catalog__actions{
@@ -305,7 +302,6 @@
   justify-content:flex-end;
   gap:10px;
 
-  /* compact + fixed zone */
   padding-top:8px;
 }
 
@@ -315,7 +311,7 @@
   padding:0 14px;
 
   border:1px solid #e6e6e6;
-  border-radius:0px;
+  border-radius:0; /* KEEP SQUARE */
   background:#fff;
   color:#111;
 
@@ -345,7 +341,7 @@
 }
 
 /* =========================
-   Notify (same bottom area)
+   Notify (kept clean; not asked to be square)
    ========================= */
 
 .catalog__notify{
@@ -428,9 +424,13 @@
     grid-template-columns:repeat(3, minmax(0, 1fr));
   }
 
-  /* let height relax a bit */
+  .catalog{
+    --catalog-top-ui: 150px;
+  }
+
   .catalog__card{
-    height: clamp(520px, 72vh, 700px);
+    height: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
+    min-height: 560px;
   }
 }
 
@@ -440,13 +440,10 @@
     --gap:14px;
   }
 
+  /* on mobile don’t force the “only one row” rule */
   .catalog__card{
-    height:auto; /* on mobile we don't force "1 row only" */
-  }
-
-  .catalog__meta{
-    font-size:13px;
-    min-height:36px;
+    height:auto;
+    min-height:0;
   }
 
   .catalog__input,
