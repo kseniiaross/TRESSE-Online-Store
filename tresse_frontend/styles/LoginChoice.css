@@ -11,21 +11,16 @@
 .auth {
   display: flex;
   width: 100%;
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
   box-sizing: border-box;
-}
-
-.auth--choice {
-  min-height: calc(100vh - 120px);
 }
 
 /* ================= Left ================= */
 
 .auth__left {
-  flex: 0 0 40%;
+  flex: 0 0 42%;
   display: flex;
-  align-items: center;
   justify-content: center;
   box-sizing: border-box;
 }
@@ -44,8 +39,10 @@
   text-align: center;
 }
 
+/* ===== Title ===== */
+
 .auth__title {
-  margin: 0 0 1rem;
+  margin: 0 0 14px;
   font-size: 1.4rem;
   letter-spacing: 0.45rem;
   text-transform: uppercase;
@@ -121,16 +118,13 @@
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-
-.auth__right--image {
-  padding: 0;
+  justify-content: flex-end; /* 👈 сдвиг фотки вправо */
+  padding-right: 2rem;      /* 👈 аккуратный отступ от края */
+  box-sizing: border-box;
 }
 
 .auth__image {
-  width: min(720px, 100%);
-  height: auto;
+  width: min(760px, 100%);
   max-height: 85vh;
 
   object-fit: cover;
@@ -158,15 +152,14 @@
   }
 
   .auth__left {
-    flex: none;
     padding: 2rem 1.5rem;
-  }
-
-  .auth__right {
-    display: none;
   }
 
   .auth__content {
     max-width: var(--auth-control-width-mobile);
+  }
+
+  .auth__right {
+    display: none;
   }
 }
