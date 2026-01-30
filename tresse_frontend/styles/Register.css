@@ -20,30 +20,30 @@
   box-sizing: border-box;
 }
 
-/* ================= Left (как choice) ================= */
+/* ================= Left (ВАЖНО: column) ================= */
 .auth-page--register .auth__left {
   flex: 0 0 40%;
   display: flex;
-  align-items: center;
+  flex-direction: column;          
+  align-items: center;            
   justify-content: center;
   box-sizing: border-box;
   padding: 0 3rem;
 }
 
-/* Заголовок + форма выравниваем по ширине инпутов */
+/* Заголовок + форма по ширине инпутов */
 .auth-page--register .auth__title,
 .auth-page--register .register-form {
   width: 100%;
   max-width: var(--auth-control-width);
 }
 
-/* Title centered relative to inputs */
 .auth-page--register .auth__title {
   margin: 0 0 1.5rem;
   font-size: 1.4rem;
   letter-spacing: 0.5rem;
   text-transform: uppercase;
-  text-align: center;
+  text-align: center;              
 }
 
 /* ================= Form ================= */
@@ -102,7 +102,6 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
-
   box-sizing: border-box;
 }
 

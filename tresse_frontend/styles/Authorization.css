@@ -20,17 +20,18 @@
   box-sizing: border-box;
 }
 
-/* ================= Left (как choice) ================= */
+/* ================= Left (ВАЖНО: column) ================= */
 .auth-page--login .auth__left {
   flex: 0 0 40%;
   display: flex;
-  align-items: center;
+  flex-direction: column;          
+  align-items: center;             
   justify-content: center;
   box-sizing: border-box;
   padding: 0 3rem;
 }
 
-/* чтобы текст/форма не растягивались */
+/* Ограничиваем ширину блока */
 .auth-page--login .auth__title,
 .auth-page--login .auth__subtitle,
 .auth-page--login .auth__form {
@@ -43,12 +44,14 @@
   font-size: 1.4rem;
   letter-spacing: 0.5rem;
   text-transform: uppercase;
+  text-align: center;             
 }
 
 .auth-page--login .auth__subtitle {
   margin: 0 0 2rem;
   font-size: 0.9rem;
   line-height: 1.4;
+  text-align: center;             
 }
 
 /* ================= Form ================= */
@@ -110,7 +113,7 @@
   flex-direction: column;
   gap: 10px;
   margin-top: 1rem;
-  align-items: flex-start;
+  align-items: center;            
 }
 
 .auth-page--login .auth__cta {
@@ -146,11 +149,6 @@
 .auth-page--login .auth__cta--primary:hover,
 .auth-page--login .auth__cta--primary:focus-visible {
   background: #111;
-}
-
-.auth-page--login .auth__cta--primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .auth-page--login .auth__cta--secondary {
@@ -203,10 +201,6 @@
     margin-left: auto;
     margin-right: auto;
     text-align: center;
-  }
-
-  .auth-page--login .auth__actions {
-    align-items: center;
   }
 
   .auth-page--login .auth__right {
