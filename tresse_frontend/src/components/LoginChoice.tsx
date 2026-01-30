@@ -8,42 +8,51 @@ export default function LoginChoice() {
 
   const rawNext = params.get("next") || "";
   const safeNext =
-    rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "";
+    rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "";
 
   const nextParam = safeNext ? `?next=${encodeURIComponent(safeNext)}` : "";
 
   return (
     <section className="auth-page" aria-label="Login choice">
-      <div className="auth">
-        <div className="auth__left">
+      <div className="auth auth--choice">
+        {/* LEFT */}
+        <div className="auth__left auth__left--centered">
           <h1 className="visually-hidden">Welcome to TRESSE</h1>
 
-          <h2 className="auth__title">ENJOY THE BEST EXPERIENCE WITH US</h2>
-          <p className="auth__subtitle">
-            Sign in to enjoy a personalized experience and get access to all our services.
-          </p>
+          <div className="auth__content">
+            <h2 className="auth__title">
+              ENJOY THE BEST EXPERIENCE WITH US
+            </h2>
 
-          <div className="auth__actions" aria-label="Login actions">
-            <Link
-              to={`/authorization${nextParam}`}
-              className="auth__cta auth__cta--primary"
-              aria-label="Log in to your account"
-            >
-              LOG IN
-            </Link>
+            <p className="auth__subtitle">
+              Sign in to enjoy a personalized experience and get access to all our services.
+            </p>
 
-            <Link
-              to={`/register${nextParam}`}
-              className="auth__cta auth__cta--secondary"
-              aria-label="Register new account"
-            >
-              REGISTER
-            </Link>
+            <div className="auth__actions">
+              <Link
+                to={`/authorization${nextParam}`}
+                className="auth__cta auth__cta--primary"
+              >
+                LOG IN
+              </Link>
+
+              <Link
+                to={`/register${nextParam}`}
+                className="auth__cta auth__cta--secondary"
+              >
+                REGISTER
+              </Link>
+            </div>
           </div>
         </div>
 
-        <div className="auth__right" aria-hidden="true">
-          <img className="auth__image" src={loginChoiceImage} alt="" />
+        {/* RIGHT */}
+        <div className="auth__right auth__right--image" aria-hidden="true">
+          <img
+            className="auth__image"
+            src={loginChoiceImage}
+            alt=""
+          />
         </div>
       </div>
     </section>
