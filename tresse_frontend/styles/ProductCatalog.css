@@ -1,53 +1,40 @@
-/* =========================
-   Catalog (Zara-like: 4 cards, 1 row per viewport)
-   ========================= */
-
 .catalog{
   width:100%;
   box-sizing:border-box;
   max-width:1440px;
   margin:0 auto;
 
-  /* tighter, Zara-like */
-  padding-top: calc(var(--header-height) - 22px);
-  padding-bottom: 0;
+  padding-top:calc(var(--header-height) - 24px);
+  padding-bottom:0;
 
-  padding-left: clamp(10px, 1.6vw, 24px);
-  padding-right: clamp(10px, 1.6vw, 24px);
+  padding-left:clamp(6px, 1vw, 14px);
+  padding-right:clamp(6px, 1vw, 14px);
 
-  /* IMPORTANT: define how much space filters take.
-     Smaller value = taller cards = 2nd row won’t peek.
-     If 2nd row still shows, reduce by 8–12px.
-  */
-  --catalog-top-ui: 112px;
+  --catalog-top-ui: 106px;
 }
-
-/* =========================
-   Filters
-   ========================= */
 
 .catalog__filters{
   display:flex;
   flex-wrap:wrap;
   align-items:center;
-
-  gap:10px;
-  margin: 8px 0 4px;
+  gap:8px;
+  margin:6px 0 2px;
 }
 
 .catalog__input,
 .catalog__select{
   font:inherit;
-  padding: 4px 0;
+  padding:3px 0;
   border:none;
   border-bottom:1px solid #cfcfcf;
   background:transparent;
   outline:none;
-
-  min-width: 190px;
+  min-width:180px;
 }
 
-.catalog__select{ min-width: 170px; }
+.catalog__select{
+  min-width:160px;
+}
 
 .catalog__input::placeholder{
   color:#9a9a9a;
@@ -65,53 +52,38 @@
 
 .catalog__price{
   display:flex;
-  gap:10px;
+  gap:8px;
 }
 
-.catalog__input--price{ min-width: 130px; }
-
-/* =========================
-   States
-   ========================= */
+.catalog__input--price{
+  min-width:120px;
+}
 
 .catalog__loader,
 .catalog__empty{
-  margin: 8px 0;
+  margin:8px 0;
 }
-
-/* =========================
-   Grid (tight gaps + no bottom padding so row fills viewport)
-   ========================= */
 
 .catalog__grid{
-  --gap: 14px; /* Zara-like small gap */
+  --gap:12px;
   display:grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--gap);
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:var(--gap);
 
-  /* remove extra vertical space */
-  padding: 8px 0 0;
-  margin: 0;
+  padding:6px 0 0;
+  margin:0;
 
-  align-items: start;
+  height:calc(100dvh - var(--header-height) - var(--catalog-top-ui));
+  overflow:hidden;
+  align-items:start;
 }
-
-/* =========================
-   Card (this is the KEY: 1 row fills the viewport)
-   ========================= */
 
 .catalog__card{
   position:relative;
   display:flex;
   flex-direction:column;
   min-width:0;
-
-  /* One-row rule (desktop): card height = viewport minus header + filters */
-  height: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
-
-  /* helps keep it elegant on very tall screens */
-  max-height: 820px;
-  min-height: 610px;
+  height:100%;
 }
 
 .catalog__link{
@@ -129,19 +101,12 @@
   border-radius:0;
 }
 
-/* =========================
-   Media (fills remaining height nicely)
-   ========================= */
-
 .catalog__media{
   width:100%;
   background:#f7f7f7;
   overflow:hidden;
-
-  /* This makes image area grow so 1st row becomes taller */
-  flex: 1 1 auto;
-  min-height: 0;
-
+  flex:1 1 auto;
+  min-height:0;
   border-radius:2px;
 }
 
@@ -149,10 +114,8 @@
   width:100%;
   height:100%;
   display:block;
-
   object-fit:cover;
   object-position:center;
-
   transform:scale(1);
   transition:transform .35s ease;
 }
@@ -161,19 +124,13 @@
   transform:scale(1.03);
 }
 
-/* =========================
-   Meta (fixed slot so cards never jump)
-   ========================= */
-
 .catalog__meta{
   display:flex;
   justify-content:space-between;
   gap:10px;
-
-  margin-top:8px;
+  margin-top:6px;
   font-size:13px;
   line-height:1.25;
-
   min-height:34px;
   align-items:flex-start;
 }
@@ -182,7 +139,6 @@
   color:#111;
   max-width:78%;
   min-width:0;
-
   display:-webkit-box;
   -webkit-box-orient:vertical;
   -webkit-line-clamp:2;
@@ -196,10 +152,6 @@
   letter-spacing:.02em;
   white-space:nowrap;
 }
-
-/* =========================
-   Badge + Wishlist
-   ========================= */
 
 .catalog__badge{
   position:absolute;
@@ -230,12 +182,16 @@
 
   cursor:pointer;
   z-index:3;
-
   transition:border-color .2s ease, transform .1s ease, background .2s ease, color .2s ease;
 }
 
-.catalog__card:hover .catalog__wishlist-btn{ border-color:#cfcfcf; }
-.catalog__wishlist-btn:active{ transform:scale(.96); }
+.catalog__card:hover .catalog__wishlist-btn{
+  border-color:#cfcfcf;
+}
+
+.catalog__wishlist-btn:active{
+  transform:scale(.96);
+}
 
 .catalog__wishlist-btn:focus-visible{
   outline:none;
@@ -259,40 +215,34 @@
   color:#fff;
 }
 
-/* =========================
-   Sizes (fixed slot)
-   ========================= */
-
 .catalog__sizes{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
-
-  padding: 6px 0 6px;
-  min-height: 30px;
+  padding:6px 0 6px;
+  min-height:30px;
 }
 
 .catalog__size{
   appearance:none;
   font:inherit;
-
   border:1px solid rgba(0,0,0,.18);
   background:transparent;
-
   padding:6px 10px;
   font-size:12px;
   letter-spacing:.06em;
   text-transform:uppercase;
-
   cursor:pointer;
 }
 
-.catalog__size--active{ border-color: rgba(0,0,0,.75); }
+.catalog__size--active{
+  border-color:rgba(0,0,0,.75);
+}
 
 .catalog__size:disabled{
   opacity:.35;
   cursor:not-allowed;
-  text-decoration: line-through;
+  text-decoration:line-through;
 }
 
 .catalog__size:focus-visible{
@@ -300,16 +250,11 @@
   box-shadow:0 0 0 3px rgba(17,17,17,.10);
 }
 
-/* =========================
-   Actions (square Add to cart)
-   ========================= */
-
 .catalog__actions{
   display:flex;
   align-items:center;
   justify-content:flex-end;
   gap:10px;
-
   padding-top:6px;
 }
 
@@ -319,7 +264,7 @@
   padding:0 14px;
 
   border:1px solid #e6e6e6;
-  border-radius:0; /* KEEP SQUARE */
+  border-radius:0;
   background:#fff;
   color:#111;
 
@@ -336,7 +281,9 @@
   box-shadow:0 1px 0 rgba(17,17,17,.06);
 }
 
-.catalog__addBtn:active{ transform:translateY(1px); }
+.catalog__addBtn:active{
+  transform:translateY(1px);
+}
 
 .catalog__addBtn:focus-visible{
   outline:none;
@@ -347,10 +294,6 @@
   opacity:.55;
   cursor:not-allowed;
 }
-
-/* =========================
-   Notify (kept clean)
-   ========================= */
 
 .catalog__notify{
   width:100%;
@@ -383,7 +326,9 @@
   box-shadow:0 1px 0 rgba(17,17,17,.06);
 }
 
-.catalog__notify-btn:active{ transform:translateY(1px); }
+.catalog__notify-btn:active{
+  transform:translateY(1px);
+}
 
 .catalog__notify-btn:focus-visible{
   outline:none;
@@ -397,16 +342,12 @@
   letter-spacing:.02em;
 }
 
-/* =========================
-   Pagination
-   ========================= */
-
 .catalog__pagination{
   display:flex;
   gap:8px;
   align-items:center;
   justify-content:center;
-  margin: 6px 0 12px;
+  margin:6px 0 12px;
 }
 
 .catalog__pagination button{
@@ -421,38 +362,36 @@
   cursor:not-allowed;
 }
 
-.catalog__pageInfo{ margin:0 8px; }
-
-/* =========================
-   Responsive
-   ========================= */
+.catalog__pageInfo{
+  margin:0 8px;
+}
 
 @media (max-width:1200px){
-  .catalog__grid{
-    grid-template-columns:repeat(3, minmax(0, 1fr));
-    --gap: 14px;
+  .catalog{
+    --catalog-top-ui: 148px;
+    padding-left:clamp(8px, 1.2vw, 18px);
+    padding-right:clamp(8px, 1.2vw, 18px);
   }
 
-  /* filters typically wrap -> reserve a bit more */
-  .catalog{ --catalog-top-ui: 148px; }
-
-  .catalog__card{
-    height: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
-    min-height: 600px;
+  .catalog__grid{
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    --gap:12px;
+    height:auto;
+    overflow:visible;
   }
 }
 
 @media (max-width:768px){
-  .catalog__grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-    --gap: 12px;
+  .catalog{
+    padding-left:14px;
+    padding-right:14px;
   }
 
-  /* on mobile don’t force “only one row” */
-  .catalog__card{
+  .catalog__grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    --gap:12px;
     height:auto;
-    min-height:0;
-    max-height:none;
+    overflow:visible;
   }
 
   .catalog__input,
@@ -467,7 +406,16 @@
 }
 
 @media (max-width:420px){
-  .catalog__grid{ gap:10px; }
-  .catalog__meta{ font-size:12px; min-height:34px; }
-  .catalog__actions{ justify-content:space-between; }
+  .catalog__grid{
+    --gap:10px;
+  }
+
+  .catalog__meta{
+    font-size:12px;
+    min-height:34px;
+  }
+
+  .catalog__actions{
+    justify-content:space-between;
+  }
 }
