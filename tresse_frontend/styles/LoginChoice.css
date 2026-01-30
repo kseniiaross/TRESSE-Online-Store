@@ -11,16 +11,21 @@
 .auth {
   display: flex;
   width: 100%;
-  max-width: 1440px;
+  max-width: 1400px;
   margin: 0 auto;
   box-sizing: border-box;
+}
+
+.auth--choice {
+  min-height: calc(100vh - 120px);
 }
 
 /* ================= Left ================= */
 
 .auth__left {
-  flex: 0 0 42%;
+  flex: 0 0 40%;
   display: flex;
+  align-items: center;
   justify-content: center;
   box-sizing: border-box;
 }
@@ -31,7 +36,7 @@
 
 .auth__content {
   width: 100%;
-  max-width: 360px;
+  max-width: var(--auth-control-width);
 
   display: flex;
   flex-direction: column;
@@ -39,20 +44,27 @@
   text-align: center;
 }
 
-/* ===== Title ===== */
+/* ================= Text ================= */
 
 .auth__title {
-  margin: 0 0 14px;
+  width: 100%;
+  max-width: var(--auth-control-width);
+
+  margin: 0 0 1rem;
   font-size: 1.4rem;
   letter-spacing: 0.45rem;
   text-transform: uppercase;
+  text-align: center;
 }
 
 .auth__subtitle {
+  width: 100%;
+  max-width: var(--auth-control-width);
+
   margin: 0 0 2.2rem;
   font-size: 0.9rem;
   line-height: 1.45;
-  max-width: 320px;
+  text-align: center;
 }
 
 /* ================= Actions ================= */
@@ -118,19 +130,20 @@
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* 👈 сдвиг фотки вправо */
-  padding-right: 2rem;      /* 👈 аккуратный отступ от края */
-  box-sizing: border-box;
+  justify-content: center;
 }
 
 .auth__image {
-  width: min(760px, 100%);
+  width: min(720px, 100%);
   max-height: 85vh;
+  height: auto;
+
+  display: block;
 
   object-fit: cover;
   object-position: center;
 
-  display: block;
+  margin-left: 80px; /* ← СДВИГ ВПРАВО */
 }
 
 /* ================= Utilities ================= */
@@ -152,14 +165,20 @@
   }
 
   .auth__left {
+    flex: none;
     padding: 2rem 1.5rem;
+  }
+
+  .auth__right {
+    display: none;
   }
 
   .auth__content {
     max-width: var(--auth-control-width-mobile);
   }
 
-  .auth__right {
-    display: none;
+  .auth__title,
+  .auth__subtitle {
+    max-width: var(--auth-control-width-mobile);
   }
 }
