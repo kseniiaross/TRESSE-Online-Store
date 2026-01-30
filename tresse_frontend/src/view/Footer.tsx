@@ -144,7 +144,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li className="footer__list-item">
-                <Link to="/catalog?collection=new" className="footer__link">
+                <Link to="/catalog?collection=the-new" className="footer__link">
                   THE NEW
                 </Link>
               </li>
