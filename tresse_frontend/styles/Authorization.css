@@ -1,39 +1,37 @@
 .auth-page {
   --auth-top-gap: 40px;
   --auth-bottom-gap: 50px;
+
   --auth-control-width: 300px;
   --auth-control-width-mobile: 320px;
-  --auth-frame-padding: 24px;
-  --auth-image-max-width: 700px;
+
+  --auth-image-width: 520px;
+  --auth-image-height: 680px;
+
   padding-top: var(--auth-top-gap);
   padding-bottom: var(--auth-bottom-gap);
   background: #fff;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Two-column container                                                       */
-/* -------------------------------------------------------------------------- */
+/* ================= Layout ================= */
 
 .auth {
   display: flex;
   width: 100%;
-  box-sizing: border-box;
   max-width: 1200px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Left column                                                                */
-/* -------------------------------------------------------------------------- */
+/* ================= Left ================= */
 
 .auth__left {
   flex: 1;
   padding: 4rem;
-  box-sizing: border-box;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .auth__title {
@@ -47,11 +45,10 @@
   margin: 0 0 2rem;
   font-size: 0.9rem;
   max-width: 420px;
+  line-height: 1.4;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Form                                                                       */
-/* -------------------------------------------------------------------------- */
+/* ================= Form ================= */
 
 .auth__form {
   display: flex;
@@ -72,20 +69,20 @@
 
 .auth__input {
   width: var(--auth-control-width);
-  max-width: var(--auth-control-width);
-  box-sizing: border-box;
-
+  max-width: 100%;
   padding: 0.8rem;
   font-size: 1rem;
-
   border: 1px solid #000;
   background: #fff;
+  box-sizing: border-box;
 }
 
 .auth__input:focus-visible {
   outline: 2px solid #000;
   outline-offset: 2px;
 }
+
+/* ================= Messages ================= */
 
 .auth__message {
   margin-top: 0.35rem;
@@ -97,9 +94,17 @@
   color: #b00020;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Actions / CTAs                                                             */
-/* -------------------------------------------------------------------------- */
+.auth__message--server {
+  margin-top: 1rem;
+  padding: 0.6rem 0.8rem;
+  background: #ffeaea;
+  color: rgba(0, 0, 0, 0.85);
+  border-radius: 4px;
+  width: var(--auth-control-width);
+  box-sizing: border-box;
+}
+
+/* ================= Actions ================= */
 
 .auth__actions {
   display: flex;
@@ -111,9 +116,7 @@
 
 .auth__cta {
   width: var(--auth-control-width);
-  max-width: var(--auth-control-width);
   height: 44px;
-  box-sizing: border-box;
 
   display: inline-flex;
   align-items: center;
@@ -123,8 +126,10 @@
   text-align: center;
   user-select: none;
 
+  font-size: 0.9rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  box-sizing: border-box;
 }
 
 .auth__cta:focus-visible {
@@ -133,6 +138,7 @@
 }
 
 /* Primary */
+
 .auth__cta--primary {
   background: #000;
   color: #fff;
@@ -150,6 +156,8 @@
   cursor: not-allowed;
 }
 
+/* Secondary */
+
 .auth__cta--secondary {
   background: #fff;
   color: #000;
@@ -158,42 +166,27 @@
 
 .auth__cta--secondary:hover,
 .auth__cta--secondary:focus-visible {
-  background: #fff; 
-  color: #000;
   border-color: rgba(0, 0, 0, 0.75);
 }
 
-/* -------------------------------------------------------------------------- */
-/* Right column (image frame)                                                 */
-/* -------------------------------------------------------------------------- */
+/* ================= Right (Image) ================= */
 
 .auth__right {
   flex: 1;
-  overflow: hidden;
-
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-
-  padding: var(--auth-frame-padding) var(--auth-frame-padding) 0;
-  box-sizing: border-box;
-  max-height: 720px;
+  align-items: center;
 }
 
 .auth__image {
-  width: 100%;
-  height: 100%;
-  max-width: var(--auth-image-max-width);
-
-  display: block;
-
+  width: var(--auth-image-width);
+  height: var(--auth-image-height);
   object-fit: cover;
-  object-position: center 15%;
+  object-position: center;
+  display: block;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Mobile                                                                     */
-/* -------------------------------------------------------------------------- */
+/* ================= Mobile ================= */
 
 @media (max-width: 768px) {
   .auth-page {
@@ -209,11 +202,11 @@
     padding: 2rem 1.5rem;
     align-items: center;
     text-align: center;
-    justify-content: flex-start;
   }
 
   .auth__input,
-  .auth__cta {
+  .auth__cta,
+  .auth__message--server {
     width: 100%;
     max-width: var(--auth-control-width-mobile);
   }

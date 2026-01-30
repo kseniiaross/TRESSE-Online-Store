@@ -5,43 +5,51 @@
   --auth-control-width: 300px;
   --auth-control-width-mobile: 320px;
 
-  --auth-frame-padding: 24px;
-  --auth-image-max-width: 700px;
+  --auth-image-width: 520px;
+  --auth-image-height: 680px;
 
   padding-top: var(--auth-top-gap);
   padding-bottom: var(--auth-bottom-gap);
   background: #fff;
 }
 
+/* ================= Layout ================= */
+
 .auth {
   display: flex;
   width: 100%;
-  box-sizing: border-box;
   max-width: 1200px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
+
+/* ================= Left ================= */
 
 .auth__left {
   flex: 1;
   padding: 4rem;
   box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 .auth__title {
+  margin: 0 0 1rem;
   font-size: 1.4rem;
   letter-spacing: 0.5rem;
-  margin: 0 0 1rem;
   text-transform: uppercase;
 }
 
 .auth__subtitle {
-  font-size: 0.9rem;
   margin: 0 0 2rem;
+  font-size: 0.9rem;
   max-width: 420px;
+  line-height: 1.4;
 }
+
+/* ================= Actions ================= */
 
 .auth__actions {
   display: flex;
@@ -53,19 +61,28 @@
 
 .auth__cta {
   width: var(--auth-control-width);
-  max-width: 100%;
   height: 44px;
   box-sizing: border-box;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   text-decoration: none;
   text-align: center;
   user-select: none;
-  letter-spacing: 0.12em;
+
   font-size: 0.9rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+.auth__cta:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 3px;
+}
+
+/* Primary */
 
 .auth__cta--primary {
   background: #000;
@@ -78,6 +95,8 @@
   background: #111;
 }
 
+/* Secondary */
+
 .auth__cta--secondary {
   background: #fff;
   color: #000;
@@ -86,36 +105,27 @@
 
 .auth__cta--secondary:hover,
 .auth__cta--secondary:focus-visible {
-  background: #fff;
-  color: #000;
   border-color: rgba(0, 0, 0, 0.75);
 }
 
-.auth__cta:focus-visible {
-  outline: 2px solid #000;
-  outline-offset: 3px;
-}
+/* ================= Right (Image) ================= */
 
 .auth__right {
   flex: 1;
-  overflow: hidden;
   display: flex;
   justify-content: center;
-  align-items: stretch;
-  padding: 0;
-  box-sizing: border-box;
-  height: 720px;
-  max-height: 720px;
+  align-items: center;
 }
 
 .auth__image {
-  width: 100%;
-  height: 100%;
-  max-width: none;
+  width: var(--auth-image-width);
+  height: var(--auth-image-height);
   display: block;
   object-fit: cover;
-  object-position: center 15%;
+  object-position: center;
 }
+
+/* ================= Utilities ================= */
 
 .visually-hidden {
   position: absolute;
@@ -125,6 +135,8 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
 }
+
+/* ================= Mobile ================= */
 
 @media (max-width: 768px) {
   .auth-page {
