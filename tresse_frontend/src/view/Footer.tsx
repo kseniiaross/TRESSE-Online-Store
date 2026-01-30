@@ -139,22 +139,22 @@ export default function Footer() {
                 </Link>
               </li>
               <li className="footer__list-item">
-                <Link to="/catalog?category=kids" className="footer__link">
+                <Link to="/catalog?collection=kids" className="footer__link">
                   KIDS
                 </Link>
               </li>
               <li className="footer__list-item">
-                <Link to="/catalog?category=new" className="footer__link">
+                <Link to="/catalog?collection=new" className="footer__link">
                   THE NEW
                 </Link>
               </li>
               <li className="footer__list-item">
-                <Link to="/catalog?category=bestsellers" className="footer__link">
+                <Link to="/catalog?collection=bestsellers" className="footer__link">
                   BESTSELLERS
                 </Link>
               </li>
               <li className="footer__list-item">
-                <Link to="/catalog?category=exclusives" className="footer__link">
+                <Link to="/catalog?collection=exclusives" className="footer__link">
                   EXCLUSIVES
                 </Link>
               </li>

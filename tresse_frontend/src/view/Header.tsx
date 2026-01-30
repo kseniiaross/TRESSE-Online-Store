@@ -371,22 +371,22 @@ const Header: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/catalog?category=kids" onClick={closeMenu}>
+                  <Link to="/catalog?collection=kids" onClick={closeMenu}>
                     KIDS
                   </Link>
                 </li>
                 <li>
-                  <Link to="/catalog?category=new" onClick={closeMenu}>
+                  <Link to="/catalog?collection=new" onClick={closeMenu}>
                     THE NEW
                   </Link>
                 </li>
                 <li>
-                  <Link to="/catalog?category=bestsellers" onClick={closeMenu}>
+                  <Link to="/catalog?collection=bestsellers" onClick={closeMenu}>
                     BESTSELLERS
                   </Link>
                 </li>
                 <li>
-                  <Link to="/catalog?category=exclusives" onClick={closeMenu}>
+                  <Link to="/catalog?collection=exclusives" onClick={closeMenu}>
                     EXCLUSIVES
                   </Link>
                 </li>
