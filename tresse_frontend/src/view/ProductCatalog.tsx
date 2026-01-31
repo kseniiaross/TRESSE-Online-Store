@@ -230,6 +230,8 @@ export default function ProductCatalog() {
   const [notifyOpenByProduct, setNotifyOpenByProduct] = useState<Record<number, boolean>>({});
   const [notifyDoneByProduct, setNotifyDoneByProduct] = useState<Record<number, boolean>>({});
 
+  const [sizeModalProductId, setSizeModalProductId] = useState<number | null>(null);
+
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const ctrlRef = useRef<AbortController | null>(null);
 
@@ -238,6 +240,17 @@ export default function ProductCatalog() {
     setGuestNotifyEmail(v);
     safeSetSessionEmail(v);
   };
+
+  const openSizeModal = (productId: number) => setSizeModalProductId(productId);
+  const closeSizeModal = () => setSizeModalProductId(null);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeSizeModal();
+    };
+    if (sizeModalProductId !== null) window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [sizeModalProductId]);
 
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
   useEffect(() => {
@@ -273,7 +286,7 @@ export default function ProductCatalog() {
         {
           page: nextPage,
           page_size: pageSize,
-          category: effectiveCollection ? undefined : (effectiveCategory || undefined),
+          category: effectiveCollection ? undefined : effectiveCategory || undefined,
           collection: effectiveCollection || undefined,
           in_stock: showAvailableOnly ? true : undefined,
           ordering: ordering || undefined,
@@ -314,9 +327,7 @@ export default function ProductCatalog() {
     setHasNext(true);
     setPage(1);
     void loadPage(1, "reset");
-    return () => {
-      ctrlRef.current?.abort();
-    };
+    return () => ctrlRef.current?.abort();
   }, [queryKey]);
 
   useEffect(() => {
@@ -350,9 +361,7 @@ export default function ProductCatalog() {
       dispatch(fetchWishlistCount());
       localStorage.setItem("wishlist:ping", String(Date.now()));
 
-      setProducts((prev) =>
-        prev.map((p) => (p.id === productId ? { ...p, is_in_wishlist: !p.is_in_wishlist } : p))
-      );
+      setProducts((prev) => prev.map((p) => (p.id === productId ? { ...p, is_in_wishlist: !p.is_in_wishlist } : p)));
     } catch (e) {
       console.error("toggle_wishlist error:", e);
     }
@@ -361,7 +370,7 @@ export default function ProductCatalog() {
   const handleAddToCart = async (apiItem: Product) => {
     const productSizeId = selectedSizeByProduct[apiItem.id];
     if (!productSizeId) {
-      alert("Please select a size.");
+      openSizeModal(apiItem.id); 
       return;
     }
 
@@ -420,36 +429,22 @@ export default function ProductCatalog() {
         <label className="srOnly" htmlFor="catalog_search">
           Search products
         </label>
+
         <input
           id="catalog_search"
           type="text"
           placeholder="Search products..."
           value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-          }}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="catalog__input"
         />
 
         <label className="catalog__checkbox">
-          <input
-            type="checkbox"
-            checked={showAvailableOnly}
-            onChange={(e) => {
-              setShowAvailableOnly(e.target.checked);
-            }}
-          />
+          <input type="checkbox" checked={showAvailableOnly} onChange={(e) => setShowAvailableOnly(e.target.checked)} />
           Only available
         </label>
 
-        <select
-          value={ordering}
-          onChange={(e) => {
-            setOrdering(e.target.value);
-          }}
-          className="catalog__select"
-          aria-label="Sort products"
-        >
+        <select value={ordering} onChange={(e) => setOrdering(e.target.value)} className="catalog__select" aria-label="Sort products">
           <option value="-created_at">Newest first</option>
           <option value="price">Price: low → high</option>
           <option value="-price">Price: high → low</option>
@@ -466,10 +461,7 @@ export default function ProductCatalog() {
             type="number"
             placeholder="Min price"
             value={minPrice}
-            onChange={(e) => {
-              const v = e.target.value;
-              setMinPrice(v === "" ? "" : Number(v));
-            }}
+            onChange={(e) => setMinPrice(e.target.value === "" ? "" : Number(e.target.value))}
             className="catalog__input catalog__input--price"
           />
 
@@ -481,10 +473,7 @@ export default function ProductCatalog() {
             type="number"
             placeholder="Max price"
             value={maxPrice}
-            onChange={(e) => {
-              const v = e.target.value;
-              setMaxPrice(v === "" ? "" : Number(v));
-            }}
+            onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
             className="catalog__input catalog__input--price"
           />
         </div>
@@ -559,29 +548,28 @@ export default function ProductCatalog() {
                       const disabled = s.quantity <= 0;
                       const active = chosenSizeId === s.id;
 
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        className={`catalog__size ${active ? "catalog__size--active" : ""}`}
-                        disabled={disabled}
-                        aria-disabled={disabled}
-                        aria-pressed={active}
-                        aria-label={`Size ${s.size.name}${disabled ? ", out of stock" : ""}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (disabled) return;
-                          setSelectedSizeByProduct((prev) => ({ ...prev, [apiItem.id]: s.id }));
-                        }}
-                        title={disabled ? "Out of stock" : `In stock: ${s.quantity}`}
-                      >
-                        {s.size.name}
-                      </button>
-                    );
-                  })
-                  : null}   
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          className={`catalog__size ${active ? "catalog__size--active" : ""}`}
+                          disabled={disabled}
+                          aria-disabled={disabled}
+                          aria-pressed={active}
+                          aria-label={`Size ${s.size.name}${disabled ? ", out of stock" : ""}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (disabled) return;
+                            setSelectedSizeByProduct((prev) => ({ ...prev, [apiItem.id]: s.id }));
+                          }}
+                          title={disabled ? "Out of stock" : `In stock: ${s.quantity}`}
+                        >
+                          {s.size.name}
+                        </button>
+                      );
+                    })
+                  : null}
               </div>
-              
 
               <div className="catalog__actions" aria-label="Product actions">
                 {!isOut ? (
@@ -610,6 +598,64 @@ export default function ProductCatalog() {
                   />
                 )}
               </div>
+
+              {sizeModalProductId === apiItem.id && (
+                <div
+                  className="sizeModal__overlay"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Select size"
+                  onClick={closeSizeModal}
+                >
+                  <div className="sizeModal" onClick={(e) => e.stopPropagation()}>
+                    <div className="sizeModal__head">
+                      <div className="sizeModal__title">Please select a size</div>
+                      <button type="button" className="sizeModal__close" onClick={closeSizeModal} aria-label="Close">
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="sizeModal__body">
+                      <div className="sizeModal__sizes">
+                        {sizes.map((s) => {
+                          const disabled = s.quantity <= 0;
+                          const active = chosenSizeId === s.id;
+
+                          return (
+                            <button
+                              key={s.id}
+                              type="button"
+                              className={`sizeModal__chip ${active ? "sizeModal__chip--active" : ""}`}
+                              disabled={disabled}
+                              onClick={() => {
+                                if (disabled) return;
+                                setSelectedSizeByProduct((prev) => ({ ...prev, [apiItem.id]: s.id }));
+                              }}
+                              title={disabled ? "Out of stock" : `In stock: ${s.quantity}`}
+                            >
+                              {s.size.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <button
+                        type="button"
+                        className="sizeModal__primary"
+                        disabled={!selectedSizeByProduct[apiItem.id]}
+                        onClick={() => {
+                          closeSizeModal();
+                          void handleAddToCart(apiItem);
+                        }}
+                      >
+                        Continue
+                      </button>
+
+                      <div className="sizeModal__hint">Tip: press ESC to close.</div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </article>
           );
         })}
@@ -624,4 +670,4 @@ export default function ProductCatalog() {
       <div ref={sentinelRef} className="catalog__sentinel" aria-hidden="true" />
     </section>
   );
-} 
+}
