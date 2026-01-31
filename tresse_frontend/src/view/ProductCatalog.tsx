@@ -163,18 +163,19 @@ function NotifyBlock({
 
   return (
     <div className="catalog__notify" onClick={(e) => e.stopPropagation()}>
-      <button className="catalog__notify-btn" type="button" onClick={onClickNotify} aria-expanded={open}>
-        Notify me
-      </button>
-
       {done && (
-        <div className="catalog__notify-status" role="status" aria-live="polite">
+        <div className="catalog__notify-status catalog__notify-status--top" role="status" aria-live="polite">
           You’ll be notified{rememberedEmail ? ` at ${rememberedEmail}` : ""}.
         </div>
       )}
 
+      <button className="catalog__notify-btn" type="button" onClick={onClickNotify} aria-expanded={open}>
+        Notify me
+      </button>
+
       {showEmailInput && (
         <div className="catalog__notify-inline" role="group" aria-label="Email notification signup">
+          
           <label className="srOnly" htmlFor={`notify_email_${productId}`}>
             Email address
           </label>
