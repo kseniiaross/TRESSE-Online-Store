@@ -68,58 +68,116 @@ const getProductSizes = (p: Product): ProductSizeItem[] => {
   return raw as ProductSizeItem[];
 };
 
-/**
- * Reads category from:
- * 1) query: ?category=women|men|kids (optional)
- * 2) path: /catalog/women, /catalog/men, /catalog/kids (your "addresses")
- */
-const readCategoryKey = (location: ReturnType<typeof useLocation>): string => {
-  const params = new URLSearchParams(location.search);
-  const fromQuery = (params.get("category") || "").trim().toLowerCase();
+/** ---------------------------------------------------------
+ * Filters (category / collection / search)
+ * --------------------------------------------------------- */
 
-  const pathParts = location.pathname.split("/").filter(Boolean);
-  const last = (pathParts[pathParts.length - 1] || "").trim().toLowerCase();
-
-  // Prefer path-based routing if it looks like a category
-  const candidates = [last, fromQuery].filter(Boolean);
-
-  const normalize = (v: string) => {
-    if (v === "women" || v === "woman") return "woman";
-    if (v === "men" || v === "man") return "man";
-    if (v === "kids" || v === "kid") return "kids";
-    return v;
-  };
-
-  for (const c of candidates) {
-    const n = normalize(c);
-    if (n === "woman" || n === "man" || n === "kids") return n;
-  }
-
+/** Normalize category values coming from URL or backend */
+const normalizeCategory = (v: string) => {
+  const x = String(v || "").trim().toLowerCase();
+  if (x === "women" || x === "woman") return "woman";
+  if (x === "men" || x === "man") return "man";
+  if (x === "kids" || x === "kid") return "kids";
   return "";
 };
 
+/** Only allow known collections to avoid filtering everything by accident */
+const normalizeCollection = (v: string) => {
+  const x = String(v || "").trim().toLowerCase();
+  if (x === "the-new" || x === "bestsellers" || x === "exclusives") return x;
+  return "";
+};
+
+/**
+ * Reads filters from URL:
+ * - /catalog?category=woman|man|kids
+ * - /catalog?collection=the-new|bestsellers|exclusives
+ * - /catalog?search=query
+ * Also supports path: /catalog/woman (optional)
+ * Backward-compat: if someone uses collection=kids -> treat as category kids.
+ */
+const readFilters = (location: ReturnType<typeof useLocation>) => {
+  const params = new URLSearchParams(location.search);
+
+  const queryCategory = normalizeCategory(params.get("category") || "");
+  const rawCollection = String(params.get("collection") || "").trim().toLowerCase();
+  const querySearch = String(params.get("search") || "").trim().toLowerCase();
+
+  // Try path-based category (e.g. /catalog/woman) if you use such routes
+  const pathParts = location.pathname.split("/").filter(Boolean);
+  const lastPart = pathParts[pathParts.length - 1] || "";
+  const pathCategory = normalizeCategory(lastPart);
+
+  // Backward compatibility: collection=kids should behave like category=kids
+  const collectionAsCategory = normalizeCategory(rawCollection);
+
+  const category = pathCategory || queryCategory || collectionAsCategory;
+
+  // If category is set -> ignore collection so we don't "double-filter" into empty results
+  const collection = category ? "" : normalizeCollection(rawCollection);
+
+  const search = querySearch;
+
+  return { category, collection, search };
+};
+
+/** Matches category against multiple possible backend fields */
 const matchesCategory = (p: Product, categoryKey: string): boolean => {
   if (!categoryKey) return true;
-
   const k = categoryKey.toLowerCase();
 
-  // Try common fields (backend may differ)
-  const categoryName = String((p as any)?.category?.name ?? "").toLowerCase();
-  const categorySlug = String((p as any)?.category?.slug ?? "").toLowerCase();
-  const collection = String((p as any)?.collection ?? "").toLowerCase();
-  const gender = String((p as any)?.gender ?? "").toLowerCase();
+  // Use safe access without `any` if possible
+  const categoryName = String((p as unknown as { category?: { name?: unknown } })?.category?.name ?? "")
+    .trim()
+    .toLowerCase();
 
-  // Your UI shows MAN, WOMAN, KIDS sometimes as category.name
+  const categorySlug = String((p as unknown as { category?: { slug?: unknown } })?.category?.slug ?? "")
+    .trim()
+    .toLowerCase();
+
+  const gender = String((p as unknown as { gender?: unknown })?.gender ?? "")
+    .trim()
+    .toLowerCase();
+
+  const collection = String((p as unknown as { collection?: unknown })?.collection ?? "")
+    .trim()
+    .toLowerCase();
+
+  // Direct matches
   if (categoryName === k) return true;
   if (categorySlug === k) return true;
-  if (collection === k) return true;
   if (gender === k) return true;
 
-  // Sometimes backend stores "men"/"women" instead of "man"/"woman"
-  if (k === "man" && (categoryName === "men" || categorySlug === "men")) return true;
-  if (k === "woman" && (categoryName === "women" || categorySlug === "women")) return true;
+  // Sometimes backend stores plural values
+  if (k === "man" && (categoryName === "men" || categorySlug === "men" || gender === "men")) return true;
+  if (k === "woman" && (categoryName === "women" || categorySlug === "women" || gender === "women")) return true;
+
+  // Fallback: some backends mistakenly put category into `collection`
+  if (collection === k) return true;
 
   return false;
+};
+
+/** Matches collection against backend field `collection` (extend later if needed) */
+const matchesCollection = (p: Product, collectionKey: string): boolean => {
+  if (!collectionKey) return true;
+  const c = collectionKey.toLowerCase();
+
+  const collection = String((p as unknown as { collection?: unknown })?.collection ?? "")
+    .trim()
+    .toLowerCase();
+
+  return collection === c;
+};
+
+/** Simple client-side search (name + description) */
+const matchesSearch = (p: Product, q: string): boolean => {
+  if (!q) return true;
+
+  const name = String((p as unknown as { name?: unknown })?.name ?? "").toLowerCase();
+  const desc = String((p as unknown as { description?: unknown })?.description ?? "").toLowerCase();
+
+  return name.includes(q) || desc.includes(q);
 };
 
 export default function ProductCatalog() {
@@ -127,7 +185,11 @@ export default function ProductCatalog() {
   const location = useLocation();
 
   const isAuthed = !!getAccessToken();
-  const categoryKey = useMemo(() => readCategoryKey(location), [location]);
+
+  const { category, collection, search } = useMemo(
+    () => readFilters(location),
+    [location.pathname, location.search]
+  );
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -149,7 +211,7 @@ export default function ProductCatalog() {
         setLoading(true);
         setLoadError("");
 
-        // ✅ Load products the old safe way (NO server-side category filter)
+        // Load once without server-side filters (most stable)
         const data = await fetchProducts();
 
         const items: Product[] = Array.isArray(data)
@@ -179,9 +241,13 @@ export default function ProductCatalog() {
     };
   }, [dispatch, isAuthed]);
 
+  // Apply URL filters (category OR collection) + search
   const products = useMemo(() => {
-    return allProducts.filter((p) => matchesCategory(p, categoryKey));
-  }, [allProducts, categoryKey]);
+    return allProducts
+      .filter((p) => matchesCategory(p, category))
+      .filter((p) => matchesCollection(p, collection))
+      .filter((p) => matchesSearch(p, search));
+  }, [allProducts, category, collection, search]);
 
   const activeSizeModalProduct = useMemo(() => {
     if (!sizeModalProductId) return null;
@@ -247,9 +313,7 @@ export default function ProductCatalog() {
       )}
 
       {!loading && !loadError && products.length === 0 && (
-        <div className="catalog__status">
-          No products found.
-        </div>
+        <div className="catalog__status">No products found.</div>
       )}
 
       <div className="catalog__grid" role="list" aria-label="Product list">
@@ -263,7 +327,11 @@ export default function ProductCatalog() {
 
           return (
             <article key={apiItem.id} className="catalog__card" role="listitem">
-              <Link to={`/product/${apiItem.id}`} className="catalog__link" aria-label={`Open product: ${apiItem.name}`}>
+              <Link
+                to={`/product/${apiItem.id}`}
+                className="catalog__link"
+                aria-label={`Open product: ${apiItem.name}`}
+              >
                 <div className="catalog__media">
                   <img
                     src={imgSrc}
@@ -303,6 +371,7 @@ export default function ProductCatalog() {
         })}
       </div>
 
+      {/* Notify modal */}
       {notifyModalProduct && (
         <div className="sizeModal__overlay" onClick={() => setNotifyModalProduct(null)}>
           <div className="notifyModal" onClick={(e) => e.stopPropagation()}>
@@ -345,12 +414,17 @@ export default function ProductCatalog() {
         </div>
       )}
 
+      {/* Size modal */}
       {activeSizeModalProduct && (
         <div className="sizeModal__overlay" onClick={() => setSizeModalProductId(null)}>
           <div className="sizeModal" onClick={(e) => e.stopPropagation()}>
             <div className="sizeModal__head">
               <div className="sizeModal__title">Select size</div>
-              <button type="button" className="sizeModal__close" onClick={() => setSizeModalProductId(null)}>
+              <button
+                type="button"
+                className="sizeModal__close"
+                onClick={() => setSizeModalProductId(null)}
+              >
                 ×
               </button>
             </div>
@@ -372,7 +446,10 @@ export default function ProductCatalog() {
                         disabled={disabled}
                         onClick={() => {
                           if (disabled) return;
-                          setSelectedSizeByProduct((prev) => ({ ...prev, [activeSizeModalProduct.id]: s.id }));
+                          setSelectedSizeByProduct((prev) => ({
+                            ...prev,
+                            [activeSizeModalProduct.id]: s.id,
+                          }));
                         }}
                         title={disabled ? "Out of stock" : `In stock: ${s.quantity}`}
                       >
