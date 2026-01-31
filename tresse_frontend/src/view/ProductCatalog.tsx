@@ -1,9 +1,8 @@
-import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 import type { Product } from "../types/product";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import api from "../api/axiosInstance";
 import { getAccessToken } from "../types/token";
@@ -76,7 +75,13 @@ const getProductSizes = (p: Product): ProductSizeItem[] => {
 
 export default function ProductCatalog() {
   const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
+
   const isAuthed = !!getAccessToken();
+
+  const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const rawCategory = params.get("category") ?? "";
+  const effectiveCategory = CATEGORY_MAP[rawCategory] ?? rawCategory;
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -98,7 +103,9 @@ export default function ProductCatalog() {
         setLoading(true);
         setLoadError("");
 
-        const data = await fetchProducts();
+        const data = await fetchProducts(
+          effectiveCategory ? { collection: effectiveCategory } : undefined
+        );
 
         const items: Product[] = Array.isArray(data)
           ? (data as Product[])
@@ -125,7 +132,7 @@ export default function ProductCatalog() {
     return () => {
       cancelled = true;
     };
-  }, [dispatch, isAuthed]);
+  }, [dispatch, isAuthed, effectiveCategory]);
 
   const activeSizeModalProduct = useMemo(() => {
     if (!sizeModalProductId) return null;
@@ -196,10 +203,6 @@ export default function ProductCatalog() {
         {products.map((apiItem) => {
           const isOut = !apiItem.available || !apiItem.in_stock;
 
-          const sizes = getProductSizes(apiItem)
-            .slice()
-            .sort((a, b) => compareSizes(a.size.name, b.size.name));
-
           const rawImg = apiItem.main_image_url || apiItem.images?.[0]?.image_url || "";
           const imgSrc = toHttps(rawImg) || fallbackImg;
 
@@ -208,7 +211,6 @@ export default function ProductCatalog() {
           return (
             <article key={apiItem.id} className="catalog__card" role="listitem">
               <Link to={`/product/${apiItem.id}`} className="catalog__link" aria-label={`Open product: ${apiItem.name}`}>
-                {/* IMPORTANT: keep media wrapper so images behave identically across cards */}
                 <div className="catalog__media">
                   <img
                     src={imgSrc}
@@ -248,7 +250,6 @@ export default function ProductCatalog() {
         })}
       </div>
 
-      {/* Notify modal */}
       {notifyModalProduct && (
         <div className="sizeModal__overlay" onClick={() => setNotifyModalProduct(null)}>
           <div className="notifyModal" onClick={(e) => e.stopPropagation()}>
@@ -265,15 +266,10 @@ export default function ProductCatalog() {
             </div>
 
             {isAuthed ? (
-              <p className="notifyModal__text">
-                We’ll email you as soon as this item is back in stock.
-              </p>
+              <p className="notifyModal__text">We’ll email you as soon as this item is back in stock.</p>
             ) : (
               <>
-                <p className="notifyModal__text">
-                  Enter your email — we’ll notify you when it’s available again.
-                </p>
-
+                <p className="notifyModal__text">Enter your email — we’ll notify you when it’s available again.</p>
                 <input
                   type="email"
                   placeholder="your@email.com"
