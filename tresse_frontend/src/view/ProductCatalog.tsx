@@ -553,11 +553,11 @@ export default function ProductCatalog() {
                 </div>
               </Link>
 
-              {!isOut && sizes.length > 0 && (
-                <div className="catalog__sizes" aria-label={`Select size for ${apiItem.name}`}>
-                  {sizes.map((s) => {
-                    const disabled = s.quantity <= 0;
-                    const active = chosenSizeId === s.id;
+              <div className="catalog__sizes" aria-label={`Select size for ${apiItem.name}`}>
+                {!isOut && sizes.length > 0
+                  ? sizes.map((s) => {
+                      const disabled = s.quantity <= 0;
+                      const active = chosenSizeId === s.id;
 
                     return (
                       <button
@@ -578,9 +578,10 @@ export default function ProductCatalog() {
                         {s.size.name}
                       </button>
                     );
-                  })}
-                </div>
-              )}
+                  })
+                  : null}   
+              </div>
+              
 
               <div className="catalog__actions" aria-label="Product actions">
                 {!isOut ? (
