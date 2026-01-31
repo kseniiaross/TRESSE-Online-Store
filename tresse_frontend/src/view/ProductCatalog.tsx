@@ -25,6 +25,7 @@ type ProductSizeItem = {
 
 const SESSION_EMAIL_KEY = "notify_email";
 
+/** Email helpers */
 const isValidEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 
@@ -44,6 +45,7 @@ const safeSetSessionEmail = (email: string) => {
   } catch {}
 };
 
+/** Size sorting */
 const SIZE_ORDER = ["XS", "S", "M", "L", "ONE SIZE", "OVER SIZE"] as const;
 
 const normalizeSizeLabel = (name: string) =>
@@ -69,94 +71,161 @@ const getProductSizes = (p: Product): ProductSizeItem[] => {
 };
 
 /** ---------------------------------------------------------
- * URL Filters (category / collection / search)
+ * URL filters (category / collection / search)
  * --------------------------------------------------------- */
 
-/** Only allow known categories */
-const normalizeCategory = (v: string) => {
-  const x = String(v || "").trim().toLowerCase();
-  if (x === "women" || x === "woman") return "woman";
-  if (x === "men" || x === "man") return "man";
-  if (x === "kids" || x === "kid") return "kids";
+type CategoryKey = "" | "woman" | "man" | "kids";
+type CollectionKey = "" | "the-new" | "bestsellers" | "exclusives";
+
+/** Normalize any string into a canonical category key */
+const normalizeCategory = (v: unknown): CategoryKey => {
+  const x = String(v ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/['"]/g, "")
+    .replace(/\s+/g, "-");
+
+  // women variants
+  if (
+    x === "woman" ||
+    x === "women" ||
+    x === "womens" ||
+    x === "womenswear" ||
+    x === "female" ||
+    x === "for-women"
+  )
+    return "woman";
+
+  // men variants
+  if (x === "man" || x === "men" || x === "mens" || x === "menswear" || x === "male" || x === "for-men")
+    return "man";
+
+  // kids variants
+  if (x === "kids" || x === "kid" || x === "children" || x === "child" || x === "for-kids")
+    return "kids";
+
   return "";
 };
 
-/** Only allow known collections */
-const normalizeCollection = (v: string) => {
-  const x = String(v || "").trim().toLowerCase();
-  if (x === "the-new" || x === "bestsellers" || x === "exclusives") return x;
+/** Normalize any string into a canonical collection key */
+const normalizeCollection = (v: unknown): CollectionKey => {
+  const x = String(v ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/['"]/g, "")
+    .replace(/\s+/g, "-");
+
+  if (x === "the-new" || x === "new" || x === "new-arrivals" || x === "new-in") return "the-new";
+  if (x === "bestsellers" || x === "best-sellers" || x === "best-seller") return "bestsellers";
+  if (x === "exclusives" || x === "exclusive") return "exclusives";
+
   return "";
 };
 
-/**
- * Read filters from URL.
- * Rules:
- * - category is only: woman | man | kids
- * - collection is only: the-new | bestsellers | exclusives
- * - search is free text
- * - If both category and collection exist -> we allow both (AND),
- *   because that's consistent and predictable.
- */
+/** Read filters from URL (query only; stable and predictable) */
 const readFilters = (location: ReturnType<typeof useLocation>) => {
   const params = new URLSearchParams(location.search);
 
-  const category = normalizeCategory(params.get("category") || "");
-  const collection = normalizeCollection(params.get("collection") || "");
+  const category = normalizeCategory(params.get("category"));
+  const collection = normalizeCollection(params.get("collection"));
   const search = String(params.get("search") || "").trim().toLowerCase();
 
   return { category, collection, search };
 };
 
-/** Helper to safely read nested fields */
-const safeString = (v: unknown) => String(v ?? "").trim().toLowerCase();
+/** Safely extract many possible fields from product and return strings */
+const pickStrings = (p: Product, getters: Array<(x: Product) => unknown>): string[] => {
+  const out: string[] = [];
+  for (const get of getters) {
+    const val = get(p);
 
-/**
- * Match category against typical backend fields.
- * IMPORTANT:
- * We DO NOT use `collection` as a fallback for category anymore.
- * Otherwise, category filtering becomes unpredictable.
- */
-const matchesCategory = (p: Product, categoryKey: string): boolean => {
-  if (!categoryKey) return true;
+    // string
+    if (typeof val === "string" || typeof val === "number" || typeof val === "boolean") {
+      out.push(String(val));
+      continue;
+    }
 
-  const k = categoryKey.toLowerCase();
+    // array -> flatten strings
+    if (Array.isArray(val)) {
+      for (const item of val) {
+        if (typeof item === "string" || typeof item === "number") out.push(String(item));
+        // support objects like {slug/name}
+        if (item && typeof item === "object") {
+          const obj = item as Record<string, unknown>;
+          if (obj.slug) out.push(String(obj.slug));
+          if (obj.name) out.push(String(obj.name));
+        }
+      }
+      continue;
+    }
 
-  const categoryName = safeString(
-    (p as unknown as { category?: { name?: unknown } })?.category?.name
-  );
-  const categorySlug = safeString(
-    (p as unknown as { category?: { slug?: unknown } })?.category?.slug
-  );
-  const gender = safeString((p as unknown as { gender?: unknown })?.gender);
-
-  if (categoryName === k) return true;
-  if (categorySlug === k) return true;
-  if (gender === k) return true;
-
-  // plural variants
-  if (k === "man" && (categoryName === "men" || categorySlug === "men" || gender === "men")) return true;
-  if (k === "woman" && (categoryName === "women" || categorySlug === "women" || gender === "women")) return true;
-
-  return false;
+    // object -> try slug/name/value
+    if (val && typeof val === "object") {
+      const obj = val as Record<string, unknown>;
+      if (obj.slug) out.push(String(obj.slug));
+      if (obj.name) out.push(String(obj.name));
+      if (obj.value) out.push(String(obj.value));
+    }
+  }
+  return out.filter(Boolean);
 };
 
-/** Match collection ONLY against `collection` field */
-const matchesCollection = (p: Product, collectionKey: string): boolean => {
-  if (!collectionKey) return true;
+/** Derive product category key from ANY backend shape */
+const getProductCategoryKey = (p: Product): CategoryKey => {
+  const candidates = pickStrings(p, [
+    // common DRF serializer shapes
+    (x) => (x as unknown as { category?: unknown }).category,
+    (x) => (x as unknown as { category?: { name?: unknown } }).category?.name,
+    (x) => (x as unknown as { category?: { slug?: unknown } }).category?.slug,
 
-  const c = collectionKey.toLowerCase();
-  const collection = safeString((p as unknown as { collection?: unknown })?.collection);
+    // alternative backend fields
+    (x) => (x as unknown as { gender?: unknown }).gender,
+    (x) => (x as unknown as { department?: unknown }).department,
+    (x) => (x as unknown as { section?: unknown }).section,
 
-  return collection === c;
+    // some backends store categories as list
+    (x) => (x as unknown as { categories?: unknown }).categories,
+    (x) => (x as unknown as { tags?: unknown }).tags,
+  ]);
+
+  for (const c of candidates) {
+    const k = normalizeCategory(c);
+    if (k) return k;
+  }
+  return "";
 };
 
-/** Simple client-side search (name + description) */
+/** Derive product collection key from ANY backend shape */
+const getProductCollectionKey = (p: Product): CollectionKey => {
+  const candidates = pickStrings(p, [
+    (x) => (x as unknown as { collection?: unknown }).collection,
+    (x) => (x as unknown as { collections?: unknown }).collections,
+    (x) => (x as unknown as { badges?: unknown }).badges,
+    (x) => (x as unknown as { labels?: unknown }).labels,
+  ]);
+
+  for (const c of candidates) {
+    const k = normalizeCollection(c);
+    if (k) return k;
+  }
+  return "";
+};
+
+/** Matchers */
+const matchesCategory = (p: Product, wanted: CategoryKey): boolean => {
+  if (!wanted) return true;
+  return getProductCategoryKey(p) === wanted;
+};
+
+const matchesCollection = (p: Product, wanted: CollectionKey): boolean => {
+  if (!wanted) return true;
+  return getProductCollectionKey(p) === wanted;
+};
+
 const matchesSearch = (p: Product, q: string): boolean => {
   if (!q) return true;
-
-  const name = safeString((p as unknown as { name?: unknown })?.name);
-  const desc = safeString((p as unknown as { description?: unknown })?.description);
-
+  const name = String((p as unknown as { name?: unknown }).name ?? "").toLowerCase();
+  const desc = String((p as unknown as { description?: unknown }).description ?? "").toLowerCase();
   return name.includes(q) || desc.includes(q);
 };
 
@@ -166,10 +235,7 @@ export default function ProductCatalog() {
 
   const isAuthed = !!getAccessToken();
 
-  const { category, collection, search } = useMemo(
-    () => readFilters(location),
-    [location.search]
-  );
+  const { category, collection, search } = useMemo(() => readFilters(location), [location.search]);
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -205,7 +271,26 @@ export default function ProductCatalog() {
         if (isAuthed) {
           dispatch(fetchWishlistCount());
         }
+
+        // Dev-only sanity check: show what categories/collections we can derive
+        if (!cancelled && import.meta.env.DEV) {
+          const catCount = items.reduce<Record<string, number>>((acc, p) => {
+            const k = getProductCategoryKey(p) || "unknown";
+            acc[k] = (acc[k] || 0) + 1;
+            return acc;
+          }, {});
+          const colCount = items.reduce<Record<string, number>>((acc, p) => {
+            const k = getProductCollectionKey(p) || "none";
+            acc[k] = (acc[k] || 0) + 1;
+            return acc;
+          }, {});
+          // eslint-disable-next-line no-console
+          console.log("[Catalog debug] derived categories:", catCount);
+          // eslint-disable-next-line no-console
+          console.log("[Catalog debug] derived collections:", colCount);
+        }
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error("fetchProducts failed:", e);
         if (!cancelled) {
           setAllProducts([]);
@@ -221,10 +306,6 @@ export default function ProductCatalog() {
     };
   }, [dispatch, isAuthed]);
 
-  // Apply filters deterministically:
-  // - category filter (if present)
-  // - collection filter (if present)
-  // - search filter (if present)
   const products = useMemo(() => {
     return allProducts
       .filter((p) => matchesCategory(p, category))
@@ -280,6 +361,7 @@ export default function ProductCatalog() {
         );
       }
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error("add to cart error:", e);
       alert("Could not add to cart.");
     } finally {
@@ -291,13 +373,9 @@ export default function ProductCatalog() {
     <section className="catalog" aria-label="Product catalog">
       {loading && <div className="catalog__status">Loading products…</div>}
 
-      {!loading && loadError && (
-        <div className="catalog__status catalog__status--error">{loadError}</div>
-      )}
+      {!loading && loadError && <div className="catalog__status catalog__status--error">{loadError}</div>}
 
-      {!loading && !loadError && products.length === 0 && (
-        <div className="catalog__status">No products found.</div>
-      )}
+      {!loading && !loadError && products.length === 0 && <div className="catalog__status">No products found.</div>}
 
       <div className="catalog__grid" role="list" aria-label="Product list">
         {products.map((apiItem) => {
@@ -310,11 +388,7 @@ export default function ProductCatalog() {
 
           return (
             <article key={apiItem.id} className="catalog__card" role="listitem">
-              <Link
-                to={`/product/${apiItem.id}`}
-                className="catalog__link"
-                aria-label={`Open product: ${apiItem.name}`}
-              >
+              <Link to={`/product/${apiItem.id}`} className="catalog__link" aria-label={`Open product: ${apiItem.name}`}>
                 <div className="catalog__media">
                   <img
                     src={imgSrc}
@@ -360,12 +434,7 @@ export default function ProductCatalog() {
           <div className="notifyModal" onClick={(e) => e.stopPropagation()}>
             <div className="notifyModal__head">
               <h3 className="notifyModal__title">Notify me</h3>
-              <button
-                type="button"
-                className="notifyModal__close"
-                onClick={() => setNotifyModalProduct(null)}
-                aria-label="Close"
-              >
+              <button type="button" className="notifyModal__close" onClick={() => setNotifyModalProduct(null)} aria-label="Close">
                 ×
               </button>
             </div>
@@ -425,10 +494,7 @@ export default function ProductCatalog() {
                         disabled={disabled}
                         onClick={() => {
                           if (disabled) return;
-                          setSelectedSizeByProduct((prev) => ({
-                            ...prev,
-                            [activeSizeModalProduct.id]: s.id,
-                          }));
+                          setSelectedSizeByProduct((prev) => ({ ...prev, [activeSizeModalProduct.id]: s.id }));
                         }}
                         title={disabled ? "Out of stock" : `In stock: ${s.quantity}`}
                       >
