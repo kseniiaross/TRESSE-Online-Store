@@ -371,7 +371,7 @@ const Header: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/catalog?collection=kids" onClick={closeMenu}>
+                  <Link to="/catalog?category=kids" onClick={closeMenu}>
                     KIDS
                   </Link>
                 </li>
