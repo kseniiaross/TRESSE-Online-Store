@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 import type { Product } from "../types/product";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import api from "../api/axiosInstance";
 import { getAccessToken } from "../types/token";
@@ -64,8 +64,6 @@ const getProductSizes = (p: Product): ProductSizeItem[] =>
 
 export default function ProductCatalog() {
   const dispatch = useDispatch<AppDispatch>();
-  const location = useLocation();
-  const navigate = useNavigate();
 
   const isAuthed = !!getAccessToken();
 
@@ -99,7 +97,9 @@ export default function ProductCatalog() {
 
         if (!cancelled) setProducts(items);
 
-        dispatch(fetchWishlistCount());
+        if (isAuthed) {
+          dispatch(fetchWishlistCount());
+        }
       } catch (e) {
         console.error("fetchProducts failed:", e);
         if (!cancelled) {
@@ -114,7 +114,7 @@ export default function ProductCatalog() {
     return () => {
       cancelled = true;
     };
-  }, [dispatch]);
+  }, [dispatch, isAuthed]);
 
   const notifyMe = async (productId: number) => {
     if (!isAuthed && !isValidEmail(guestNotifyEmail)) return;
@@ -182,7 +182,6 @@ export default function ProductCatalog() {
         })}
       </div>
 
-      {/* NOTIFY MODAL */}
       {notifyModalProduct && (
         <div className="sizeModal__overlay" onClick={() => setNotifyModalProduct(null)}>
           <div className="notifyModal" onClick={(e) => e.stopPropagation()}>
