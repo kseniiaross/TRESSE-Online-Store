@@ -11,8 +11,6 @@
   padding-right:clamp(2px, .5vw, 10px);
 
   --catalog-top-ui: 118px;
-
-  /* 1 ряд на экран: карточка = высота viewport минус header+ui+небольшой запас */
   --card-h: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
 
   --border: #e6e6e6;
@@ -83,7 +81,7 @@
   align-items:start;
 }
 
-/* ================= Card (КАК БЫЛО: FLEX) ================= */
+/* ================= Card ================= */
 
 .catalog__card{
   position:relative;
@@ -110,7 +108,7 @@
   border-radius:0;
 }
 
-/* ================= Media (НЕ ДЕЛАЕМ aspect-ratio НА ДЕСКТОПЕ) ================= */
+/* ================= Media ================= */
 
 .catalog__media{
   width:100%;
@@ -125,7 +123,7 @@
   width:100%;
   height:100%;
   display:block;
-  object-fit:contain;   
+  object-fit: cover;   
   object-position:center;
   transform:scale(1);
   transition:transform .35s ease;
@@ -227,29 +225,23 @@
   color:#fff;
 }
 
-/* ================= Sizes (КЛЮЧЕВОЕ: всегда одно и то же место) ================= */
+/* ================= Sizes ================= */
 
 .catalog__sizes{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
   padding:6px 0 6px;
-
-  /* вот это решает твою “единственную проблему”:
-     даже если sizes пустые, блок занимает место, картинка не растёт */
   flex:0 0 30px;
   min-height:30px;
-
   align-items:flex-start;
 }
 
 .catalog__size{
   appearance:none;
   font:inherit;
-
   border:1px solid rgba(0,0,0,.18);
   background:transparent;
-
   padding:6px 10px;
   font-size:12px;
   letter-spacing:.06em;
@@ -413,7 +405,7 @@
 
 .catalog__notify input:focus{ border-color:var(--black); }
 
-/* ================= Size Modal (оставляю как есть у тебя) ================= */
+/* ================= Size Modal ================= */
 
 .sizeModal__overlay{
   position:fixed;
@@ -561,7 +553,6 @@
     max-height:none;
   }
 
-  /* тут можно держать aspect-ratio — на адаптиве это ок */
   .catalog__media{
     aspect-ratio:3/4;
     flex:0 0 auto;

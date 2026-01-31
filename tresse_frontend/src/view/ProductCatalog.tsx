@@ -114,7 +114,6 @@ function NotifyBlock({
   notifyOpenByProduct,
   notifyDoneByProduct,
   setNotifyOpenByProduct,
-  setNotifyDoneByProduct,
   setGuestNotifyEmail,
   notifyMe,
 }: NotifyBlockProps) {
@@ -160,21 +159,36 @@ function NotifyBlock({
   };
 
   return (
-    <div className="catalog__notify" onClick={(e) => e.stopPropagation()}>
+    <div 
+      className="catalog__notify" 
+      onClick={(e) => e.stopPropagation()}>
       {done && (
-        <div className="catalog__notify-status catalog__notify-status--top" role="status" aria-live="polite">
-          You’ll be notified{rememberedEmail ? ` at ${rememberedEmail}` : ""}.
+        <div 
+          className="catalog__notify-status catalog__notify-status--top" 
+          role="status" 
+          aria-live="polite">
+            You’ll be notified{rememberedEmail ? ` at ${rememberedEmail}` : ""}.
         </div>
       )}
 
-      <button className="catalog__notify-btn" type="button" onClick={onClickNotify} aria-expanded={open}>
-        Notify me
+      <button 
+        className="catalog__notify-btn" 
+        type="button" 
+        onClick={onClickNotify}
+        aria-expanded={open}>
+          Notify me
       </button>
 
       {showEmailInput && (
-        <div className="catalog__notify-inline" role="group" aria-label="Email notification signup">
-          <label className="srOnly" htmlFor={`notify_email_${productId}`}>
-            Email address
+        <div 
+          className="catalog__notify-inline" 
+          role="group" 
+          aria-label="Email notification signup">
+
+          <label 
+            className="srOnly" 
+            htmlFor={`notify_email_${productId}`}>
+              Email address
           </label>
 
           <input
@@ -187,8 +201,11 @@ function NotifyBlock({
             inputMode="email"
           />
 
-          <button type="button" onClick={onSubmitEmail} disabled={!isValidEmail(emailInput)}>
-            Confirm
+          <button 
+            type="button" 
+            onClick={onSubmitEmail} 
+            disabled={!isValidEmail(emailInput)}>
+              Confirm
           </button>
         </div>
       )}
@@ -227,7 +244,6 @@ export default function ProductCatalog() {
   const [guestNotifyEmail, setGuestNotifyEmail] = useState<string>(() => safeGetSessionEmail());
   const [notifyOpenByProduct, setNotifyOpenByProduct] = useState<Record<number, boolean>>({});
   const [notifyDoneByProduct, setNotifyDoneByProduct] = useState<Record<number, boolean>>({});
-
   const [sizeModalProductId, setSizeModalProductId] = useState<number | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -437,12 +453,21 @@ export default function ProductCatalog() {
           className="catalog__input"
         />
 
-        <label className="catalog__checkbox">
-          <input type="checkbox" checked={showAvailableOnly} onChange={(e) => setShowAvailableOnly(e.target.checked)} />
-          Only available
+        <label 
+          className="catalog__checkbox">
+          <input 
+            type="checkbox" 
+            checked={showAvailableOnly} 
+            onChange={(e) => setShowAvailableOnly(e.target.checked)} />
+              Only available
         </label>
 
-        <select value={ordering} onChange={(e) => setOrdering(e.target.value)} className="catalog__select" aria-label="Sort products">
+        <select 
+          value={ordering} 
+          onChange={(e) => setOrdering(e.target.value)} 
+          className="catalog__select" 
+          aria-label="Sort products">
+
           <option value="-created_at">Newest first</option>
           <option value="price">Price: low → high</option>
           <option value="-price">Price: high → low</option>
@@ -450,9 +475,15 @@ export default function ProductCatalog() {
           <option value="-name">Name: Z → A</option>
         </select>
 
-        <div className="catalog__price" role="group" aria-label="Price range">
-          <label className="srOnly" htmlFor="min_price">
-            Minimum price
+        <div 
+          className="catalog__price" 
+          role="group" 
+          aria-label="Price range">
+
+          <label 
+            className="srOnly" 
+            htmlFor="min_price">
+              Minimum price
           </label>
           <input
             id="min_price"
@@ -478,14 +509,20 @@ export default function ProductCatalog() {
       </div>
 
       {loading && products.length === 0 && (
-        <div className="catalog__loader" role="status" aria-live="polite">
-          Loading…
+        <div 
+          className="catalog__loader" 
+          role="status" 
+          aria-live="polite">
+            Loading…
         </div>
       )}
 
       {!loading && products.length === 0 && (
-        <div className="catalog__empty" role="status" aria-live="polite">
-          No products found.
+        <div 
+          className="catalog__empty" 
+          role="status" 
+          aria-live="polite">
+            No products found.
         </div>
       )}
 
@@ -503,7 +540,10 @@ export default function ProductCatalog() {
           const addBusy = !!addBusyByProduct[apiItem.id];
 
           return (
-            <article key={apiItem.id} className="catalog__card" role="listitem">
+            <article 
+              key={apiItem.id} 
+              className="catalog__card" 
+              role="listitem">
               <button
                 type="button"
                 className={`catalog__wishlist-btn ${apiItem.is_in_wishlist ? "catalog__wishlist-btn--active" : ""}`}
@@ -514,10 +554,13 @@ export default function ProductCatalog() {
                   void handleToggleWishlist(apiItem.id);
                 }}
               >
-                <span className="srOnly">{apiItem.is_in_wishlist ? "Remove from wishlist" : "Add to wishlist"}</span>
+                <span  
+                className="srOnly">{apiItem.is_in_wishlist ? "Remove from wishlist" : "Add to wishlist"}</span>
               </button>
 
-              <Link to={`/product/${apiItem.id}`} className="catalog__link" aria-label={`Open product: ${apiItem.name}`}>
+              <Link to={`/product/${apiItem.id}`} 
+                className="catalog__link"  
+                aria-label={`Open product: ${apiItem.name}`}>
                 <div className="catalog__media">
                   <img
                     src={imgSrc}
@@ -532,15 +575,20 @@ export default function ProductCatalog() {
 
                 {isOut && <span className="catalog__badge">Out of stock</span>}
 
-                <div className="catalog__meta">
-                  <div className="catalog__name" title={apiItem.name}>
+                <div 
+                  className="catalog__meta">
+                  <div 
+                    className="catalog__name" title={apiItem.name}>
                     {apiItem.name}
                   </div>
-                  <div className="catalog__priceValue">${apiItem.price}</div>
+                  <div 
+                    className="catalog__priceValue">${apiItem.price}</div>
                 </div>
               </Link>
 
-              <div className="catalog__sizes" aria-label={`Select size for ${apiItem.name}`}>
+              <div 
+                className="catalog__sizes" 
+                aria-label={`Select size for ${apiItem.name}`}>
                 {!isOut && sizes.length > 0
                   ? sizes.map((s) => {
                       const disabled = s.quantity <= 0;
@@ -569,7 +617,9 @@ export default function ProductCatalog() {
                   : null}
               </div>
 
-              <div className="catalog__actions" aria-label="Product actions">
+              <div 
+                className="catalog__actions" 
+                aria-label="Product actions">
                 {!isOut ? (
                   <button
                     type="button"
@@ -605,16 +655,25 @@ export default function ProductCatalog() {
                   aria-label="Select size"
                   onClick={closeSizeModal}
                 >
-                  <div className="sizeModal" onClick={(e) => e.stopPropagation()}>
-                    <div className="sizeModal__head">
-                      <div className="sizeModal__title">Please select a size</div>
-                      <button type="button" className="sizeModal__close" onClick={closeSizeModal} aria-label="Close">
+                  <div 
+                    className="sizeModal" 
+                    onClick={(e) => e.stopPropagation()}>
+                    <div 
+                      className="sizeModal__head">
+                      <div 
+                        className="sizeModal__title">Please select a size</div>
+                      <button 
+                        type="button" 
+                        className="sizeModal__close" 
+                        onClick={closeSizeModal} aria-label="Close">
                         ✕
                       </button>
                     </div>
 
-                    <div className="sizeModal__body">
-                      <div className="sizeModal__sizes">
+                    <div 
+                      className="sizeModal__body">
+                      <div 
+                        className="sizeModal__sizes">
                         {sizes.map((s) => {
                           const disabled = s.quantity <= 0;
                           const active = chosenSizeId === s.id;
@@ -648,8 +707,6 @@ export default function ProductCatalog() {
                       >
                         Continue
                       </button>
-
-                      <div className="sizeModal__hint">Tip: press ESC to close.</div>
                     </div>
                   </div>
                 </div>
@@ -660,12 +717,18 @@ export default function ProductCatalog() {
       </div>
 
       {loading && products.length > 0 && (
-        <div className="catalog__loader" role="status" aria-live="polite">
+        <div 
+          className="catalog__loader" 
+          role="status" 
+          aria-live="polite">
           Loading…
         </div>
       )}
 
-      <div ref={sentinelRef} className="catalog__sentinel" aria-hidden="true" />
+      <div 
+        ref={sentinelRef} 
+        className="catalog__sentinel" 
+        aria-hidden="true" />
     </section>
   );
 }
