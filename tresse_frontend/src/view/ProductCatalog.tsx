@@ -128,7 +128,7 @@ function NotifyBlock({
   const [emailInput, setEmailInput] = useState("");
 
   const guestHasValidRememberedEmail = isValidEmail(rememberedGuestEmail);
-  const showEmailInput = !isAuthed && open && !done && !guestHasValidRememberedEmail;
+  const showEmailInput = !isAuthed && open && !done;
 
   const onClickNotify = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -143,14 +143,12 @@ function NotifyBlock({
       return;
     }
 
-    if (guestHasValidRememberedEmail) {
-      void notifyMe(productId, rememberedGuestEmail);
-      return;
-    }
-
     if (rememberedGuestEmail && !guestHasValidRememberedEmail) {
       setGuestNotifyEmail("");
       safeClearSessionEmail();
+      setEmailInput("");
+    } else {
+      setEmailInput(rememberedGuestEmail); // prefill if valid
     }
 
     setNotifyOpenByProduct((prev) => ({ ...prev, [productId]: true }));
@@ -175,7 +173,6 @@ function NotifyBlock({
 
       {showEmailInput && (
         <div className="catalog__notify-inline" role="group" aria-label="Email notification signup">
-          
           <label className="srOnly" htmlFor={`notify_email_${productId}`}>
             Email address
           </label>
