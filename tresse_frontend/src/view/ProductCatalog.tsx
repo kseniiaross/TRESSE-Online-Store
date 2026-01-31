@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 import type { Product } from "../types/product";
@@ -70,6 +70,9 @@ export default function ProductCatalog() {
   const isAuthed = !!getAccessToken();
 
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string>("");
+
   const [selectedSizeByProduct, setSelectedSizeByProduct] = useState<Record<number, number>>({});
   const [addBusyByProduct, setAddBusyByProduct] = useState<Record<number, boolean>>({});
 
@@ -77,6 +80,41 @@ export default function ProductCatalog() {
   const [guestNotifyEmail, setGuestNotifyEmail] = useState(() => safeGetSessionEmail());
 
   const [sizeModalProductId, setSizeModalProductId] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setLoading(true);
+        setLoadError("");
+
+        const data = await fetchProducts();
+
+        const items: Product[] = Array.isArray(data)
+          ? (data as Product[])
+          : Array.isArray((data as any)?.results)
+            ? ((data as any).results as Product[])
+            : [];
+
+        if (!cancelled) setProducts(items);
+
+        dispatch(fetchWishlistCount());
+      } catch (e) {
+        console.error("fetchProducts failed:", e);
+        if (!cancelled) {
+          setProducts([]);
+          setLoadError("Не удалось загрузить товары. Проверь API/базовый URL и CORS.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch]);
 
   const notifyMe = async (productId: number) => {
     if (!isAuthed && !isValidEmail(guestNotifyEmail)) return;
@@ -91,9 +129,22 @@ export default function ProductCatalog() {
 
   return (
     <section className="catalog">
+      {loading && <div className="catalog__status">Loading products…</div>}
+
+      {!loading && loadError && (
+        <div className="catalog__status catalog__status--error">
+          {loadError}
+        </div>
+      )}
+
+      {!loading && !loadError && products.length === 0 && (
+        <div className="catalog__status">Товары не найдены (пустой ответ API).</div>
+      )}
+
       <div className="catalog__grid">
         {products.map((apiItem) => {
           const isOut = !apiItem.available || !apiItem.in_stock;
+
           const sizes = getProductSizes(apiItem).sort((a, b) =>
             compareSizes(a.size.name, b.size.name)
           );
@@ -105,6 +156,7 @@ export default function ProductCatalog() {
                   src={toHttps(apiItem.main_image_url) || fallbackImg}
                   alt={apiItem.name}
                   className="catalog__image"
+                  loading="lazy"
                 />
               </Link>
 
