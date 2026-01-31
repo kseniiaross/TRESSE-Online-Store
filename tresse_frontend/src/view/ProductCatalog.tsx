@@ -7,7 +7,6 @@ import { Link, useLocation } from "react-router-dom";
 
 import api from "../api/axiosInstance";
 import { getAccessToken } from "../types/token";
-import { fetchProducts } from "../api/products";
 import { fetchWishlistCount } from "../store/wishListSlice";
 import { toHttps } from "../utils/images";
 
@@ -85,24 +84,9 @@ const normalizeCategory = (v: unknown): CategoryKey => {
     .replace(/['"]/g, "")
     .replace(/\s+/g, "-");
 
-  // women variants
-  if (
-    x === "woman" ||
-    x === "women" ||
-    x === "womens" ||
-    x === "womenswear" ||
-    x === "female" ||
-    x === "for-women"
-  )
-    return "woman";
-
-  // men variants
-  if (x === "man" || x === "men" || x === "mens" || x === "menswear" || x === "male" || x === "for-men")
-    return "man";
-
-  // kids variants
-  if (x === "kids" || x === "kid" || x === "children" || x === "child" || x === "for-kids")
-    return "kids";
+  if (x === "woman" || x === "women" || x === "womens" || x === "female") return "woman";
+  if (x === "man" || x === "men" || x === "mens" || x === "male") return "man";
+  if (x === "kids" || x === "kid" || x === "children" || x === "child") return "kids";
 
   return "";
 };
@@ -133,60 +117,50 @@ const readFilters = (location: ReturnType<typeof useLocation>) => {
   return { category, collection, search };
 };
 
-/** Safely extract many possible fields from product and return strings */
-const pickStrings = (p: Product, getters: Array<(x: Product) => unknown>): string[] => {
-  const out: string[] = [];
-  for (const get of getters) {
-    const val = get(p);
+/** Safely extract strings from any unknown value */
+const toStrings = (val: unknown): string[] => {
+  if (val == null) return [];
+  if (typeof val === "string" || typeof val === "number" || typeof val === "boolean") return [String(val)];
 
-    // string
-    if (typeof val === "string" || typeof val === "number" || typeof val === "boolean") {
-      out.push(String(val));
-      continue;
-    }
-
-    // array -> flatten strings
-    if (Array.isArray(val)) {
-      for (const item of val) {
-        if (typeof item === "string" || typeof item === "number") out.push(String(item));
-        // support objects like {slug/name}
-        if (item && typeof item === "object") {
-          const obj = item as Record<string, unknown>;
-          if (obj.slug) out.push(String(obj.slug));
-          if (obj.name) out.push(String(obj.name));
-        }
+  if (Array.isArray(val)) {
+    const out: string[] = [];
+    for (const item of val) {
+      out.push(...toStrings(item));
+      if (item && typeof item === "object") {
+        const obj = item as Record<string, unknown>;
+        if (obj.slug) out.push(String(obj.slug));
+        if (obj.name) out.push(String(obj.name));
       }
-      continue;
     }
-
-    // object -> try slug/name/value
-    if (val && typeof val === "object") {
-      const obj = val as Record<string, unknown>;
-      if (obj.slug) out.push(String(obj.slug));
-      if (obj.name) out.push(String(obj.name));
-      if (obj.value) out.push(String(obj.value));
-    }
+    return out.filter(Boolean);
   }
-  return out.filter(Boolean);
+
+  if (typeof val === "object") {
+    const obj = val as Record<string, unknown>;
+    const out: string[] = [];
+    if (obj.slug) out.push(String(obj.slug));
+    if (obj.name) out.push(String(obj.name));
+    if (obj.value) out.push(String(obj.value));
+    return out.filter(Boolean);
+  }
+
+  return [];
 };
 
-/** Derive product category key from ANY backend shape */
+/** Derive product category key from backend shape (category.name/slug, gender, etc.) */
 const getProductCategoryKey = (p: Product): CategoryKey => {
-  const candidates = pickStrings(p, [
-    // common DRF serializer shapes
-    (x) => (x as unknown as { category?: unknown }).category,
-    (x) => (x as unknown as { category?: { name?: unknown } }).category?.name,
-    (x) => (x as unknown as { category?: { slug?: unknown } }).category?.slug,
+  const candidates: string[] = [];
 
-    // alternative backend fields
-    (x) => (x as unknown as { gender?: unknown }).gender,
-    (x) => (x as unknown as { department?: unknown }).department,
-    (x) => (x as unknown as { section?: unknown }).section,
+  candidates.push(...toStrings((p as unknown as { category?: unknown }).category));
+  candidates.push(...toStrings((p as unknown as { category?: { name?: unknown } }).category?.name));
+  candidates.push(...toStrings((p as unknown as { category?: { slug?: unknown } }).category?.slug));
 
-    // some backends store categories as list
-    (x) => (x as unknown as { categories?: unknown }).categories,
-    (x) => (x as unknown as { tags?: unknown }).tags,
-  ]);
+  candidates.push(...toStrings((p as unknown as { gender?: unknown }).gender));
+  candidates.push(...toStrings((p as unknown as { department?: unknown }).department));
+  candidates.push(...toStrings((p as unknown as { section?: unknown }).section));
+
+  candidates.push(...toStrings((p as unknown as { categories?: unknown }).categories));
+  candidates.push(...toStrings((p as unknown as { tags?: unknown }).tags));
 
   for (const c of candidates) {
     const k = normalizeCategory(c);
@@ -195,14 +169,17 @@ const getProductCategoryKey = (p: Product): CategoryKey => {
   return "";
 };
 
-/** Derive product collection key from ANY backend shape */
+/** Derive product collection key from backend shape (collection OR collections array) */
 const getProductCollectionKey = (p: Product): CollectionKey => {
-  const candidates = pickStrings(p, [
-    (x) => (x as unknown as { collection?: unknown }).collection,
-    (x) => (x as unknown as { collections?: unknown }).collections,
-    (x) => (x as unknown as { badges?: unknown }).badges,
-    (x) => (x as unknown as { labels?: unknown }).labels,
-  ]);
+  const candidates: string[] = [];
+
+  // supports: collection: "the-new"
+  candidates.push(...toStrings((p as unknown as { collection?: unknown }).collection));
+
+  // supports: collections: [{slug:"the-new"}] or collections_slugs: ["the-new"]
+  candidates.push(...toStrings((p as unknown as { collections?: unknown }).collections));
+  candidates.push(...toStrings((p as unknown as { collections_slugs?: unknown }).collections_slugs));
+  candidates.push(...toStrings((p as unknown as { collections_names?: unknown }).collections_names));
 
   for (const c of candidates) {
     const k = normalizeCollection(c);
@@ -229,12 +206,37 @@ const matchesSearch = (p: Product, q: string): boolean => {
   return name.includes(q) || desc.includes(q);
 };
 
+/** ---------------------------------------------------------
+ * Pagination-safe products loader (THIS is the fix)
+ * --------------------------------------------------------- */
+
+type PaginatedResponse<T> = {
+  count?: number;
+  next?: string | null;
+  previous?: string | null;
+  results?: T[];
+};
+
+const isPaginated = <T,>(data: unknown): data is PaginatedResponse<T> => {
+  return !!data && typeof data === "object" && "results" in (data as Record<string, unknown>);
+};
+
+const uniqById = (items: Product[]): Product[] => {
+  const map = new Map<number, Product>();
+  for (const it of items) map.set(it.id, it);
+  return Array.from(map.values());
+};
+
+const buildNextUrl = (next: string): string => {
+  // If API returns absolute `next`, we can use it as-is
+  return next;
+};
+
 export default function ProductCatalog() {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
 
   const isAuthed = !!getAccessToken();
-
   const { category, collection, search } = useMemo(() => readFilters(location), [location.search]);
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -257,14 +259,40 @@ export default function ProductCatalog() {
         setLoading(true);
         setLoadError("");
 
-        // Load once without server-side filters (stable)
-        const data = await fetchProducts();
+        // ✅ Fetch ALL pages (because API is paginated: count/next/results)
+        const pageSize = 200; // if backend supports it — fewer requests
+        let url = `/products/?page_size=${pageSize}`;
 
-        const items: Product[] = Array.isArray(data)
-          ? (data as Product[])
-          : Array.isArray((data as unknown as { results?: unknown })?.results)
-            ? (((data as unknown as { results: Product[] }).results) as Product[])
-            : [];
+        const collected: Product[] = [];
+        const maxPages = 20; // safety guard
+        let page = 0;
+
+        while (url && page < maxPages) {
+          page += 1;
+
+          const res = await api.get(url);
+          const data = res.data as unknown;
+
+          if (Array.isArray(data)) {
+            // non-paginated API
+            collected.push(...(data as Product[]));
+            break;
+          }
+
+          if (isPaginated<Product>(data)) {
+            const results = Array.isArray(data.results) ? data.results : [];
+            collected.push(...results);
+
+            // stop if no next
+            url = data.next ? buildNextUrl(data.next) : "";
+            continue;
+          }
+
+          // unknown shape -> stop
+          break;
+        }
+
+        const items = uniqById(collected);
 
         if (!cancelled) setAllProducts(items);
 
@@ -272,7 +300,7 @@ export default function ProductCatalog() {
           dispatch(fetchWishlistCount());
         }
 
-        // Dev-only sanity check: show what categories/collections we can derive
+        // Dev-only: show what categories exist in fetched dataset
         if (!cancelled && import.meta.env.DEV) {
           const catCount = items.reduce<Record<string, number>>((acc, p) => {
             const k = getProductCategoryKey(p) || "unknown";
@@ -285,13 +313,15 @@ export default function ProductCatalog() {
             return acc;
           }, {});
           // eslint-disable-next-line no-console
+          console.log("[Catalog debug] fetched products:", items.length);
+          // eslint-disable-next-line no-console
           console.log("[Catalog debug] derived categories:", catCount);
           // eslint-disable-next-line no-console
           console.log("[Catalog debug] derived collections:", colCount);
         }
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.error("fetchProducts failed:", e);
+        console.error("products load failed:", e);
         if (!cancelled) {
           setAllProducts([]);
           setLoadError("Could not load products. Check API base URL and CORS.");
@@ -404,21 +434,11 @@ export default function ProductCatalog() {
 
               <div className="catalog__actions" aria-label="Product actions">
                 {!isOut ? (
-                  <button
-                    type="button"
-                    className="catalog__addBtn"
-                    disabled={addBusy}
-                    onClick={() => void handleAddToCart(apiItem)}
-                  >
+                  <button type="button" className="catalog__addBtn" disabled={addBusy} onClick={() => void handleAddToCart(apiItem)}>
                     {addBusy ? "Adding..." : "Add to cart"}
                   </button>
                 ) : (
-                  <button
-                    type="button"
-                    className="catalog__notify-btn"
-                    onClick={() => setNotifyModalProduct(apiItem)}
-                    aria-label="Get restock alert"
-                  >
+                  <button type="button" className="catalog__notify-btn" onClick={() => setNotifyModalProduct(apiItem)} aria-label="Get restock alert">
                     Get restock alert
                   </button>
                 )}
@@ -455,11 +475,7 @@ export default function ProductCatalog() {
               </>
             )}
 
-            <button
-              className="notifyModal__primary"
-              disabled={!isAuthed && !isValidEmail(guestNotifyEmail)}
-              onClick={() => void notifyMe(notifyModalProduct.id)}
-            >
+            <button className="notifyModal__primary" disabled={!isAuthed && !isValidEmail(guestNotifyEmail)} onClick={() => void notifyMe(notifyModalProduct.id)}>
               Confirm
             </button>
           </div>
