@@ -1,3 +1,4 @@
+import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
@@ -20,12 +21,6 @@ type ProductSizeItem = {
   id: number;
   quantity: number;
   size: { name: string };
-};
-
-const CATEGORY_MAP: Record<string, string> = {
-  women: "woman",
-  men: "man",
-  kids: "kids",
 };
 
 const SESSION_EMAIL_KEY = "notify_email";
@@ -73,17 +68,68 @@ const getProductSizes = (p: Product): ProductSizeItem[] => {
   return raw as ProductSizeItem[];
 };
 
+/**
+ * Reads category from:
+ * 1) query: ?category=women|men|kids (optional)
+ * 2) path: /catalog/women, /catalog/men, /catalog/kids (your "addresses")
+ */
+const readCategoryKey = (location: ReturnType<typeof useLocation>): string => {
+  const params = new URLSearchParams(location.search);
+  const fromQuery = (params.get("category") || "").trim().toLowerCase();
+
+  const pathParts = location.pathname.split("/").filter(Boolean);
+  const last = (pathParts[pathParts.length - 1] || "").trim().toLowerCase();
+
+  // Prefer path-based routing if it looks like a category
+  const candidates = [last, fromQuery].filter(Boolean);
+
+  const normalize = (v: string) => {
+    if (v === "women" || v === "woman") return "woman";
+    if (v === "men" || v === "man") return "man";
+    if (v === "kids" || v === "kid") return "kids";
+    return v;
+  };
+
+  for (const c of candidates) {
+    const n = normalize(c);
+    if (n === "woman" || n === "man" || n === "kids") return n;
+  }
+
+  return "";
+};
+
+const matchesCategory = (p: Product, categoryKey: string): boolean => {
+  if (!categoryKey) return true;
+
+  const k = categoryKey.toLowerCase();
+
+  // Try common fields (backend may differ)
+  const categoryName = String((p as any)?.category?.name ?? "").toLowerCase();
+  const categorySlug = String((p as any)?.category?.slug ?? "").toLowerCase();
+  const collection = String((p as any)?.collection ?? "").toLowerCase();
+  const gender = String((p as any)?.gender ?? "").toLowerCase();
+
+  // Your UI shows MAN, WOMAN, KIDS sometimes as category.name
+  if (categoryName === k) return true;
+  if (categorySlug === k) return true;
+  if (collection === k) return true;
+  if (gender === k) return true;
+
+  // Sometimes backend stores "men"/"women" instead of "man"/"woman"
+  if (k === "man" && (categoryName === "men" || categorySlug === "men")) return true;
+  if (k === "woman" && (categoryName === "women" || categorySlug === "women")) return true;
+
+  return false;
+};
+
 export default function ProductCatalog() {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
 
   const isAuthed = !!getAccessToken();
+  const categoryKey = useMemo(() => readCategoryKey(location), [location]);
 
-  const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
-  const rawCategory = params.get("category") ?? "";
-  const effectiveCategory = CATEGORY_MAP[rawCategory] ?? rawCategory;
-
-  const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string>("");
 
@@ -103,9 +149,8 @@ export default function ProductCatalog() {
         setLoading(true);
         setLoadError("");
 
-        const data = await fetchProducts(
-          effectiveCategory ? { collection: effectiveCategory } : undefined
-        );
+        // ✅ Load products the old safe way (NO server-side category filter)
+        const data = await fetchProducts();
 
         const items: Product[] = Array.isArray(data)
           ? (data as Product[])
@@ -113,7 +158,7 @@ export default function ProductCatalog() {
             ? (((data as unknown as { results: Product[] }).results) as Product[])
             : [];
 
-        if (!cancelled) setProducts(items);
+        if (!cancelled) setAllProducts(items);
 
         if (isAuthed) {
           dispatch(fetchWishlistCount());
@@ -121,7 +166,7 @@ export default function ProductCatalog() {
       } catch (e) {
         console.error("fetchProducts failed:", e);
         if (!cancelled) {
-          setProducts([]);
+          setAllProducts([]);
           setLoadError("Could not load products. Check API base URL and CORS.");
         }
       } finally {
@@ -132,7 +177,11 @@ export default function ProductCatalog() {
     return () => {
       cancelled = true;
     };
-  }, [dispatch, isAuthed, effectiveCategory]);
+  }, [dispatch, isAuthed]);
+
+  const products = useMemo(() => {
+    return allProducts.filter((p) => matchesCategory(p, categoryKey));
+  }, [allProducts, categoryKey]);
 
   const activeSizeModalProduct = useMemo(() => {
     if (!sizeModalProductId) return null;
@@ -151,7 +200,9 @@ export default function ProductCatalog() {
   };
 
   const handleAddToCart = async (apiItem: Product) => {
-    const sizes = getProductSizes(apiItem).slice().sort((a, b) => compareSizes(a.size.name, b.size.name));
+    const sizes = getProductSizes(apiItem)
+      .slice()
+      .sort((a, b) => compareSizes(a.size.name, b.size.name));
 
     const pickedSizeId = selectedSizeByProduct[apiItem.id];
     const picked = sizes.find((s) => s.id === pickedSizeId) ?? null;
@@ -196,7 +247,9 @@ export default function ProductCatalog() {
       )}
 
       {!loading && !loadError && products.length === 0 && (
-        <div className="catalog__status">No products found (empty API response).</div>
+        <div className="catalog__status">
+          No products found.
+        </div>
       )}
 
       <div className="catalog__grid" role="list" aria-label="Product list">
