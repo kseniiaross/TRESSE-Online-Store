@@ -11,6 +11,8 @@
   padding-right:clamp(2px, .5vw, 10px);
 
   --catalog-top-ui: 118px;
+
+  /* 1 ряд на экран: карточка = высота viewport минус header+ui+небольшой запас */
   --card-h: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
 
   --border: #e6e6e6;
@@ -81,14 +83,13 @@
   align-items:start;
 }
 
-/* ================= Card (FIX: stable layout) ================= */
+/* ================= Card (КАК БЫЛО: FLEX) ================= */
+
 .catalog__card{
   position:relative;
+  display:flex;
+  flex-direction:column;
   min-width:0;
-
-  display:grid;
-  grid-template-rows: auto auto auto auto; /* link(media+meta), sizes, actions */
-  gap:0;
 
   height:var(--card-h);
   max-height:860px;
@@ -96,8 +97,8 @@
 }
 
 .catalog__link{
-  display:grid;
-  grid-template-rows: 1fr auto; /* media + meta */
+  display:flex;
+  flex-direction:column;
   min-width:0;
   height:100%;
   text-decoration:none;
@@ -110,15 +111,16 @@
   border-radius:0;
 }
 
-/* ================= Media (FIX: equal images) ================= */
+/* ================= Media (НЕ ДЕЛАЕМ aspect-ratio НА ДЕСКТОПЕ) ================= */
+
 .catalog__media{
   width:100%;
   background:var(--bg-soft);
   overflow:hidden;
   border-radius:2px;
 
-  aspect-ratio:3/4;
-  min-height:0;
+  flex:1 1 auto;   /* важно: картинка занимает всё доступное место */
+  min-height:0;    /* важно для flex */
 }
 
 .catalog__image{
@@ -227,15 +229,20 @@
   color:#fff;
 }
 
-/* ================= Sizes (reserved space always) ================= */
+/* ================= Sizes (КЛЮЧЕВОЕ: всегда одно и то же место) ================= */
+
 .catalog__sizes{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
   padding:6px 0 6px;
 
-  min-height:38px; 
-  align-items:center;
+  /* вот это решает твою “единственную проблему”:
+     даже если sizes пустые, блок занимает место, картинка не растёт */
+  flex:0 0 30px;
+  min-height:30px;
+
+  align-items:flex-start;
 }
 
 .catalog__size{
@@ -251,16 +258,11 @@
   text-transform:uppercase;
 
   cursor:pointer;
-  transition: border-color .15s ease, background .15s ease, color .15s ease, transform .08s ease;
+  transition:border-color .15s ease, background .15s ease, color .15s ease, transform .08s ease;
 }
 
-.catalog__size:hover{
-  border-color:rgba(0,0,0,.35);
-}
-
-.catalog__size:active{
-  transform:translateY(1px);
-}
+.catalog__size:hover{ border-color:rgba(0,0,0,.35); }
+.catalog__size:active{ transform:translateY(1px); }
 
 .catalog__size--active{
   border-color:rgba(0,0,0,.85);
@@ -289,7 +291,6 @@
   padding-top:6px;
 }
 
-/* Add to cart */
 .catalog__addBtn{
   width:100%;
   height:34px;
@@ -340,39 +341,47 @@
   gap:8px;
 }
 
-.catalog__notify-btn{
+.catalog__notify-btn,
+.catalog__notify-inline button{
   width:100%;
   height:34px;
   padding:0 14px;
-
   border:1px solid var(--border);
-  border-radius:0; /* square */
+  border-radius:0;
   background:var(--bg);
   color:var(--text);
-
+  font:inherit;
   font-size:13px;
   letter-spacing:.02em;
-
   cursor:pointer;
   transition:border-color .2s ease, box-shadow .2s ease, transform .1s ease, background .2s ease, color .2s ease;
 }
 
-.catalog__notify-btn:hover{
+.catalog__notify-btn:hover,
+.catalog__notify-inline button:hover{
   border-color:var(--border-hover);
   background:#f9f9f9;
   box-shadow:0 1px 0 rgba(17,17,17,.06);
 }
 
-.catalog__notify-btn:active{
+.catalog__notify-btn:active,
+.catalog__notify-inline button:active{
   transform:translateY(1px);
   background:var(--black);
   border-color:var(--black);
   color:#fff;
 }
 
-.catalog__notify-btn:focus-visible{
+.catalog__notify-btn:focus-visible,
+.catalog__notify-inline button:focus-visible{
   outline:none;
   box-shadow:0 0 0 3px rgba(17,17,17,.12);
+}
+
+.catalog__notify-inline button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  box-shadow:none;
 }
 
 .catalog__notify-status{
@@ -393,7 +402,6 @@
   box-sizing:border-box;
   height:34px;
   padding:0 12px;
-
   font:inherit;
   border:1px solid var(--border);
   border-radius:0;
@@ -401,53 +409,9 @@
   outline:none;
 }
 
-.catalog__notify input:focus{
-  border-color:var(--black);
-}
+.catalog__notify input:focus{ border-color:var(--black); }
 
-.catalog__notify-inline button{
-  width:100%;
-  height:34px;
-  padding:0 14px;
-
-  border:1px solid var(--border);
-  border-radius:0;
-  background:var(--bg);
-  color:var(--text);
-
-  font:inherit;
-  font-size:13px;
-  letter-spacing:.02em;
-
-  cursor:pointer;
-  transition:border-color .2s ease, box-shadow .2s ease, transform .1s ease, background .2s ease, color .2s ease;
-}
-
-.catalog__notify-inline button:hover{
-  border-color:var(--border-hover);
-  background:#f9f9f9;
-  box-shadow:0 1px 0 rgba(17,17,17,.06);
-}
-
-.catalog__notify-inline button:active{
-  transform:translateY(1px);
-  background:var(--black);
-  border-color:var(--black);
-  color:#fff;
-}
-
-.catalog__notify-inline button:focus-visible{
-  outline:none;
-  box-shadow:0 0 0 3px rgba(17,17,17,.12);
-}
-
-.catalog__notify-inline button:disabled{
-  opacity:.55;
-  cursor:not-allowed;
-  box-shadow:none;
-}
-
-/* ================= Size Modal ================= */
+/* ================= Size Modal (оставляю как есть у тебя) ================= */
 
 .sizeModal__overlay{
   position:fixed;
@@ -500,13 +464,9 @@
   border-color:rgba(0,0,0,.18);
 }
 
-.sizeModal__close:active{
-  transform:scale(.97);
-}
+.sizeModal__close:active{ transform:scale(.97); }
 
-.sizeModal__body{
-  padding:16px 18px 18px;
-}
+.sizeModal__body{ padding:16px 18px 18px; }
 
 .sizeModal__sizes{
   display:flex;
@@ -527,7 +487,7 @@
   letter-spacing:.06em;
   text-transform:uppercase;
   cursor:pointer;
-  transition: background .15s ease, border-color .15s ease, color .15s ease, transform .08s ease;
+  transition:background .15s ease, border-color .15s ease, color .15s ease, transform .08s ease;
 }
 
 .sizeModal__chip:hover{
@@ -535,9 +495,7 @@
   background:#fafafa;
 }
 
-.sizeModal__chip:active{
-  transform:translateY(1px);
-}
+.sizeModal__chip:active{ transform:translateY(1px); }
 
 .sizeModal__chip--active{
   background:#111;
@@ -562,18 +520,11 @@
   font-size:13px;
   letter-spacing:.02em;
   cursor:pointer;
-  transition: transform .08s ease, opacity .2s ease;
+  transition:transform .08s ease, opacity .2s ease;
 }
 
-.sizeModal__primary:active{
-  transform:translateY(1px);
-}
-
-.sizeModal__primary:disabled{
-  opacity:.45;
-  cursor:not-allowed;
-  transform:none;
-}
+.sizeModal__primary:active{ transform:translateY(1px); }
+.sizeModal__primary:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
 
 .sizeModal__hint{
   margin-top:10px;
@@ -607,6 +558,12 @@
     min-height:0;
     max-height:none;
   }
+
+  /* тут можно держать aspect-ratio — на адаптиве это ок */
+  .catalog__media{
+    aspect-ratio:3/4;
+    flex:0 0 auto;
+  }
 }
 
 @media (max-width:768px){
@@ -627,6 +584,11 @@
     height:auto;
     min-height:0;
     max-height:none;
+  }
+
+  .catalog__media{
+    aspect-ratio:3/4;
+    flex:0 0 auto;
   }
 
   .catalog__input,
