@@ -24,7 +24,6 @@ type ProductSizeItem = {
 
 const SESSION_EMAIL_KEY = "notify_email";
 
-/** Email helpers */
 const isValidEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 
@@ -44,7 +43,6 @@ const safeSetSessionEmail = (email: string) => {
   } catch {}
 };
 
-/** Size sorting */
 const SIZE_ORDER = ["XS", "S", "M", "L", "ONE SIZE", "OVER SIZE"] as const;
 
 const normalizeSizeLabel = (name: string) =>
@@ -69,14 +67,9 @@ const getProductSizes = (p: Product): ProductSizeItem[] => {
   return raw as ProductSizeItem[];
 };
 
-/** ---------------------------------------------------------
- * URL filters (category / collection / search)
- * --------------------------------------------------------- */
-
 type CategoryKey = "" | "woman" | "man" | "kids";
 type CollectionKey = "" | "the-new" | "bestsellers" | "exclusives";
 
-/** Normalize any string into a canonical category key */
 const normalizeCategory = (v: unknown): CategoryKey => {
   const x = String(v ?? "")
     .trim()
@@ -91,7 +84,6 @@ const normalizeCategory = (v: unknown): CategoryKey => {
   return "";
 };
 
-/** Normalize any string into a canonical collection key */
 const normalizeCollection = (v: unknown): CollectionKey => {
   const x = String(v ?? "")
     .trim()
@@ -106,7 +98,6 @@ const normalizeCollection = (v: unknown): CollectionKey => {
   return "";
 };
 
-/** Read filters from URL (query only; stable and predictable) */
 const readFilters = (location: ReturnType<typeof useLocation>) => {
   const params = new URLSearchParams(location.search);
 
@@ -117,7 +108,6 @@ const readFilters = (location: ReturnType<typeof useLocation>) => {
   return { category, collection, search };
 };
 
-/** Safely extract strings from any unknown value */
 const toStrings = (val: unknown): string[] => {
   if (val == null) return [];
   if (typeof val === "string" || typeof val === "number" || typeof val === "boolean") return [String(val)];
@@ -147,7 +137,6 @@ const toStrings = (val: unknown): string[] => {
   return [];
 };
 
-/** Derive product category key from backend shape (category.name/slug, gender, etc.) */
 const getProductCategoryKey = (p: Product): CategoryKey => {
   const candidates: string[] = [];
 
@@ -169,14 +158,10 @@ const getProductCategoryKey = (p: Product): CategoryKey => {
   return "";
 };
 
-/** Derive product collection key from backend shape (collection OR collections array) */
 const getProductCollectionKey = (p: Product): CollectionKey => {
   const candidates: string[] = [];
 
-  // supports: collection: "the-new"
   candidates.push(...toStrings((p as unknown as { collection?: unknown }).collection));
-
-  // supports: collections: [{slug:"the-new"}] or collections_slugs: ["the-new"]
   candidates.push(...toStrings((p as unknown as { collections?: unknown }).collections));
   candidates.push(...toStrings((p as unknown as { collections_slugs?: unknown }).collections_slugs));
   candidates.push(...toStrings((p as unknown as { collections_names?: unknown }).collections_names));
@@ -188,7 +173,6 @@ const getProductCollectionKey = (p: Product): CollectionKey => {
   return "";
 };
 
-/** Matchers */
 const matchesCategory = (p: Product, wanted: CategoryKey): boolean => {
   if (!wanted) return true;
   return getProductCategoryKey(p) === wanted;
@@ -205,10 +189,6 @@ const matchesSearch = (p: Product, q: string): boolean => {
   const desc = String((p as unknown as { description?: unknown }).description ?? "").toLowerCase();
   return name.includes(q) || desc.includes(q);
 };
-
-/** ---------------------------------------------------------
- * Pagination-safe products loader (THIS is the fix)
- * --------------------------------------------------------- */
 
 type PaginatedResponse<T> = {
   count?: number;
@@ -228,8 +208,38 @@ const uniqById = (items: Product[]): Product[] => {
 };
 
 const buildNextUrl = (next: string): string => {
-  // If API returns absolute `next`, we can use it as-is
   return next;
+};
+
+type OrderingKey = "-created_at" | "price" | "-price" | "name" | "-name";
+
+const getCreatedAtMs = (p: Product): number => {
+  const raw =
+    (p as unknown as { created_at?: unknown }).created_at ??
+    (p as unknown as { createdAt?: unknown }).createdAt ??
+    (p as unknown as { created?: unknown }).created ??
+    "";
+  const ms = Date.parse(String(raw));
+  return Number.isFinite(ms) ? ms : 0;
+};
+
+const getPriceNumber = (p: Product): number => {
+  const raw = (p as unknown as { price?: unknown }).price ?? 0;
+  const n = Number(String(raw).replace(/[^\d.-]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+};
+
+const getNameString = (p: Product): string => {
+  const raw = (p as unknown as { name?: unknown }).name ?? "";
+  return String(raw).toLowerCase();
+};
+
+const compareProducts = (a: Product, b: Product, ordering: OrderingKey): number => {
+  if (ordering === "price") return getPriceNumber(a) - getPriceNumber(b);
+  if (ordering === "-price") return getPriceNumber(b) - getPriceNumber(a);
+  if (ordering === "name") return getNameString(a).localeCompare(getNameString(b));
+  if (ordering === "-name") return getNameString(b).localeCompare(getNameString(a));
+  return getCreatedAtMs(b) - getCreatedAtMs(a);
 };
 
 export default function ProductCatalog() {
@@ -238,6 +248,8 @@ export default function ProductCatalog() {
 
   const isAuthed = !!getAccessToken();
   const { category, collection, search } = useMemo(() => readFilters(location), [location.search]);
+
+  const [ordering, setOrdering] = useState<OrderingKey>("-created_at");
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -259,12 +271,11 @@ export default function ProductCatalog() {
         setLoading(true);
         setLoadError("");
 
-        // ✅ Fetch ALL pages (because API is paginated: count/next/results)
-        const pageSize = 200; // if backend supports it — fewer requests
+        const pageSize = 200;
         let url = `/products/?page_size=${pageSize}`;
 
         const collected: Product[] = [];
-        const maxPages = 20; // safety guard
+        const maxPages = 20;
         let page = 0;
 
         while (url && page < maxPages) {
@@ -274,7 +285,6 @@ export default function ProductCatalog() {
           const data = res.data as unknown;
 
           if (Array.isArray(data)) {
-            // non-paginated API
             collected.push(...(data as Product[]));
             break;
           }
@@ -282,13 +292,10 @@ export default function ProductCatalog() {
           if (isPaginated<Product>(data)) {
             const results = Array.isArray(data.results) ? data.results : [];
             collected.push(...results);
-
-            // stop if no next
             url = data.next ? buildNextUrl(data.next) : "";
             continue;
           }
 
-          // unknown shape -> stop
           break;
         }
 
@@ -298,26 +305,6 @@ export default function ProductCatalog() {
 
         if (isAuthed) {
           dispatch(fetchWishlistCount());
-        }
-
-        // Dev-only: show what categories exist in fetched dataset
-        if (!cancelled && import.meta.env.DEV) {
-          const catCount = items.reduce<Record<string, number>>((acc, p) => {
-            const k = getProductCategoryKey(p) || "unknown";
-            acc[k] = (acc[k] || 0) + 1;
-            return acc;
-          }, {});
-          const colCount = items.reduce<Record<string, number>>((acc, p) => {
-            const k = getProductCollectionKey(p) || "none";
-            acc[k] = (acc[k] || 0) + 1;
-            return acc;
-          }, {});
-          // eslint-disable-next-line no-console
-          console.log("[Catalog debug] fetched products:", items.length);
-          // eslint-disable-next-line no-console
-          console.log("[Catalog debug] derived categories:", catCount);
-          // eslint-disable-next-line no-console
-          console.log("[Catalog debug] derived collections:", colCount);
         }
       } catch (e) {
         // eslint-disable-next-line no-console
@@ -337,11 +324,13 @@ export default function ProductCatalog() {
   }, [dispatch, isAuthed]);
 
   const products = useMemo(() => {
-    return allProducts
+    const filtered = allProducts
       .filter((p) => matchesCategory(p, category))
       .filter((p) => matchesCollection(p, collection))
       .filter((p) => matchesSearch(p, search));
-  }, [allProducts, category, collection, search]);
+
+    return filtered.slice().sort((a, b) => compareProducts(a, b, ordering));
+  }, [allProducts, category, collection, search, ordering]);
 
   const activeSizeModalProduct = useMemo(() => {
     if (!sizeModalProductId) return null;
@@ -401,6 +390,21 @@ export default function ProductCatalog() {
 
   return (
     <section className="catalog" aria-label="Product catalog">
+      <div className="catalog__topbar">
+        <select
+          className="wishlist__select"
+          value={ordering}
+          onChange={(e) => setOrdering(e.target.value as OrderingKey)}
+          aria-label="Sort catalog"
+        >
+          <option value="-created_at">Newest first</option>
+          <option value="price">Price: low → high</option>
+          <option value="-price">Price: high → low</option>
+          <option value="name">Name: A → Z</option>
+          <option value="-name">Name: Z → A</option>
+        </select>
+      </div>
+
       {loading && <div className="catalog__status">Loading products…</div>}
 
       {!loading && loadError && <div className="catalog__status catalog__status--error">{loadError}</div>}
@@ -448,7 +452,6 @@ export default function ProductCatalog() {
         })}
       </div>
 
-      {/* Notify modal */}
       {notifyModalProduct && (
         <div className="sizeModal__overlay" onClick={() => setNotifyModalProduct(null)}>
           <div className="notifyModal" onClick={(e) => e.stopPropagation()}>
@@ -482,7 +485,6 @@ export default function ProductCatalog() {
         </div>
       )}
 
-      {/* Size modal */}
       {activeSizeModalProduct && (
         <div className="sizeModal__overlay" onClick={() => setSizeModalProductId(null)}>
           <div className="sizeModal" onClick={(e) => e.stopPropagation()}>
