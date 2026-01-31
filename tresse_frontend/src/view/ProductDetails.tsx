@@ -13,6 +13,7 @@ import type { GuestCartItem } from "../types/cart";
 
 import { fetchWishlistCount } from "../store/wishListSlice";
 import * as serverCart from "../store/serverCartSlice";
+import { addToCart } from "../utils/cartSlice";
 import { toHttps } from "../utils/images";
 
 const GUEST_CART_KEY = "guest_cart_items_v1";
@@ -150,43 +151,28 @@ export default function ProductDetails() {
     localStorage.setItem("guest_cart:ping", String(Date.now()));
   };
 
-  const addToCartGuest = () => {
-    if (!product) return;
+ const addToCartGuest = () => {
+  if (!product) return;
 
-    if (needsSize && !selectedSizeId) {
-      setUiMessage("Please select a size.");
-      return;
-    }
-    if (!selectedSizeId) return;
+  if (needsSize && !selectedSizeId) {
+    setUiMessage("Please select a size.");
+    return;
+  }
+  if (!selectedSizeId) return;
 
-    const sizeLabel = selectedSize?.size?.name ?? "Size";
+  const sizeLabel = selectedSize?.size?.name ?? "Size";
 
-    const nextItem: GuestCartItem = {
-      id: makeLocalId(),
-      quantity: 1,
-
-      product_id: product.id,
+  dispatch(
+    addToCart({
+      product,
       product_size_id: selectedSizeId,
-      size_label: sizeLabel,
+      sizeName: sizeLabel,
+      maxQty: selectedSize?.quantity,
+    })
+  );
 
-      name: product.name,
-      price: product.price,
-      main_image_url: imgSrc || toHttps(product.main_image_url ?? undefined) || fallbackImg,
-      images: undefined,
-    };
-
-    const cart = readGuestCart();
-
-    const idx = cart.findIndex((x) => x.product_size_id === nextItem.product_size_id);
-    if (idx >= 0) {
-      cart[idx] = { ...cart[idx], quantity: cart[idx].quantity + 1 };
-    } else {
-      cart.push(nextItem);
-    }
-
-    writeGuestCart(cart);
-    setUiMessage("Added to bag.");
-  };
+  setUiMessage("Added to bag.");
+};
 
   const addToCartServer = async () => {
     if (!product) return;

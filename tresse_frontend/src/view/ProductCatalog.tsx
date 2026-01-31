@@ -253,7 +253,7 @@ export default function ProductCatalog() {
         <div className="sizeModal__overlay" onClick={() => setNotifyModalProduct(null)}>
           <div className="notifyModal" onClick={(e) => e.stopPropagation()}>
             <div className="notifyModal__head">
-              <h3 className="notifyModal__title">Restock alert</h3>
+              <h3 className="notifyModal__title">Notify me</h3>
               <button
                 type="button"
                 className="notifyModal__close"
@@ -296,7 +296,6 @@ export default function ProductCatalog() {
         </div>
       )}
 
-      {/* NOTE: size modal placeholder (you already have styles; logic preserved) */}
       {activeSizeModalProduct && (
         <div className="sizeModal__overlay" onClick={() => setSizeModalProductId(null)}>
           <div className="sizeModal" onClick={(e) => e.stopPropagation()}>
