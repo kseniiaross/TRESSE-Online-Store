@@ -69,10 +69,10 @@ const getProductSizes = (p: Product): ProductSizeItem[] => {
 };
 
 /** ---------------------------------------------------------
- * Filters (category / collection / search)
+ * URL Filters (category / collection / search)
  * --------------------------------------------------------- */
 
-/** Normalize category values coming from URL or backend */
+/** Only allow known categories */
 const normalizeCategory = (v: string) => {
   const x = String(v || "").trim().toLowerCase();
   if (x === "women" || x === "woman") return "woman";
@@ -81,7 +81,7 @@ const normalizeCategory = (v: string) => {
   return "";
 };
 
-/** Only allow known collections to avoid filtering everything by accident */
+/** Only allow known collections */
 const normalizeCollection = (v: string) => {
   const x = String(v || "").trim().toLowerCase();
   if (x === "the-new" || x === "bestsellers" || x === "exclusives") return x;
@@ -89,83 +89,63 @@ const normalizeCollection = (v: string) => {
 };
 
 /**
- * Reads filters from URL:
- * - /catalog?category=woman|man|kids
- * - /catalog?collection=the-new|bestsellers|exclusives
- * - /catalog?search=query
- * Also supports path: /catalog/woman (optional)
- * Backward-compat: if someone uses collection=kids -> treat as category kids.
+ * Read filters from URL.
+ * Rules:
+ * - category is only: woman | man | kids
+ * - collection is only: the-new | bestsellers | exclusives
+ * - search is free text
+ * - If both category and collection exist -> we allow both (AND),
+ *   because that's consistent and predictable.
  */
 const readFilters = (location: ReturnType<typeof useLocation>) => {
   const params = new URLSearchParams(location.search);
 
-  const queryCategory = normalizeCategory(params.get("category") || "");
-  const rawCollection = String(params.get("collection") || "").trim().toLowerCase();
-  const querySearch = String(params.get("search") || "").trim().toLowerCase();
-
-  // Try path-based category (e.g. /catalog/woman) if you use such routes
-  const pathParts = location.pathname.split("/").filter(Boolean);
-  const lastPart = pathParts[pathParts.length - 1] || "";
-  const pathCategory = normalizeCategory(lastPart);
-
-  // Backward compatibility: collection=kids should behave like category=kids
-  const collectionAsCategory = normalizeCategory(rawCollection);
-
-  const category = pathCategory || queryCategory || collectionAsCategory;
-
-  // If category is set -> ignore collection so we don't "double-filter" into empty results
-  const collection = category ? "" : normalizeCollection(rawCollection);
-
-  const search = querySearch;
+  const category = normalizeCategory(params.get("category") || "");
+  const collection = normalizeCollection(params.get("collection") || "");
+  const search = String(params.get("search") || "").trim().toLowerCase();
 
   return { category, collection, search };
 };
 
-/** Matches category against multiple possible backend fields */
+/** Helper to safely read nested fields */
+const safeString = (v: unknown) => String(v ?? "").trim().toLowerCase();
+
+/**
+ * Match category against typical backend fields.
+ * IMPORTANT:
+ * We DO NOT use `collection` as a fallback for category anymore.
+ * Otherwise, category filtering becomes unpredictable.
+ */
 const matchesCategory = (p: Product, categoryKey: string): boolean => {
   if (!categoryKey) return true;
+
   const k = categoryKey.toLowerCase();
 
-  // Use safe access without `any` if possible
-  const categoryName = String((p as unknown as { category?: { name?: unknown } })?.category?.name ?? "")
-    .trim()
-    .toLowerCase();
+  const categoryName = safeString(
+    (p as unknown as { category?: { name?: unknown } })?.category?.name
+  );
+  const categorySlug = safeString(
+    (p as unknown as { category?: { slug?: unknown } })?.category?.slug
+  );
+  const gender = safeString((p as unknown as { gender?: unknown })?.gender);
 
-  const categorySlug = String((p as unknown as { category?: { slug?: unknown } })?.category?.slug ?? "")
-    .trim()
-    .toLowerCase();
-
-  const gender = String((p as unknown as { gender?: unknown })?.gender ?? "")
-    .trim()
-    .toLowerCase();
-
-  const collection = String((p as unknown as { collection?: unknown })?.collection ?? "")
-    .trim()
-    .toLowerCase();
-
-  // Direct matches
   if (categoryName === k) return true;
   if (categorySlug === k) return true;
   if (gender === k) return true;
 
-  // Sometimes backend stores plural values
+  // plural variants
   if (k === "man" && (categoryName === "men" || categorySlug === "men" || gender === "men")) return true;
   if (k === "woman" && (categoryName === "women" || categorySlug === "women" || gender === "women")) return true;
-
-  // Fallback: some backends mistakenly put category into `collection`
-  if (collection === k) return true;
 
   return false;
 };
 
-/** Matches collection against backend field `collection` (extend later if needed) */
+/** Match collection ONLY against `collection` field */
 const matchesCollection = (p: Product, collectionKey: string): boolean => {
   if (!collectionKey) return true;
-  const c = collectionKey.toLowerCase();
 
-  const collection = String((p as unknown as { collection?: unknown })?.collection ?? "")
-    .trim()
-    .toLowerCase();
+  const c = collectionKey.toLowerCase();
+  const collection = safeString((p as unknown as { collection?: unknown })?.collection);
 
   return collection === c;
 };
@@ -174,8 +154,8 @@ const matchesCollection = (p: Product, collectionKey: string): boolean => {
 const matchesSearch = (p: Product, q: string): boolean => {
   if (!q) return true;
 
-  const name = String((p as unknown as { name?: unknown })?.name ?? "").toLowerCase();
-  const desc = String((p as unknown as { description?: unknown })?.description ?? "").toLowerCase();
+  const name = safeString((p as unknown as { name?: unknown })?.name);
+  const desc = safeString((p as unknown as { description?: unknown })?.description);
 
   return name.includes(q) || desc.includes(q);
 };
@@ -188,7 +168,7 @@ export default function ProductCatalog() {
 
   const { category, collection, search } = useMemo(
     () => readFilters(location),
-    [location.pathname, location.search]
+    [location.search]
   );
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -211,7 +191,7 @@ export default function ProductCatalog() {
         setLoading(true);
         setLoadError("");
 
-        // Load once without server-side filters (most stable)
+        // Load once without server-side filters (stable)
         const data = await fetchProducts();
 
         const items: Product[] = Array.isArray(data)
@@ -241,7 +221,10 @@ export default function ProductCatalog() {
     };
   }, [dispatch, isAuthed]);
 
-  // Apply URL filters (category OR collection) + search
+  // Apply filters deterministically:
+  // - category filter (if present)
+  // - collection filter (if present)
+  // - search filter (if present)
   const products = useMemo(() => {
     return allProducts
       .filter((p) => matchesCategory(p, category))
@@ -420,11 +403,7 @@ export default function ProductCatalog() {
           <div className="sizeModal" onClick={(e) => e.stopPropagation()}>
             <div className="sizeModal__head">
               <div className="sizeModal__title">Select size</div>
-              <button
-                type="button"
-                className="sizeModal__close"
-                onClick={() => setSizeModalProductId(null)}
-              >
+              <button type="button" className="sizeModal__close" onClick={() => setSizeModalProductId(null)}>
                 ×
               </button>
             </div>
