@@ -98,8 +98,8 @@
   display:flex;
   flex-direction:column;
   min-width:0;
-  flex: 1 1 auto;   
-  height:auto; 
+  flex: 1 1 auto;
+  height:auto;
 }
 
 .catalog__link:focus-visible{
@@ -115,15 +115,15 @@
   background:var(--bg-soft);
   overflow:hidden;
   border-radius:2px;
-  flex:1 1 auto;   
-  min-height:0;    
+  flex:1 1 auto;
+  min-height:0;
 }
 
 .catalog__image{
   width:100%;
   height:100%;
   display:block;
-  object-fit: cover;   
+  object-fit: cover;
   object-position:center;
   transform:scale(1);
   transition:transform .35s ease;
@@ -322,90 +322,7 @@
   box-shadow:none;
 }
 
-/* Notify block */
-.catalog__notify{
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-  gap:8px;
-}
-
-.catalog__notify-status--top{
-  margin:0;
-}
-
-.catalog__notify-btn,
-.catalog__notify-inline button{
-  width:100%;
-  height:34px;
-  padding:0 14px;
-  border:1px solid var(--border);
-  border-radius:0;
-  background:var(--bg);
-  color:var(--text);
-  font:inherit;
-  font-size:13px;
-  letter-spacing:.02em;
-  cursor:pointer;
-  transition:border-color .2s ease, box-shadow .2s ease, transform .1s ease, background .2s ease, color .2s ease;
-}
-
-.catalog__notify-btn:hover,
-.catalog__notify-inline button:hover{
-  border-color:var(--border-hover);
-  background:#f9f9f9;
-  box-shadow:0 1px 0 rgba(17,17,17,.06);
-}
-
-.catalog__notify-btn:active,
-.catalog__notify-inline button:active{
-  transform:translateY(1px);
-  background:var(--black);
-  border-color:var(--black);
-  color:#fff;
-}
-
-.catalog__notify-btn:focus-visible,
-.catalog__notify-inline button:focus-visible{
-  outline:none;
-  box-shadow:0 0 0 3px rgba(17,17,17,.12);
-}
-
-.catalog__notify-inline button:disabled{
-  opacity:.55;
-  cursor:not-allowed;
-  box-shadow:none;
-}
-
-.catalog__notify-status{
-  font-size:12px;
-  line-height:1.35;
-  color:#222;
-  letter-spacing:.02em;
-}
-
-.catalog__notify-inline{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.catalog__notify input{
-  width:100%;
-  box-sizing:border-box;
-  height:34px;
-  padding:0 12px;
-  font:inherit;
-  border:1px solid var(--border);
-  border-radius:0;
-  background:var(--bg);
-  outline:none;
-}
-
-.catalog__notify input:focus{ border-color:var(--black); }
-
-/* ================= Size Modal ================= */
+/* ================= Modals (shared overlay) ================= */
 
 .sizeModal__overlay{
   position:fixed;
@@ -418,12 +335,14 @@
   z-index:9999;
 }
 
+/* ================= Size Modal (SQUARE) ================= */
+
 .sizeModal{
   width:min(560px, 100%);
   background:#fff;
   border:1px solid rgba(0,0,0,.10);
   box-shadow:0 25px 80px rgba(0,0,0,.18);
-  border-radius:16px;
+  border-radius:0;        /* square */
   overflow:hidden;
 }
 
@@ -445,7 +364,7 @@
 .sizeModal__close{
   width:34px;
   height:34px;
-  border-radius:999px;
+  border-radius:0;        /* square */
   border:1px solid rgba(0,0,0,.12);
   background:#fff;
   color:#111;
@@ -476,7 +395,7 @@
   background:#fff;
   color:#111;
   padding:10px 12px;
-  border-radius:999px;
+  border-radius:0;        /* square */
   font-size:12px;
   letter-spacing:.06em;
   text-transform:uppercase;
@@ -506,7 +425,7 @@
 .sizeModal__primary{
   width:100%;
   height:40px;
-  border-radius:12px;
+  border-radius:0;        /* square */
   border:1px solid #111;
   background:#111;
   color:#fff;
@@ -524,6 +443,52 @@
   margin-top:10px;
   font-size:12px;
   color:#666;
+}
+
+/* ================= Notify Modal (SQUARE) ================= */
+
+.notifyModal{
+  width:420px;
+  max-width:100%;
+  background:#fff;
+  border:1px solid rgba(0,0,0,.12);
+  padding:24px;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+  border-radius:0;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.notifyModal__title{
+  font-size:14px;
+  font-weight:500;
+}
+
+.notifyModal__text{
+  font-size:13px;
+  color:#444;
+}
+
+.notifyModal input{
+  height:38px;
+  border:1px solid #ccc;
+  padding:0 12px;
+  border-radius:0;
+}
+
+.notifyModal__primary{
+  height:38px;
+  border:1px solid #111;
+  background:#111;
+  color:#fff;
+  cursor:pointer;
+  border-radius:0;
+}
+
+.notifyModal__primary:disabled{
+  opacity:.4;
+  cursor:not-allowed;
 }
 
 /* ================= Sentinel ================= */
