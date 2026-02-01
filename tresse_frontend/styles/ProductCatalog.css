@@ -13,7 +13,7 @@
   padding-right:clamp(2px, .5vw, 10px);
 
   /* top UI height (filters + spacing) */
-  --catalog-top-ui: 200px;
+  --catalog-top-ui: 160px;
   --card-h: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
 
   --border: #e6e6e6;
@@ -552,7 +552,7 @@
   .catalog{
     padding-left:clamp(8px, 1.2vw, 18px);
     padding-right:clamp(8px, 1.2vw, 18px);
-    --catalog-top-ui: 230px;
+    --catalog-top-ui: 190px;
   }
 
   .catalog__grid{
@@ -595,7 +595,7 @@
   .catalog{
     padding-left:14px;
     padding-right:14px;
-    --catalog-top-ui: 260px;
+    --catalog-top-ui: 220px;
   }
 
   .catalog__grid{
