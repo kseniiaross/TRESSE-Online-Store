@@ -1,4 +1,3 @@
-import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
@@ -241,6 +240,15 @@ const getPriceNumber = (p: Product): number => {
   return Number.isFinite(n) ? n : 0;
 };
 
+const formatPrice = (p: Product): string => {
+  const n = getPriceNumber(p);
+  try {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+  } catch {
+    return `$${Math.round(n)}`;
+  }
+};
+
 const getNameString = (p: Product): string => {
   const raw = (p as unknown as { name?: unknown }).name ?? "";
   return String(raw).toLowerCase();
@@ -266,7 +274,6 @@ export default function ProductCatalog() {
   const [minPrice, setMinPrice] = useState<number | "">("");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
 
-  // keep searchTerm in sync when URL changes (category/collection/search)
   useEffect(() => {
     setSearchTerm(urlSearch || "");
   }, [urlSearch]);
@@ -327,7 +334,6 @@ export default function ProductCatalog() {
           dispatch(fetchWishlistCount());
         }
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error("products load failed:", e);
         if (!cancelled) {
           setAllProducts([]);
@@ -411,7 +417,6 @@ export default function ProductCatalog() {
         );
       }
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error("add to cart error:", e);
       alert("Could not add to cart.");
     } finally {
@@ -422,63 +427,63 @@ export default function ProductCatalog() {
   return (
     <section className="catalog" aria-label="Product catalog">
       <div className="catalogFilters" aria-label="Catalog filters">
-  <label className="srOnly" htmlFor="catalog_search">
-    Search in catalog
-  </label>
+        <label className="srOnly" htmlFor="catalog_search">
+          Search in catalog
+        </label>
 
-  <input
-    id="catalog_search"
-    className="catalogFilters__input"
-    placeholder="Search in catalog..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-  />
+        <input
+          id="catalog_search"
+          className="catalogFilters__input"
+          placeholder="Search in catalog..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
 
-  <select
-    className="catalogFilters__select"
-    value={ordering}
-    onChange={(e) => setOrdering(e.target.value as OrderingKey)}
-    aria-label="Sort catalog"
-  >
-    <option value="-created_at">Newest first</option>
-    <option value="price">Price: low → high</option>
-    <option value="-price">Price: high → low</option>
-    <option value="name">Name: A → Z</option>
-    <option value="-name">Name: Z → A</option>
-  </select>
+        <select
+          className="catalogFilters__select"
+          value={ordering}
+          onChange={(e) => setOrdering(e.target.value as OrderingKey)}
+          aria-label="Sort catalog"
+        >
+          <option value="-created_at">Newest first</option>
+          <option value="price">Price: low → high</option>
+          <option value="-price">Price: high → low</option>
+          <option value="name">Name: A → Z</option>
+          <option value="-name">Name: Z → A</option>
+        </select>
 
-  <div className="catalogFilters__price" role="group" aria-label="Price range">
-    <label className="srOnly" htmlFor="catalog_min_price">
-      Minimum price
-    </label>
-    <input
-      id="catalog_min_price"
-      type="number"
-      placeholder="Min price"
-      value={minPrice}
-      onChange={(e) => {
-        const v = e.target.value;
-        setMinPrice(v === "" ? "" : Number(v));
-      }}
-      className="catalogFilters__input catalogFilters__input--price"
-    />
+        <div className="catalogFilters__price" role="group" aria-label="Price range">
+          <label className="srOnly" htmlFor="catalog_min_price">
+            Minimum price
+          </label>
+          <input
+            id="catalog_min_price"
+            type="number"
+            placeholder="Min price"
+            value={minPrice}
+            onChange={(e) => {
+              const v = e.target.value;
+              setMinPrice(v === "" ? "" : Number(v));
+            }}
+            className="catalogFilters__input catalogFilters__input--price"
+          />
 
-    <label className="srOnly" htmlFor="catalog_max_price">
-      Maximum price
-    </label>
-    <input
-      id="catalog_max_price"
-      type="number"
-      placeholder="Max price"
-      value={maxPrice}
-      onChange={(e) => {
-        const v = e.target.value;
-        setMaxPrice(v === "" ? "" : Number(v));
-      }}
-      className="catalogFilters__input catalogFilters__input--price"
-    />
-  </div>
-</div>
+          <label className="srOnly" htmlFor="catalog_max_price">
+            Maximum price
+          </label>
+          <input
+            id="catalog_max_price"
+            type="number"
+            placeholder="Max price"
+            value={maxPrice}
+            onChange={(e) => {
+              const v = e.target.value;
+              setMaxPrice(v === "" ? "" : Number(v));
+            }}
+            className="catalogFilters__input catalogFilters__input--price"
+          />
+        </div>
+      </div>
 
       {loading && <div className="catalog__status">Loading products…</div>}
       {!loading && loadError && <div className="catalog__status catalog__status--error">{loadError}</div>}
@@ -509,13 +514,27 @@ export default function ProductCatalog() {
                 </div>
               </Link>
 
+              <div className="catalogCardMeta" aria-label="Product info">
+                <div className="catalogCardMeta__name" title={apiItem.name}>
+                  {apiItem.name}
+                </div>
+                <div className="catalogCardMeta__price" aria-label="Price">
+                  {formatPrice(apiItem)}
+                </div>
+              </div>
+
               <div className="catalog__actions" aria-label="Product actions">
                 {!isOut ? (
                   <button type="button" className="catalog__addBtn" disabled={addBusy} onClick={() => void handleAddToCart(apiItem)}>
                     {addBusy ? "Adding..." : "Add to cart"}
                   </button>
                 ) : (
-                  <button type="button" className="catalog__notify-btn" onClick={() => setNotifyModalProduct(apiItem)} aria-label="Get restock alert">
+                  <button
+                    type="button"
+                    className="catalog__notify-btn"
+                    onClick={() => setNotifyModalProduct(apiItem)}
+                    aria-label="Get restock alert"
+                  >
                     Get restock alert
                   </button>
                 )}
@@ -552,7 +571,11 @@ export default function ProductCatalog() {
               </>
             )}
 
-            <button className="notifyModal__primary" disabled={!isAuthed && !isValidEmail(guestNotifyEmail)} onClick={() => void notifyMe(notifyModalProduct.id)}>
+            <button
+              className="notifyModal__primary"
+              disabled={!isAuthed && !isValidEmail(guestNotifyEmail)}
+              onClick={() => void notifyMe(notifyModalProduct.id)}
+            >
               Confirm
             </button>
           </div>
