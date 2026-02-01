@@ -481,26 +481,27 @@
   .header {
     height: auto;
     padding: 12px 14px 10px;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "left left"
+      "right right";
+    row-gap: 10px;
+    column-gap: 12px;
+    align-items: center;
+    justify-content: initial;
   }
 
   .left-section {
+    grid-area: left;
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
     gap: 12px;
   }
 
-  .logo {
-    font-size: 3rem;
-    line-height: 1;
-  }
-
   .right-section {
+    grid-area: right;
     width: 100%;
     display: flex;
     align-items: center;
@@ -508,6 +509,12 @@
     gap: 14px;
     flex-wrap: wrap;
     margin: 0;
+    padding-left: 0;
+  }
+
+  .logo {
+    font-size: 3rem;
+    line-height: 1;
   }
 
   .search-input { display: none; }
