@@ -1,3 +1,5 @@
+/* ================= ProductCatalog.css ================= */
+
 .catalog{
   width:100%;
   box-sizing:border-box;
@@ -10,7 +12,8 @@
   padding-left:clamp(2px, .5vw, 10px);
   padding-right:clamp(2px, .5vw, 10px);
 
-  --catalog-top-ui: 160px;
+  /* top UI height (filters + spacing) */
+  --catalog-top-ui: 200px;
   --card-h: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
 
   --border: #e6e6e6;
@@ -22,59 +25,65 @@
   --black: #111;
 }
 
-.catalog__topbar{
+/* ================= Catalog Filters (wishlist-like, square) ================= */
+
+.catalogFilters{
   display:flex;
-  justify-content:flex-end;
   align-items:center;
-  margin:8px 0 18px;
+  gap:18px;
+  padding:10px 0 22px;
+  margin:0;
 }
 
-/* ================= Filters ================= */
-
-.catalog__filters{
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  gap:8px;
-  margin:6px 0 10px;
-}
-
-.catalog__input,
-.catalog__select{
+.catalogFilters__input{
   font:inherit;
   padding:3px 0;
   border:none;
   border-bottom:1px solid #cfcfcf;
   background:transparent;
   outline:none;
-  min-width:180px;
+  min-width:220px;
+  border-radius:0;
 }
 
-.catalog__select{ min-width:160px; }
-
-.catalog__input::placeholder{
+.catalogFilters__input::placeholder{
   color:#9a9a9a;
   letter-spacing:.05em;
 }
 
-.catalog__checkbox{
+.catalogFilters__select{
+  font:inherit;
+  padding:3px 0;
+  border:none;
+  border-bottom:1px solid #cfcfcf;
+  background:transparent;
+  outline:none;
+  min-width:160px;
+  border-radius:0;
+}
+
+.catalogFilters__price{
   display:flex;
   align-items:center;
-  gap:8px;
-  font-size:14px;
-  color:#222;
+  gap:18px;
+}
+
+.catalogFilters__input--price{
+  min-width:160px;
+}
+
+/* ================= Status ================= */
+
+.catalog__status{
+  margin:10px 0;
+  font-size:13px;
+  color:var(--muted);
   letter-spacing:.02em;
 }
 
-.catalog__price{
-  display:flex;
-  gap:8px;
+.catalog__status--error{
+  color:#b00020;
 }
-
-.catalog__input--price{ min-width:120px; }
-
-.catalog__loader,
-.catalog__empty{ margin:10px 0; }
 
 /* ================= Grid ================= */
 
@@ -130,7 +139,7 @@
   width:100%;
   height:100%;
   display:block;
-  object-fit: cover;
+  object-fit:cover;
   object-position:center;
   transform:scale(1);
   transition:transform .35s ease;
@@ -138,7 +147,7 @@
 
 .catalog__card:hover .catalog__image{ transform:scale(1.03); }
 
-/* ================= Meta ================= */
+/* ================= Meta (if you add later) ================= */
 
 .catalog__meta{
   display:flex;
@@ -172,7 +181,7 @@
   white-space:nowrap;
 }
 
-/* ================= Badge / Wishlist ================= */
+/* ================= Badge / Wishlist (if used later) ================= */
 
 .catalog__badge{
   position:absolute;
@@ -197,7 +206,7 @@
   place-items:center;
 
   border:1px solid var(--border);
-  border-radius:999px;
+  border-radius:999px; /* NOTE: only for wishlist heart */
   background:var(--bg);
   box-shadow:0 1px 0 rgba(17,17,17,.04);
 
@@ -207,7 +216,6 @@
 }
 
 .catalog__card:hover .catalog__wishlist-btn{ border-color:var(--border-hover); }
-
 .catalog__wishlist-btn:active{ transform:scale(.96); }
 
 .catalog__wishlist-btn:focus-visible{
@@ -232,7 +240,7 @@
   color:#fff;
 }
 
-/* ================= Sizes ================= */
+/* ================= Sizes (if used later) ================= */
 
 .catalog__sizes{
   display:flex;
@@ -256,6 +264,7 @@
 
   cursor:pointer;
   transition:border-color .15s ease, background .15s ease, color .15s ease, transform .08s ease;
+  border-radius:0;
 }
 
 .catalog__size:hover{ border-color:rgba(0,0,0,.35); }
@@ -288,47 +297,7 @@
   padding-top:6px;
 }
 
-.catalog__addBtn{
-  width:100%;
-  height:34px;
-  padding:0 14px;
-
-  border:1px solid var(--border);
-  border-radius:0;
-  background:var(--bg);
-  color:var(--text);
-
-  font-size:13px;
-  letter-spacing:.02em;
-
-  cursor:pointer;
-  transition:border-color .2s ease, box-shadow .2s ease, transform .1s ease, background .2s ease, color .2s ease;
-}
-
-.catalog__addBtn:hover{
-  border-color:var(--border-hover);
-  background:#f9f9f9;
-  box-shadow:0 1px 0 rgba(17,17,17,.06);
-}
-
-.catalog__addBtn:active{
-  transform:translateY(1px);
-  background:var(--black);
-  border-color:var(--black);
-  color:#fff;
-}
-
-.catalog__addBtn:focus-visible{
-  outline:none;
-  box-shadow:0 0 0 3px rgba(17,17,17,.12);
-}
-
-.catalog__addBtn[disabled]{
-  opacity:.55;
-  cursor:not-allowed;
-  box-shadow:none;
-}
-
+.catalog__addBtn,
 .catalog__notify-btn{
   width:100%;
   height:34px;
@@ -347,12 +316,14 @@
   transition:border-color .2s ease, box-shadow .2s ease, transform .1s ease, background .2s ease, color .2s ease;
 }
 
+.catalog__addBtn:hover,
 .catalog__notify-btn:hover{
   border-color:var(--border-hover);
   background:#f9f9f9;
   box-shadow:0 1px 0 rgba(17,17,17,.06);
 }
 
+.catalog__addBtn:active,
 .catalog__notify-btn:active{
   transform:translateY(1px);
   background:var(--black);
@@ -360,9 +331,16 @@
   color:#fff;
 }
 
+.catalog__addBtn:focus-visible,
 .catalog__notify-btn:focus-visible{
   outline:none;
   box-shadow:0 0 0 3px rgba(17,17,17,.12);
+}
+
+.catalog__addBtn[disabled]{
+  opacity:.55;
+  cursor:not-allowed;
+  box-shadow:none;
 }
 
 /* ================= Modals (shared overlay) ================= */
@@ -544,6 +522,12 @@
   border:1px solid #ccc;
   padding:0 12px;
   border-radius:0;
+  font:inherit;
+  outline:none;
+}
+
+.notifyModal input:focus{
+  border-color:#111;
 }
 
 .notifyModal__primary{
@@ -553,18 +537,13 @@
   color:#fff;
   cursor:pointer;
   border-radius:0;
+  font:inherit;
+  letter-spacing:.02em;
 }
 
 .notifyModal__primary:disabled{
   opacity:.4;
   cursor:not-allowed;
-}
-
-/* ================= Sentinel ================= */
-
-.catalog__sentinel{
-  height:1px;
-  width:100%;
 }
 
 /* ================= Responsive ================= */
@@ -573,7 +552,7 @@
   .catalog{
     padding-left:clamp(8px, 1.2vw, 18px);
     padding-right:clamp(8px, 1.2vw, 18px);
-    --catalog-top-ui: 196px;
+    --catalog-top-ui: 230px;
   }
 
   .catalog__grid{
@@ -593,14 +572,31 @@
   }
 }
 
+@media (max-width:900px){
+  .catalogFilters{
+    flex-wrap:wrap;
+    gap:14px;
+  }
+
+  .catalogFilters__input,
+  .catalogFilters__select,
+  .catalogFilters__input--price{
+    min-width:0;
+    width:100%;
+  }
+
+  .catalogFilters__price{
+    width:100%;
+    gap:14px;
+  }
+}
+
 @media (max-width:768px){
   .catalog{
     padding-left:14px;
     padding-right:14px;
-    --catalog-top-ui: 230px;
+    --catalog-top-ui: 260px;
   }
-
-  .catalog__filters{ gap:10px; }
 
   .catalog__grid{
     grid-template-columns:1fr;
@@ -616,19 +612,6 @@
   .catalog__media{
     aspect-ratio:3/4;
     flex:0 0 auto;
-  }
-
-  .catalog__input,
-  .catalog__select{
-    min-width:0;
-    width:100%;
-  }
-
-  .catalog__price{ width:100%; }
-
-  .catalog__input--price{
-    min-width:0;
-    width:100%;
   }
 
   .catalog__wishlist-btn{
