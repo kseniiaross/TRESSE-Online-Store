@@ -482,13 +482,15 @@
     height: auto;
     padding: 12px 14px 10px;
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
     justify-content: flex-start;
-    gap: 10px;
+    gap: 8px;
   }
 
   .left-section {
     width: 100%;
+    justify-content: flex-start;
+    gap: 12px;
   }
 
   .right-section {
@@ -499,27 +501,32 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 14px;
 
-    flex-wrap: wrap;
+    gap: 10px;
+    flex-wrap: nowrap;
 
-    /* force new row under logo */
-    align-self: flex-start;
-  }
-
-  .header-search {
-    width: 100%;
-    flex: 0 0 100%;
-  }
-
-  .search-icon-btn {
-    flex: 0 0 auto;
+    padding-left: 56px;
   }
 
   .login-button,
   .help-button,
   .shopping-bag,
-  .user-menu-wrap {
-    flex: 0 0 auto;
+  .user-menu__btn {
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
   }
+
+  .search-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .humburger {
+    width: 44px;
+  }
+
+  .bar.top { width: 44px; }
+  .bar.middle { width: 34px; }
+  .bar.bottom { width: 26px; }
 }
