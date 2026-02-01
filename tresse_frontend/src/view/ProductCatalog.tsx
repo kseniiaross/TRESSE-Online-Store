@@ -421,64 +421,64 @@ export default function ProductCatalog() {
 
   return (
     <section className="catalog" aria-label="Product catalog">
-      <div className="wishlist__filters" aria-label="Catalog filters">
-        <label className="srOnly" htmlFor="catalog_search">
-          Search in Сatalog...
-        </label>
+      <div className="catalogFilters" aria-label="Catalog filters">
+  <label className="srOnly" htmlFor="catalog_search">
+    Search in catalog
+  </label>
 
-        <input
-          id="catalog_search"
-          className="wishlist__input"
-          placeholder="Search in wishlist..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+  <input
+    id="catalog_search"
+    className="catalogFilters__input"
+    placeholder="Search in catalog..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
 
-        <select
-          className="wishlist__select"
-          value={ordering}
-          onChange={(e) => setOrdering(e.target.value as OrderingKey)}
-          aria-label="Sort catalog"
-        >
-          <option value="-created_at">Newest first</option>
-          <option value="price">Price: low → high</option>
-          <option value="-price">Price: high → low</option>
-          <option value="name">Name: A → Z</option>
-          <option value="-name">Name: Z → A</option>
-        </select>
+  <select
+    className="catalogFilters__select"
+    value={ordering}
+    onChange={(e) => setOrdering(e.target.value as OrderingKey)}
+    aria-label="Sort catalog"
+  >
+    <option value="-created_at">Newest first</option>
+    <option value="price">Price: low → high</option>
+    <option value="-price">Price: high → low</option>
+    <option value="name">Name: A → Z</option>
+    <option value="-name">Name: Z → A</option>
+  </select>
 
-        <div className="wishlist__price" role="group" aria-label="Price range">
-          <label className="srOnly" htmlFor="catalog_min_price">
-            Minimum price
-          </label>
-          <input
-            id="catalog_min_price"
-            type="number"
-            placeholder="Min price"
-            value={minPrice}
-            onChange={(e) => {
-              const v = e.target.value;
-              setMinPrice(v === "" ? "" : Number(v));
-            }}
-            className="wishlist__input wishlist__input--price"
-          />
+  <div className="catalogFilters__price" role="group" aria-label="Price range">
+    <label className="srOnly" htmlFor="catalog_min_price">
+      Minimum price
+    </label>
+    <input
+      id="catalog_min_price"
+      type="number"
+      placeholder="Min price"
+      value={minPrice}
+      onChange={(e) => {
+        const v = e.target.value;
+        setMinPrice(v === "" ? "" : Number(v));
+      }}
+      className="catalogFilters__input catalogFilters__input--price"
+    />
 
-          <label className="srOnly" htmlFor="catalog_max_price">
-            Maximum price
-          </label>
-          <input
-            id="catalog_max_price"
-            type="number"
-            placeholder="Max price"
-            value={maxPrice}
-            onChange={(e) => {
-              const v = e.target.value;
-              setMaxPrice(v === "" ? "" : Number(v));
-            }}
-            className="wishlist__input wishlist__input--price"
-          />
-        </div>
-      </div>
+    <label className="srOnly" htmlFor="catalog_max_price">
+      Maximum price
+    </label>
+    <input
+      id="catalog_max_price"
+      type="number"
+      placeholder="Max price"
+      value={maxPrice}
+      onChange={(e) => {
+        const v = e.target.value;
+        setMaxPrice(v === "" ? "" : Number(v));
+      }}
+      className="catalogFilters__input catalogFilters__input--price"
+    />
+  </div>
+</div>
 
       {loading && <div className="catalog__status">Loading products…</div>}
       {!loading && loadError && <div className="catalog__status catalog__status--error">{loadError}</div>}
