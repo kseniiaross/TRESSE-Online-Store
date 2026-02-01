@@ -481,60 +481,45 @@
   .header {
     height: auto;
     padding: 12px 14px 10px;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-areas:
-      "left left"
-      "right right";
-    row-gap: 10px;
-    column-gap: 12px;
-    align-items: center;
-    justify-content: initial;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 10px;
   }
 
   .left-section {
-    grid-area: left;
     width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
   }
 
   .right-section {
-    grid-area: right;
     width: 100%;
+    margin: 0;
+    padding: 0;
+
     display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 14px;
+
     flex-wrap: wrap;
-    margin: 0;
-    padding-left: 0;
+
+    /* force new row under logo */
+    align-self: flex-start;
   }
 
-  .logo {
-    font-size: 3rem;
-    line-height: 1;
+  .header-search {
+    width: 100%;
+    flex: 0 0 100%;
   }
 
-  .search-input { display: none; }
-
-  .search-dropdown {
-    left: 0;
-    right: auto;
-    transform: none;
-    width: min(360px, calc(100vw - 28px));
+  .search-icon-btn {
+    flex: 0 0 auto;
   }
 
   .login-button,
   .help-button,
-  .shopping-bag {
-    font-size: 0.95rem;
-    white-space: nowrap;
+  .shopping-bag,
+  .user-menu-wrap {
+    flex: 0 0 auto;
   }
-
-  .humburger { width: 44px; }
-  .bar.top { width: 44px; }
-  .bar.middle { width: 34px; }
-  .bar.bottom { width: 26px; }
 }
