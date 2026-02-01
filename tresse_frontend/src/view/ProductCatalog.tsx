@@ -24,6 +24,7 @@ type ProductSizeItem = {
 
 const SESSION_EMAIL_KEY = "notify_email";
 
+/** Email helpers */
 const isValidEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 
@@ -43,6 +44,7 @@ const safeSetSessionEmail = (email: string) => {
   } catch {}
 };
 
+/** Size sorting */
 const SIZE_ORDER = ["XS", "S", "M", "L", "ONE SIZE", "OVER SIZE"] as const;
 
 const normalizeSizeLabel = (name: string) =>
@@ -66,6 +68,10 @@ const getProductSizes = (p: Product): ProductSizeItem[] => {
   if (!Array.isArray(raw)) return [];
   return raw as ProductSizeItem[];
 };
+
+/** ---------------------------------------------------------
+ * URL filters (category / collection / search)
+ * --------------------------------------------------------- */
 
 type CategoryKey = "" | "woman" | "man" | "kids";
 type CollectionKey = "" | "the-new" | "bestsellers" | "exclusives";
@@ -190,6 +196,10 @@ const matchesSearch = (p: Product, q: string): boolean => {
   return name.includes(q) || desc.includes(q);
 };
 
+/** ---------------------------------------------------------
+ * Pagination-safe products loader
+ * --------------------------------------------------------- */
+
 type PaginatedResponse<T> = {
   count?: number;
   next?: string | null;
@@ -207,9 +217,11 @@ const uniqById = (items: Product[]): Product[] => {
   return Array.from(map.values());
 };
 
-const buildNextUrl = (next: string): string => {
-  return next;
-};
+const buildNextUrl = (next: string): string => next;
+
+/** ---------------------------------------------------------
+ * Sorting + Price helpers
+ * --------------------------------------------------------- */
 
 type OrderingKey = "-created_at" | "price" | "-price" | "name" | "-name";
 
@@ -239,7 +251,7 @@ const compareProducts = (a: Product, b: Product, ordering: OrderingKey): number 
   if (ordering === "-price") return getPriceNumber(b) - getPriceNumber(a);
   if (ordering === "name") return getNameString(a).localeCompare(getNameString(b));
   if (ordering === "-name") return getNameString(b).localeCompare(getNameString(a));
-  return getCreatedAtMs(b) - getCreatedAtMs(a);
+  return getCreatedAtMs(b) - getCreatedAtMs(a); // newest first
 };
 
 export default function ProductCatalog() {
@@ -247,9 +259,17 @@ export default function ProductCatalog() {
   const location = useLocation();
 
   const isAuthed = !!getAccessToken();
-  const { category, collection, search } = useMemo(() => readFilters(location), [location.search]);
+  const { category, collection, search: urlSearch } = useMemo(() => readFilters(location), [location.search]);
 
+  const [searchTerm, setSearchTerm] = useState<string>(urlSearch || "");
   const [ordering, setOrdering] = useState<OrderingKey>("-created_at");
+  const [minPrice, setMinPrice] = useState<number | "">("");
+  const [maxPrice, setMaxPrice] = useState<number | "">("");
+
+  // keep searchTerm in sync when URL changes (category/collection/search)
+  useEffect(() => {
+    setSearchTerm(urlSearch || "");
+  }, [urlSearch]);
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -324,13 +344,24 @@ export default function ProductCatalog() {
   }, [dispatch, isAuthed]);
 
   const products = useMemo(() => {
+    const q = String(searchTerm || "").trim().toLowerCase();
+
+    const min = minPrice === "" ? null : Number(minPrice);
+    const max = maxPrice === "" ? null : Number(maxPrice);
+
     const filtered = allProducts
       .filter((p) => matchesCategory(p, category))
       .filter((p) => matchesCollection(p, collection))
-      .filter((p) => matchesSearch(p, search));
+      .filter((p) => matchesSearch(p, q))
+      .filter((p) => {
+        const price = getPriceNumber(p);
+        if (min != null && Number.isFinite(min) && price < min) return false;
+        if (max != null && Number.isFinite(max) && price > max) return false;
+        return true;
+      });
 
     return filtered.slice().sort((a, b) => compareProducts(a, b, ordering));
-  }, [allProducts, category, collection, search, ordering]);
+  }, [allProducts, category, collection, searchTerm, minPrice, maxPrice, ordering]);
 
   const activeSizeModalProduct = useMemo(() => {
     if (!sizeModalProductId) return null;
@@ -390,7 +421,19 @@ export default function ProductCatalog() {
 
   return (
     <section className="catalog" aria-label="Product catalog">
-      <div className="catalog__topbar">
+      <div className="wishlist__filters" aria-label="Catalog filters">
+        <label className="srOnly" htmlFor="catalog_search">
+          Search in Сatalog...
+        </label>
+
+        <input
+          id="catalog_search"
+          className="wishlist__input"
+          placeholder="Search in wishlist..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
         <select
           className="wishlist__select"
           value={ordering}
@@ -403,12 +446,42 @@ export default function ProductCatalog() {
           <option value="name">Name: A → Z</option>
           <option value="-name">Name: Z → A</option>
         </select>
+
+        <div className="wishlist__price" role="group" aria-label="Price range">
+          <label className="srOnly" htmlFor="catalog_min_price">
+            Minimum price
+          </label>
+          <input
+            id="catalog_min_price"
+            type="number"
+            placeholder="Min price"
+            value={minPrice}
+            onChange={(e) => {
+              const v = e.target.value;
+              setMinPrice(v === "" ? "" : Number(v));
+            }}
+            className="wishlist__input wishlist__input--price"
+          />
+
+          <label className="srOnly" htmlFor="catalog_max_price">
+            Maximum price
+          </label>
+          <input
+            id="catalog_max_price"
+            type="number"
+            placeholder="Max price"
+            value={maxPrice}
+            onChange={(e) => {
+              const v = e.target.value;
+              setMaxPrice(v === "" ? "" : Number(v));
+            }}
+            className="wishlist__input wishlist__input--price"
+          />
+        </div>
       </div>
 
       {loading && <div className="catalog__status">Loading products…</div>}
-
       {!loading && loadError && <div className="catalog__status catalog__status--error">{loadError}</div>}
-
       {!loading && !loadError && products.length === 0 && <div className="catalog__status">No products found.</div>}
 
       <div className="catalog__grid" role="list" aria-label="Product list">
@@ -452,6 +525,7 @@ export default function ProductCatalog() {
         })}
       </div>
 
+      {/* Notify modal */}
       {notifyModalProduct && (
         <div className="sizeModal__overlay" onClick={() => setNotifyModalProduct(null)}>
           <div className="notifyModal" onClick={(e) => e.stopPropagation()}>
@@ -485,6 +559,7 @@ export default function ProductCatalog() {
         </div>
       )}
 
+      {/* Size modal */}
       {activeSizeModalProduct && (
         <div className="sizeModal__overlay" onClick={() => setSizeModalProductId(null)}>
           <div className="sizeModal" onClick={(e) => e.stopPropagation()}>
