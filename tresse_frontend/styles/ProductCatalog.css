@@ -127,8 +127,8 @@
   background:var(--bg-soft);
   overflow:hidden;
   border-radius:2px;
-  aspect-ratio: 3 / 4;
-  flex: 0 0 auto;
+  flex:1 1 auto;
+  min-height:0;
 }
 
 .catalog__image{
