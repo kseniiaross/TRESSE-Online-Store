@@ -106,7 +106,7 @@
 .logo {
   color: var(--text-light);
   font-family: "EB Garamond", serif;
-  font-size: clamp(80px, 6vw, 140px);
+  font-size: clamp(2rem, 5vw, 6rem);  
   font-weight: 500;
   letter-spacing: 0.2em;
   text-decoration: none;
@@ -487,10 +487,6 @@
     gap: 12px;
   }
 
-  .logo {
-    font-size: clamp(2.6rem, 8vw, 3.6rem);
-    line-height: 1;
-  }
 
   .right-section {
     width: 100%;
