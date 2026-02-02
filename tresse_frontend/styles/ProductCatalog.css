@@ -21,7 +21,7 @@
   --black: #111;
 }
 
-/* ================= Catalog Filters (wishlist-like, square) ================= */
+/* ================= Catalog Filters ================= */
 
 .catalogFilters{
   display:flex;
@@ -127,8 +127,8 @@
   background:var(--bg-soft);
   overflow:hidden;
   border-radius:2px;
-  flex:1 1 auto;
-  min-height:0;
+  aspect-ratio: 3 / 4;
+  flex: 0 0 auto;
 }
 
 .catalog__image{
@@ -143,7 +143,7 @@
 
 .catalog__card:hover .catalog__image{ transform:scale(1.03); }
 
-/* ================= NEW: Name + Price row ================= */
+/* =================  ================= */
 
 .catalogCardMeta{
   display:flex;
@@ -182,7 +182,7 @@
   justify-content:flex-end;
   gap:10px;
 
-  padding-top:4px; /* was 6px */
+  padding-top:4px;
 }
 
 .catalog__addBtn,
@@ -231,7 +231,7 @@
   box-shadow:none;
 }
 
-/* ================= Badge / Wishlist (if used later) ================= */
+/* ================= Badge  ================= */
 
 .catalog__badge{
   position:absolute;
@@ -290,7 +290,7 @@
   color:#fff;
 }
 
-/* ================= Sizes (if used later) ================= */
+/* ================= Sizes ================= */
 
 .catalog__sizes{
   display:flex;
@@ -337,7 +337,7 @@
   box-shadow:0 0 0 3px rgba(17,17,17,.10);
 }
 
-/* ================= Modals (shared overlay) ================= */
+/* ================= Modals  ================= */
 
 .sizeModal__overlay{
   position:fixed;
@@ -350,7 +350,7 @@
   z-index:9999;
 }
 
-/* ================= Size Modal (SQUARE) ================= */
+/* ================= Size Modal ================= */
 
 .sizeModal{
   width:min(560px, 100%);
@@ -460,7 +460,7 @@
   color:#666;
 }
 
-/* ================= Notify Modal (SQUARE) ================= */
+/* ================= Notify Modal  ================= */
 
 .notifyModal{
   width:420px;
