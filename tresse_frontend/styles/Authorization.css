@@ -11,7 +11,7 @@
   background: #fff;
 }
 
-/* ================= Layout (как choice) ================= */
+/* ================= Layout ================= */
 .auth-page--login .auth {
   display: flex;
   width: 100%;
@@ -20,7 +20,7 @@
   box-sizing: border-box;
 }
 
-/* ================= Left (ВАЖНО: column) ================= */
+/* ================= Left ================= */
 .auth-page--login .auth__left {
   flex: 0 0 40%;
   display: flex;
@@ -42,7 +42,7 @@
 .auth-page--login .auth__title {
   margin: 0 0 1rem;
   font-size: 1.4rem;
-  letter-spacing: 0.5rem;
+  letter-spacing: 0.35rem;
   text-transform: uppercase;
   text-align: center;             
 }
@@ -162,7 +162,7 @@
   border-color: rgba(0, 0, 0, 0.75);
 }
 
-/* ================= Right Image (как choice) ================= */
+/* ================= Right Image ================= */
 .auth-page--login .auth__right {
   flex: 1;
   display: flex;
