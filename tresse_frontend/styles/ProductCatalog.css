@@ -88,7 +88,7 @@
   display:grid;
   grid-template-columns:repeat(4, minmax(0, 1fr));
   gap:var(--gap);
-  padding:18px 0 0;
+  padding:22px 0 0;
   margin:0;
   align-items:start;
 }
@@ -139,6 +139,7 @@
   object-position:center;
   transform:scale(1);
   transition:transform .35s ease;
+  will-change: transform;
 }
 
 .catalog__card:hover .catalog__image{ transform:scale(1.03); }
@@ -562,7 +563,8 @@
 
   .catalog__media{
     aspect-ratio:3/4;
-    flex:0 0 auto;
+    flex:1 1 auto; 
+    min-height:0;
   }
 }
 
@@ -605,7 +607,8 @@
 
   .catalog__media{
     aspect-ratio:3/4;
-    flex:0 0 auto;
+    flex:1 1 auto;
+    min-height:0;
   }
 
   .catalog__wishlist-btn{

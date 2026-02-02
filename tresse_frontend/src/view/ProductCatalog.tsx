@@ -507,6 +507,9 @@ export default function ProductCatalog() {
                     alt={apiItem.name}
                     className="catalog__image"
                     loading="lazy"
+                    decoding="async"
+                    width={900}
+                    height={1200}
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).src = fallbackImg;
                     }}
