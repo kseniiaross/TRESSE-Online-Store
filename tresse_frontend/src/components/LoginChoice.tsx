@@ -12,34 +12,30 @@ export default function LoginChoice() {
 
   const rawNext = params.get("next");
   const safeNext = isSafePath(rawNext) ? rawNext : null;
-
   const nextParam = safeNext ? `?next=${encodeURIComponent(safeNext)}` : "";
 
   return (
-    <section className="choice-page" aria-label="Login choice">
-      <div className="choice-layout">
-        {/* LEFT */}
-        <div className="choice-left">
-          <h1 className="choice-visually-hidden">Welcome to TRESSE</h1>
+    <section className="choice" aria-label="Login choice">
+      <div className="choice__layout">
+        <div className="choice__left">
+          <div className="choice__content">
+            <h2 className="choice__title">ENJOY THE BEST EXPERIENCE WITH US</h2>
 
-          <div className="choice-content">
-            <h2 className="choice-title">ENJOY THE BEST EXPERIENCE WITH US</h2>
-
-            <p className="choice-subtitle">
+            <p className="choice__subtitle">
               Sign in to enjoy a personalized experience and get access to all our services.
             </p>
 
-            <div className="choice-actions">
+            <div className="choice__actions">
               <Link
                 to={`/authorization${nextParam}`}
-                className="choice-cta choice-cta--primary"
+                className="choice__cta choice__cta--primary"
               >
                 LOG IN
               </Link>
 
               <Link
                 to={`/register${nextParam}`}
-                className="choice-cta choice-cta--secondary"
+                className="choice__cta choice__cta--secondary"
               >
                 REGISTER
               </Link>
@@ -47,9 +43,8 @@ export default function LoginChoice() {
           </div>
         </div>
 
-        {/* RIGHT */}
-        <div className="choice-right" aria-hidden="true">
-          <img className="choice-image" src={loginChoiceImage} alt="" />
+        <div className="choice__right" aria-hidden="true">
+          <img className="choice__image" src={loginChoiceImage} alt="" />
         </div>
       </div>
     </section>
