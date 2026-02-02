@@ -1,91 +1,108 @@
-/* ================= Scope ================= */
-.auth-page--register {
-  --auth-top-gap: 40px;
-  --auth-bottom-gap: 50px;
+.register {
+  --register-top-gap: 40px;
+  --register-bottom-gap: 60px;
 
-  --auth-control-width: 300px;
-  --auth-control-width-mobile: 320px;
+  --register-control-width: 300px;
+  --register-control-width-mobile: 320px;
 
-  padding-top: var(--auth-top-gap);
-  padding-bottom: var(--auth-bottom-gap);
+  --register-left-offset: -18px;
+
+  --register-media-vpad: 16px;
+  --header-h: 120px;
+
+  padding-top: var(--register-top-gap);
+  padding-bottom: var(--register-bottom-gap);
   background: #fff;
 }
 
-/* ================= Layout (как choice) ================= */
-.auth-page--register .auth {
-  display: flex;
+.register__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  box-sizing: border-box;
+
+  min-height: calc(100dvh - var(--header-h) - var(--register-top-gap) - var(--register-bottom-gap));
+
+  padding-left: clamp(20px, 4vw, 64px);
+  padding-right: clamp(20px, 4vw, 64px);
+
+  align-items: center;
+  column-gap: clamp(36px, 5vw, 80px);
 }
 
-/* ================= Left (ВАЖНО: column) ================= */
-.auth-page--register .auth__left {
-  flex: 0 0 40%;
-  display: flex;
-  flex-direction: column;          
-  align-items: center;            
-  justify-content: center;
-  box-sizing: border-box;
-  padding: 0 3rem;
+.register__left,
+.register__right {
+  display: grid;
+  place-items: center;
+  min-width: 0;
 }
 
-/* Заголовок + форма по ширине инпутов */
-.auth-page--register .auth__title,
-.auth-page--register .register-form {
+.register__left {
+  transform: translateY(var(--register-left-offset));
+}
+
+.register__content {
   width: 100%;
-  max-width: var(--auth-control-width);
+  max-width: var(--register-control-width);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  min-width: 0;
 }
 
-.auth-page--register .auth__title {
+.register__title {
+  width: 100%;
   margin: 0 0 1.5rem;
-  font-size: 1.4rem;
-  letter-spacing: 0.5rem;
+
+  font-size: 1.28rem;
+  letter-spacing: 0.30rem;
   text-transform: uppercase;
-  text-align: center;              
+  line-height: 1.45;
 }
 
-/* ================= Form ================= */
-.auth-page--register .register-form {
+.register__form {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.auth-page--register .input-group {
+.register__field {
   display: flex;
   flex-direction: column;
+  text-align: left;
 }
 
-.auth-page--register .input-group label {
+.register__label {
   font-size: 0.875rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
 }
 
-.auth-page--register .input-group input {
+.register__input {
   width: 100%;
   padding: 0.8rem;
   font-size: 1rem;
+
   border: 1px solid #000;
   background: #fff;
   box-sizing: border-box;
 }
 
-.auth-page--register .input-group input:focus-visible {
+.register__input:focus-visible {
   outline: 2px solid #000;
   outline-offset: 2px;
 }
 
-.auth-page--register .input-group span[role="alert"] {
+.register__error {
   font-size: 0.85rem;
   color: #b00020;
   margin-top: 0.25rem;
 }
 
-/* ================= Button ================= */
-.auth-page--register .auth__cta {
+.register__cta {
   width: 100%;
   height: 44px;
   margin-top: 0.5rem;
@@ -94,79 +111,99 @@
   align-items: center;
   justify-content: center;
 
-  background: #000;
-  color: #fff;
-  border: 1px solid #000;
+  text-decoration: none;
+  text-align: center;
+  user-select: none;
 
   font-size: 0.9rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  cursor: pointer;
+
   box-sizing: border-box;
 }
 
-.auth-page--register .auth__cta:hover,
-.auth-page--register .auth__cta:focus-visible {
+.register__cta--primary {
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+
+.register__cta--primary:hover,
+.register__cta--primary:focus-visible {
   background: #111;
 }
 
-.auth-page--register .auth__cta:disabled {
+.register__cta:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.auth-page--register .server-error {
+.register__serverError {
   margin-top: 1rem;
   padding: 0.6rem 0.8rem;
   font-size: 0.85rem;
   line-height: 1.35;
+
   background: #ffeaea;
   color: rgba(0, 0, 0, 0.85);
   border-radius: 4px;
+
   width: 100%;
   box-sizing: border-box;
 }
 
-/* ================= Right Image (как choice) ================= */
-.auth-page--register .auth__right {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.register__media {
+  width: clamp(640px, 46vw, 980px);
+  max-width: 100%;
+
+  padding: var(--register-media-vpad) 0;
+
+  display: grid;
+  place-items: center;
+
+  box-sizing: border-box;
 }
 
-.auth-page--register .auth__image {
-  width: min(720px, 100%);
-  max-height: 85vh;
+.register__image {
+  width: 100%;
   height: auto;
 
+  max-height: calc(
+    100dvh - var(--header-h) - var(--register-top-gap) - var(--register-bottom-gap) -
+      (var(--register-media-vpad) * 2)
+  );
+
   display: block;
-  object-fit: cover;
+
+  object-fit: contain;
   object-position: center;
 
-  margin-left: 80px;
   filter: grayscale(12%) contrast(1.03);
 }
 
-/* ================= Mobile ================= */
 @media (max-width: 900px) {
-  .auth-page--register .auth {
-    flex-direction: column;
+  .register {
+    padding-top: 20px;
+    padding-bottom: 30px;
+    --register-left-offset: 0px;
+    --register-media-vpad: 14px;
   }
 
-  .auth-page--register .auth__left {
-    flex: none;
-    padding: 2rem 1.5rem;
+  .register__layout {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    row-gap: 24px;
+
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
-  .auth-page--register .auth__title,
-  .auth-page--register .register-form {
-    max-width: var(--auth-control-width-mobile);
-    margin-left: auto;
-    margin-right: auto;
+  .register__content {
+    max-width: var(--register-control-width-mobile);
   }
 
-  .auth-page--register .auth__right {
+  .register__right {
     display: none;
   }
 }

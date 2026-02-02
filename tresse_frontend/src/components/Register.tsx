@@ -16,7 +16,6 @@ import { fetchCart, mergeGuestCart } from "../store/serverCartSlice";
 import "../../styles/Register.css";
 import registerImage from "../assets/images/Register.jpg";
 
-
 const schema = Yup.object({
   first_name: Yup.string().required("First name is required"),
   last_name: Yup.string().required("Last name is required"),
@@ -36,7 +35,6 @@ function isSafePath(p: string | null): p is string {
 function toNonEmptyStringOrNull(v: unknown): string | null {
   return typeof v === "string" && v.trim() ? v.trim() : null;
 }
-
 
 function toUserOrNull(v: unknown): User | null {
   if (!isRecord(v)) return null;
@@ -104,7 +102,6 @@ export default function Register() {
       const refresh = toNonEmptyStringOrNull(apiResult.refresh);
       const user = toUserOrNull(apiResult.user);
 
-      // If backend didn't return user — redirect to login (keeps flow predictable).
       if (!user) {
         const next = safeNext ?? "/dashboard";
         navigate(`/authorization?next=${encodeURIComponent(next)}`, { replace: true });
@@ -145,115 +142,135 @@ export default function Register() {
   };
 
   return (
-      <section className="auth-page auth-page--register" aria-label="Registration">      <div className="auth">
-        <div className="auth__left">
-          <h2 className="auth__title">CREATE YOUR ACCOUNT</h2>
+    <section className="register" aria-label="Registration">
+      <div className="register__layout">
+        <div className="register__left">
+          <div className="register__content">
+            <h2 className="register__title">CREATE YOUR ACCOUNT</h2>
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="register-form"
-            aria-label="Registration form"
-            noValidate
-          >
-            <div className="input-group">
-              <label htmlFor="first_name">First Name</label>
-              <input
-                id="first_name"
-                autoComplete="given-name"
-                autoFocus
-                aria-invalid={errors.first_name ? "true" : "false"}
-                aria-describedby={ids.firstName}
-                {...register("first_name")}
-              />
-              {errors.first_name ? (
-                <span id="reg_first_name_error" role="alert" aria-live="polite">
-                  {errors.first_name.message}
-                </span>
-              ) : null}
-            </div>
-
-            <div className="input-group">
-              <label htmlFor="last_name">Last Name</label>
-              <input
-                id="last_name"
-                autoComplete="family-name"
-                aria-invalid={errors.last_name ? "true" : "false"}
-                aria-describedby={ids.lastName}
-                {...register("last_name")}
-              />
-              {errors.last_name ? (
-                <span id="reg_last_name_error" role="alert" aria-live="polite">
-                  {errors.last_name.message}
-                </span>
-              ) : null}
-            </div>
-
-            <div className="input-group">
-              <label htmlFor="phone_number">Phone Number</label>
-              <input
-                id="phone_number"
-                type="text"
-                autoComplete="tel"
-                inputMode="tel"
-                aria-invalid={errors.phone_number ? "true" : "false"}
-                aria-describedby={ids.phone}
-                {...register("phone_number")}
-              />
-              {errors.phone_number ? (
-                <span id="reg_phone_error" role="alert" aria-live="polite">
-                  {errors.phone_number.message}
-                </span>
-              ) : null}
-            </div>
-
-            <div className="input-group">
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                aria-invalid={errors.email ? "true" : "false"}
-                aria-describedby={ids.email}
-                {...register("email")}
-              />
-              {errors.email ? (
-                <span id="reg_email_error" role="alert" aria-live="polite">
-                  {errors.email.message}
-                </span>
-              ) : null}
-            </div>
-
-            <div className="input-group">
-              <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                aria-invalid={errors.password ? "true" : "false"}
-                aria-describedby={ids.password}
-                {...register("password")}
-              />
-              {errors.password ? (
-                <span id="reg_password_error" role="alert" aria-live="polite">
-                  {errors.password.message}
-                </span>
-              ) : null}
-            </div>
-
-            <button type="submit" className="auth__cta auth__cta--primary" disabled={isSubmitting}>
-              {isSubmitting ? "CREATING..." : "REGISTER"}
-            </button>
-
-            {serverError ? (
-              <div className="server-error" role="status" aria-live="polite">
-                {serverError}
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="register__form"
+              aria-label="Registration form"
+              noValidate
+            >
+              <div className="register__field">
+                <label className="register__label" htmlFor="first_name">
+                  First Name
+                </label>
+                <input
+                  className="register__input"
+                  id="first_name"
+                  autoComplete="given-name"
+                  autoFocus
+                  aria-invalid={errors.first_name ? "true" : "false"}
+                  aria-describedby={ids.firstName}
+                  {...register("first_name")}
+                />
+                {errors.first_name ? (
+                  <span className="register__error" id="reg_first_name_error" role="alert" aria-live="polite">
+                    {errors.first_name.message}
+                  </span>
+                ) : null}
               </div>
-            ) : null}
-          </form>
+
+              <div className="register__field">
+                <label className="register__label" htmlFor="last_name">
+                  Last Name
+                </label>
+                <input
+                  className="register__input"
+                  id="last_name"
+                  autoComplete="family-name"
+                  aria-invalid={errors.last_name ? "true" : "false"}
+                  aria-describedby={ids.lastName}
+                  {...register("last_name")}
+                />
+                {errors.last_name ? (
+                  <span className="register__error" id="reg_last_name_error" role="alert" aria-live="polite">
+                    {errors.last_name.message}
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="register__field">
+                <label className="register__label" htmlFor="phone_number">
+                  Phone Number
+                </label>
+                <input
+                  className="register__input"
+                  id="phone_number"
+                  type="text"
+                  autoComplete="tel"
+                  inputMode="tel"
+                  aria-invalid={errors.phone_number ? "true" : "false"}
+                  aria-describedby={ids.phone}
+                  {...register("phone_number")}
+                />
+                {errors.phone_number ? (
+                  <span className="register__error" id="reg_phone_error" role="alert" aria-live="polite">
+                    {errors.phone_number.message}
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="register__field">
+                <label className="register__label" htmlFor="email">
+                  Email
+                </label>
+                <input
+                  className="register__input"
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  aria-invalid={errors.email ? "true" : "false"}
+                  aria-describedby={ids.email}
+                  {...register("email")}
+                />
+                {errors.email ? (
+                  <span className="register__error" id="reg_email_error" role="alert" aria-live="polite">
+                    {errors.email.message}
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="register__field">
+                <label className="register__label" htmlFor="password">
+                  Password
+                </label>
+                <input
+                  className="register__input"
+                  id="password"
+                  type="password"
+                  autoComplete="new-password"
+                  aria-invalid={errors.password ? "true" : "false"}
+                  aria-describedby={ids.password}
+                  {...register("password")}
+                />
+                {errors.password ? (
+                  <span className="register__error" id="reg_password_error" role="alert" aria-live="polite">
+                    {errors.password.message}
+                  </span>
+                ) : null}
+              </div>
+
+              <button type="submit" className="register__cta register__cta--primary" disabled={isSubmitting}>
+                {isSubmitting ? "CREATING..." : "REGISTER"}
+              </button>
+
+              {serverError ? (
+                <div className="register__serverError" role="status" aria-live="polite">
+                  {serverError}
+                </div>
+              ) : null}
+            </form>
+          </div>
         </div>
 
-        <div className="auth__right" aria-hidden="true">
-          <img className="auth__image" src={registerImage} alt="" />
+        <div className="register__right" aria-hidden="true">
+          <div className="register__media">
+            <img className="register__image" src={registerImage} alt="" />
+          </div>
         </div>
       </div>
     </section>
