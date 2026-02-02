@@ -6,8 +6,10 @@
   --choice-control-width-mobile: 320px;
 
   --choice-left-offset: -14px;
-  --choice-media-offset: -10px;
-  --choice-media-vertical-pad: 18px;
+
+  --choice-media-offset: 0px;
+  --choice-media-vertical-pad: 28px;
+  --choice-media-safe: 16px;
 
   padding: var(--choice-top-gap) 0 var(--choice-bottom-gap);
   background: #fff;
@@ -139,11 +141,14 @@
   width: 100%;
   height: auto;
 
-  max-height: calc(100dvh - 120px - var(--choice-top-gap) - var(--choice-bottom-gap) - (var(--choice-media-vertical-pad) * 2));
+  max-height: calc(
+    100dvh - 120px - var(--choice-top-gap) - var(--choice-bottom-gap) -
+      (var(--choice-media-vertical-pad) * 2) - var(--choice-media-safe)
+  );
 
   display: block;
   object-fit: cover;
-  object-position: center;
+  object-position: 50% 45%;
 
   filter: grayscale(12%) contrast(1.03);
 }
@@ -153,6 +158,8 @@
     padding: 20px 0 30px;
     --choice-left-offset: 0px;
     --choice-media-offset: 0px;
+    --choice-media-vertical-pad: 18px;
+    --choice-media-safe: 12px;
   }
 
   .choice__layout {
