@@ -1,29 +1,20 @@
-
 .header {
   --header-pad-x: 2rem;
   --header-pad-y: 1rem;
+
   --text-light: #fff;
   --text-dark: #000;
-  --header-focus-ring: rgba(255, 255, 255, 0.65);
-}
 
-@media (max-width: 786px) {
-  .header {
-    --header-pad-x: 1rem;
-    --header-pad-y: 0.75rem;
-  }
-}
+  --focus-ring-light: rgba(255, 255, 255, 0.75);
+  --focus-ring-dark: rgba(0, 0, 0, 0.6);
 
-/* -------------------------
-   Header layout
-------------------------- */
-.header {
   position: fixed;
   inset: 0 0 auto 0;
-  z-index: 100;
+  z-index: 9999;
 
   width: 100%;
-  height: var(--header-height); 
+  height: var(--header-height);
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -45,11 +36,30 @@
   align-items: center;
   gap: clamp(0.75rem, 2vw, 2rem);
   flex-wrap: nowrap;
+  min-width: 0;
 }
 
-/* -------------------------
-   Burger
-------------------------- */
+.header a,
+.header button,
+.header input {
+  font: inherit;
+}
+
+.header a:focus-visible,
+.header button:focus-visible,
+.header input:focus-visible {
+  outline: 2px solid var(--focus-ring-light);
+  outline-offset: 6px;
+  border-radius: 10px;
+}
+
+.header .dark:focus-visible,
+.header a.dark:focus-visible,
+.header button.dark:focus-visible,
+.header input.dark:focus-visible {
+  outline-color: var(--focus-ring-dark);
+}
+
 .humburger {
   background: none;
   border: 0;
@@ -58,17 +68,13 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+
   width: 50px;
   height: 18px;
   gap: 6px;
-  margin-top: 0rem;
-  padding: 0;
-}
 
-.humburger:focus-visible {
-  outline: 2px solid var(--header-focus-ring);
-  outline-offset: 6px;
-  border-radius: 10px;
+  margin: 0;
+  padding: 0;
 }
 
 .bar {
@@ -91,9 +97,6 @@
 .humburger.hover-animate .top { width: 30px; }
 .humburger.hover-animate .bottom { width: 50px; }
 
-/* -------------------------
-   Logo
-------------------------- */
 .logo {
   color: var(--text-light);
   font-family: "EB Garamond", serif;
@@ -102,23 +105,13 @@
   letter-spacing: 0.2rem;
   text-decoration: none;
   cursor: pointer;
-
-  position: static;
+  line-height: 1;
 }
 
 .logo.dark {
   color: var(--text-dark);
 }
 
-.logo:focus-visible {
-  outline: 2px solid var(--header-focus-ring);
-  outline-offset: 6px;
-  border-radius: 10px;
-}
-
-/* -------------------------
-   Buttons / Links
-------------------------- */
 .login-button,
 .help-button {
   background: none;
@@ -136,19 +129,12 @@
   color: var(--text-dark);
 }
 
-.login-button:focus-visible,
-.help-button:focus-visible,
-.shopping-bag:focus-visible {
-  outline: 2px solid var(--header-focus-ring);
-  outline-offset: 6px;
-  border-radius: 10px;
-}
-
 .shopping-bag {
   font-size: 1rem;
   text-decoration: none;
   color: var(--text-light);
   transition: opacity 0.2s ease;
+  white-space: nowrap;
 }
 
 .shopping-bag:hover {
@@ -159,14 +145,12 @@
   color: var(--text-dark);
 }
 
-/* -------------------------
-   Search
-------------------------- */
 .header-search {
   position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
 }
 
 .search-icon-btn {
@@ -182,14 +166,6 @@
 
   width: auto;
   height: auto;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.search-icon-btn:focus-visible {
-  outline: 2px solid var(--header-focus-ring);
-  outline-offset: 6px;
-  border-radius: 10px;
 }
 
 .search-icon {
@@ -202,12 +178,13 @@
   background: transparent;
   border: 0;
   border-bottom: 1px solid var(--text-light);
-  outline: none;
 
   font-size: 1rem;
   padding: 0.2rem 0.5rem;
 
   color: var(--text-light);
+
+  outline: revert;
 }
 
 .search-input.dark {
@@ -215,16 +192,18 @@
   border-bottom: 1px solid var(--text-dark);
 }
 
+.search-input::placeholder {
+  opacity: 1;
+}
+
 .search-input:not(.dark)::placeholder {
   color: var(--text-light);
-  opacity: 1;
 }
 
 .search-input.dark::placeholder {
   color: var(--text-dark);
 }
 
-/* dropdown */
 .search-dropdown {
   position: absolute;
   top: calc(100% + 10px);
@@ -240,7 +219,7 @@
   border-radius: 12px;
   box-shadow: 0 18px 60px rgba(15, 23, 42, 0.10);
 
-  z-index: 1100;
+  z-index: 11000;
   overflow: hidden;
 }
 
@@ -258,7 +237,9 @@
   grid-template-columns: 40px 1fr;
   gap: 10px;
   align-items: center;
+
   padding: 10px 12px;
+
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -268,6 +249,12 @@
 .search-dropdown__item:hover {
   background: transparent;
   opacity: 0.7;
+}
+
+.search-dropdown__item:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.35);
+  outline-offset: -2px;
+  border-radius: 10px;
 }
 
 .search-dropdown__thumb {
@@ -309,9 +296,11 @@
   border: 0;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   background: #fff;
+
   padding: 12px 14px;
   cursor: pointer;
   text-align: left;
+
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-size: 12px;
@@ -322,9 +311,12 @@
   opacity: 0.7;
 }
 
-/* -------------------------
-   User menu dropdown
-------------------------- */
+.search-dropdown__all:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.35);
+  outline-offset: -2px;
+  border-radius: 10px;
+}
+
 .user-menu-wrap {
   position: relative;
   display: inline-flex;
@@ -336,19 +328,16 @@
   border: 0;
   padding: 6px 10px;
   cursor: pointer;
+
   font-size: 14px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+
   color: var(--text-light);
   border-radius: 10px;
 }
 
 .user-menu__btn.dark { color: var(--text-dark); }
-
-.user-menu__btn:focus-visible {
-  outline: 2px solid var(--header-focus-ring);
-  outline-offset: 3px;
-}
 
 .user-menu__caret {
   margin-left: 6px;
@@ -373,7 +362,7 @@
   box-shadow: 0 18px 60px rgba(15, 23, 42, 0.10);
   padding: 6px;
 
-  z-index: 1100;
+  z-index: 11000;
 }
 
 .user-menu__item {
@@ -398,8 +387,9 @@
 .user-menu__item:visited { color: #111; }
 
 .user-menu__item:focus-visible {
-  outline: 2px solid rgba(0, 0, 0, 0.25);
-  outline-offset: 2px;
+  outline: 2px solid rgba(0, 0, 0, 0.35);
+  outline-offset: -2px;
+  border-radius: 10px;
 }
 
 .user-menu__item:hover {
@@ -414,14 +404,11 @@
   padding-top: 12px;
 }
 
-/* -------------------------
-   Sidebar
-------------------------- */
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
   background: transparent;
-  z-index: 999;
+  z-index: 10000;
 }
 
 .sidebar-menu {
@@ -435,7 +422,7 @@
   background-color: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(4px);
 
-  z-index: 1000;
+  z-index: 10001;
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.2);
 
   animation: slideIn 0.3s ease-out;
@@ -462,25 +449,25 @@
 
 .sidebar-menu a:hover { opacity: 0.65; }
 
+.sidebar-menu a:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.35);
+  outline-offset: 6px;
+  border-radius: 10px;
+}
+
 @keyframes slideIn {
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }
 }
 
-/* =========================================
-   MOBILE
-========================================= */
 @media (max-width: 768px) {
   .header {
     --header-pad-x: 1rem;
     --header-pad-y: 0.75rem;
-  }
-}
 
-@media (max-width: 786px) {
-  .header {
     height: auto;
-    padding: 12px 14px 12px;
+    padding: 12px 14px;
+
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
@@ -507,9 +494,8 @@
     justify-content: flex-start;
 
     gap: 10px;
-
-    flex-wrap: nowrap;     
-    min-width: 0;  
+    flex-wrap: nowrap;
+    min-width: 0;
   }
 
   .login-button,
