@@ -481,7 +481,7 @@
   }
 
   .logo {
-    font-size: clamp(2.6rem, 8vw, 3.6rem);
+    font-size: clamp(2rem, 5vw, 6rem);
     line-height: 1;
   }
 
