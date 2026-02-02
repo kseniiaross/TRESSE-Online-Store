@@ -128,7 +128,7 @@ export default function Authorization() {
         {/* LEFT */}
         <div className="authorization__left">
           <div className="authorization__content">
-            <h2 className="authorization__title">ENJOY THE BEST EXPERIENCE WITH US</h2>
+            <h2 className="authorization__title">ENJOY THE BEST EXPERIENCE WITH&nbsp;US</h2>
 
             <p className="authorization__subtitle">
               Sign in to enjoy a personalized experience and get access to all our services.
