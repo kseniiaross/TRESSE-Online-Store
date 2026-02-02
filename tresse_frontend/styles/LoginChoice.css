@@ -12,20 +12,25 @@
 .choice-layout {
   display: flex;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   box-sizing: border-box;
 
   min-height: calc(100vh - 120px);
+  padding: 0 24px;
+  gap: 80px;
 }
 
 .choice-left {
-  flex: 1;
-  padding: 4rem;
+  flex: 0 0 40%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   box-sizing: border-box;
+
+  padding: 0 3rem;
+  transform: translateY(-18px);
 }
 
 .choice-content {
@@ -41,14 +46,17 @@
 .choice-title {
   width: 100%;
   margin: 0 0 1rem;
+
   font-size: 1.4rem;
   letter-spacing: 0.35rem;
   text-transform: uppercase;
+  line-height: 1.45;
 }
 
 .choice-subtitle {
   width: 100%;
   margin: 0 0 2rem;
+
   font-size: 0.9rem;
   line-height: 1.4;
 }
@@ -88,6 +96,7 @@
   background: #000;
   color: #fff;
   border: 1px solid #000;
+  cursor: pointer;
 }
 
 .choice-cta--primary:hover,
@@ -99,6 +108,7 @@
   background: #fff;
   color: #000;
   border: 1px solid rgba(0, 0, 0, 0.35);
+  cursor: pointer;
 }
 
 .choice-cta--secondary:hover,
@@ -109,44 +119,54 @@
 .choice-right {
   flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+
+  padding-right: 24px;
 }
 
 .choice-image {
-  width: 520px;
-  height: 680px;
+  width: min(720px, 100%);
+  max-height: 85vh;
+  height: auto;
+
+  display: block;
   object-fit: cover;
   object-position: center;
-  display: block;
 
+  margin-left: 0;
   filter: grayscale(12%) contrast(1.03);
 }
 
-/* A11y helper */
 .choice-visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
   margin: -1px;
+  padding: 0;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-/* Mobile */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .choice-page {
     padding: 20px 0 30px;
   }
 
   .choice-layout {
     flex-direction: column;
+    padding: 0;
+    gap: 0;
+    min-height: auto;
   }
 
   .choice-left {
+    flex: none;
     padding: 2rem 1.5rem;
-    align-items: center;
-    text-align: center;
+    transform: translateY(-10px);
   }
 
   .choice-content {
