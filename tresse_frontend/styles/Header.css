@@ -499,9 +499,9 @@
   }
 
   .right-section {
-    width: 100%;
-    margin: 0;
-    padding: 0;
+    width: auto;
+    max-width: 70%;          
+    padding-left: 56px;
 
     display: flex;
     align-items: center;
@@ -509,8 +509,6 @@
 
     gap: 10px;
     flex-wrap: wrap;
-
-    padding-left: 56px;
   }
 
   .login-button,
