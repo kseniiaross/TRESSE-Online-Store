@@ -4,6 +4,7 @@
      ------------------------------------------------------------------------ */
   --c-black: #0b0b0b;
   --c-white: #ffffff;
+  
 
   /* Text on light surfaces (default app pages) */
   --text: #0b0b0b;
@@ -26,7 +27,7 @@
   /* ------------------------------------------------------------------------
      Layout
      ------------------------------------------------------------------------ */
-  --header-height: 88px; 
+  --header-height: 118px;
 
   /* Default horizontal padding for pages/containers */
   --container-x: 16px;
