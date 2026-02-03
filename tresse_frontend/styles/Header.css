@@ -119,7 +119,7 @@
 .header .logo {
   color: var(--text-light);
   font-family: "EB Garamond", serif;
-  font-size: 48px;
+  font-size: 56px;
 
   font-weight: 500;
   letter-spacing: 0.2em;
@@ -524,7 +524,6 @@
     justify-content: flex-start;
     gap: 6px;
 
-    /* ❌ УБРАЛИ font-size: 72px; он ломал всё */
   }
 
   .left-section {
@@ -534,7 +533,7 @@
   }
 
   .header .logo {
-    font-size: 36px; /* ✅ нормальный мобайл */
+    font-size: 56px;  
     line-height: 1;
   }
 
