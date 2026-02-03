@@ -16,7 +16,8 @@
   isolation: isolate;
 
   width: 100%;
-  height: var(--header-height);
+  min-height: var(--header-height);
+  height: auto;
 
   display: flex;
   align-items: center;
@@ -525,6 +526,7 @@
     align-items: flex-start;
     justify-content: flex-start;
     gap: 6px;
+    font-size: 72px;
   }
 
   .left-section {
