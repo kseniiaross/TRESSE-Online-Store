@@ -119,7 +119,8 @@
 .header .logo {
   color: var(--text-light);
   font-family: "EB Garamond", serif;
-  font-size: 72px; /* <-- большой как ты хочешь */
+  font-size: 48px;
+
   font-weight: 500;
   letter-spacing: 0.2em;
   text-decoration: none;
@@ -127,7 +128,7 @@
   line-height: 1;
   white-space: nowrap;
 
-  display: inline-block; /* чтобы точно не схлопывалось */
+  display: inline-block;
 }
 
 .header .logo.dark {
@@ -504,12 +505,8 @@
 }
 
 @keyframes slideIn {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
 }
 
 /* ================= Mobile ================= */
@@ -526,7 +523,8 @@
     align-items: flex-start;
     justify-content: flex-start;
     gap: 6px;
-    font-size: 72px;
+
+    /* ❌ УБРАЛИ font-size: 72px; он ломал всё */
   }
 
   .left-section {
@@ -536,7 +534,7 @@
   }
 
   .header .logo {
-    font-size: 42px;
+    font-size: 36px; /* ✅ нормальный мобайл */
     line-height: 1;
   }
 
@@ -577,13 +575,7 @@
     width: 44px;
   }
 
-  .bar.top {
-    width: 44px;
-  }
-  .bar.middle {
-    width: 34px;
-  }
-  .bar.bottom {
-    width: 26px;
-  }
+  .bar.top { width: 44px; }
+  .bar.middle { width: 34px; }
+  .bar.bottom { width: 26px; }
 }
