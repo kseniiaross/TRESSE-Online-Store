@@ -105,7 +105,6 @@ const Header: React.FC = () => {
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
-  // focus sidebar on open
   useEffect(() => {
     if (isMenuOpen) {
       window.setTimeout(() => sidebarRef.current?.focus(), 0);
