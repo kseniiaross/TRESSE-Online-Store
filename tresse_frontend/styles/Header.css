@@ -1,3 +1,5 @@
+/* ================= Header ================= */
+
 .header {
   --header-pad-x: 2rem;
   --header-pad-y: 1rem;
@@ -5,7 +7,7 @@
   --text-light: #fff;
   --text-dark: #000;
 
-  --focus-ring-light: rgba(255, 255, 255, 0.75);
+  --focus-ring-light: rgba(255, 255, 255, 0.85);
   --focus-ring-dark: rgba(0, 0, 0, 0.6);
 
   position: fixed;
@@ -45,6 +47,7 @@
   min-width: 0;
 }
 
+/* ================= Focus (keyboard) ================= */
 
 .header a:focus-visible,
 .header button:focus-visible,
@@ -54,12 +57,13 @@
   border-radius: 10px;
 }
 
-.header .dark:focus-visible,
 .header a.dark:focus-visible,
 .header button.dark:focus-visible,
 .header input.dark:focus-visible {
   outline-color: var(--focus-ring-dark);
 }
+
+/* ================= Hamburger ================= */
 
 .humburger {
   background: none;
@@ -91,28 +95,45 @@
   background: var(--text-dark);
 }
 
-.bar.top { width: 50px; }
-.bar.middle { width: 40px; }
-.bar.bottom { width: 30px; }
+.bar.top {
+  width: 50px;
+}
+.bar.middle {
+  width: 40px;
+}
+.bar.bottom {
+  width: 30px;
+}
 
-.humburger.hover-animate .top { width: 30px; }
-.humburger.hover-animate .bottom { width: 50px; }
+.humburger.hover-animate .top {
+  width: 30px;
+}
+.humburger.hover-animate .bottom {
+  width: 50px;
+}
 
-.logo {
+/* ================= Logo (IMPORTANT) ================= */
+/* Важно: только ОДИН блок, чтобы не было конфликтов. */
+
+.header .logo {
   color: var(--text-light);
   font-family: "EB Garamond", serif;
-  font-size: 72px;
+  font-size: 72px; /* <-- большой как ты хочешь */
   font-weight: 500;
   letter-spacing: 0.2em;
   text-decoration: none;
   cursor: pointer;
   line-height: 1;
   white-space: nowrap;
+
+  display: inline-block; /* чтобы точно не схлопывалось */
 }
 
-.logo.dark {
+.header .logo.dark {
   color: var(--text-dark);
 }
+
+/* ================= Buttons / Links ================= */
 
 .login-button,
 .help-button {
@@ -146,6 +167,8 @@
 .shopping-bag.dark {
   color: var(--text-dark);
 }
+
+/* ================= Search ================= */
 
 .header-search {
   position: relative;
@@ -185,7 +208,6 @@
   padding: 0.2rem 0.5rem;
 
   color: var(--text-light);
-
   outline: none;
 }
 
@@ -205,6 +227,8 @@
 .search-input.dark::placeholder {
   color: var(--text-dark);
 }
+
+/* Dropdown */
 
 .search-dropdown {
   position: absolute;
@@ -230,8 +254,13 @@
   font-size: 13px;
 }
 
-.search-dropdown__muted { opacity: 0.6; }
-.search-dropdown__error { color: #111; opacity: 0.65; }
+.search-dropdown__muted {
+  opacity: 0.6;
+}
+.search-dropdown__error {
+  color: #111;
+  opacity: 0.65;
+}
 
 .search-dropdown__item {
   width: 100%;
@@ -274,7 +303,9 @@
   object-fit: cover;
 }
 
-.search-dropdown__text { min-width: 0; }
+.search-dropdown__text {
+  min-width: 0;
+}
 
 .search-dropdown__name {
   display: block;
@@ -319,6 +350,8 @@
   border-radius: 10px;
 }
 
+/* ================= User menu ================= */
+
 .user-menu-wrap {
   position: relative;
   display: inline-flex;
@@ -339,7 +372,9 @@
   border-radius: 10px;
 }
 
-.user-menu__btn.dark { color: var(--text-dark); }
+.user-menu__btn.dark {
+  color: var(--text-dark);
+}
 
 .user-menu__caret {
   margin-left: 6px;
@@ -386,7 +421,9 @@
   text-align: left;
 }
 
-.user-menu__item:visited { color: #111; }
+.user-menu__item:visited {
+  color: #111;
+}
 
 .user-menu__item:focus-visible {
   outline: 2px solid rgba(0, 0, 0, 0.35);
@@ -405,6 +442,8 @@
   border-radius: 0 0 10px 10px;
   padding-top: 12px;
 }
+
+/* ================= Sidebar ================= */
 
 .sidebar-backdrop {
   position: fixed;
@@ -430,7 +469,9 @@
   animation: slideIn 0.3s ease-out;
 }
 
-.menu-content { padding: 40px 24px; }
+.menu-content {
+  padding: 40px 24px;
+}
 
 .sidebar-menu ul {
   list-style: none;
@@ -438,7 +479,9 @@
   margin: 0;
 }
 
-.sidebar-menu li { margin-bottom: 20px; }
+.sidebar-menu li {
+  margin-bottom: 20px;
+}
 
 .sidebar-menu a {
   text-decoration: none;
@@ -449,7 +492,9 @@
   transition: opacity 0.2s ease-in-out;
 }
 
-.sidebar-menu a:hover { opacity: 0.65; }
+.sidebar-menu a:hover {
+  opacity: 0.65;
+}
 
 .sidebar-menu a:focus-visible {
   outline: 2px solid rgba(0, 0, 0, 0.35);
@@ -457,29 +502,16 @@
   border-radius: 10px;
 }
 
-.left-section,
-.right-section {
-  position: relative;
-  z-index: 2;
-}
-
-.humburger,
-.logo {
-  position: relative;
-  z-index: 3;
-}
-
-.humburger:focus-visible,
-.logo:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.85);
-  outline-offset: 6px;
-  border-radius: 10px;
-}
-
 @keyframes slideIn {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
+
+/* ================= Mobile ================= */
 
 @media (max-width: 768px) {
   .header {
@@ -501,6 +533,10 @@
     gap: 12px;
   }
 
+  .header .logo {
+    font-size: 42px;
+    line-height: 1;
+  }
 
   .right-section {
     width: 100%;
@@ -539,7 +575,13 @@
     width: 44px;
   }
 
-  .bar.top { width: 44px; }
-  .bar.middle { width: 34px; }
-  .bar.bottom { width: 26px; }
+  .bar.top {
+    width: 44px;
+  }
+  .bar.middle {
+    width: 34px;
+  }
+  .bar.bottom {
+    width: 26px;
+  }
 }
