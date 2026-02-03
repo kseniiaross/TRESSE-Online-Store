@@ -28,7 +28,6 @@ def force_https(url: str) -> str:
 
     parsed = urlparse(url)
 
-    # Relative path like "/media/..." -> keep; we will absolutize later
     if not parsed.scheme:
         return url
 
@@ -201,15 +200,3 @@ class CartSerializer(serializers.ModelSerializer):
         read_only_fields = ["user"]
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    user_email = serializers.CharField(source="user.email", read_only=True)
-
-    class Meta:
-        model = Review
-        fields = ["id", "product", "user_email", "rating", "comment", "created_at"]
-        read_only_fields = ["created_at", "user", "product"]
-
-    def validate_rating(self, value):
-        if value < 1 or value > 5:
-            raise serializers.ValidationError("Рейтинг должен быть от 1 до 5")
-        return value

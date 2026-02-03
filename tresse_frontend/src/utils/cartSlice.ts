@@ -5,7 +5,7 @@ export type ClientCartItem = Product & {
   quantity: number;
   product_size_id: number;
   sizeName?: string;
-  maxQty?: number; // stock
+  maxQty?: number;
 };
 
 export type ClientCartState = {
@@ -17,28 +17,33 @@ type AddToCartPayload = {
   product_size_id: number;
   sizeName?: string;
   maxQty?: number;
-  quantity?: number; 
 };
 
 const isBrowser = typeof window !== "undefined" && typeof localStorage !== "undefined";
 const LS_KEY = "guest_cart";
 
 function loadFromLS(): ClientCartState | null {
+  // We read guest cart from localStorage to persist it across refreshes and guest sessions.
   if (!isBrowser) return null;
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (parsed && Array.isArray(parsed.items)) return parsed as ClientCartState;
-  } catch {}
+  } catch {
+    // Intentionally ignore parse errors and fall back to empty cart.
+  }
   return null;
 }
 
 function saveToLS(state: ClientCartState) {
+  // We persist guest cart after each mutation to keep UI and storage consistent.
   if (!isBrowser) return;
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(state));
-  } catch {}
+  } catch {
+    // Intentionally ignore storage quota errors.
+  }
 }
 
 const initialState: ClientCartState = loadFromLS() ?? { items: [] };
@@ -85,8 +90,10 @@ const cartSlice = createSlice({
         const limit = resolveMaxQty(existingItem.maxQty, maxQty);
         existingItem.quantity = clampToMax(existingItem.quantity + 1, limit);
 
-        if (typeof existingItem.maxQty !== "number" && typeof normalizeMax(maxQty) === "number") {
-          existingItem.maxQty = normalizeMax(maxQty);
+        // We only upgrade maxQty if the existing one is missing and the incoming value is valid.
+        if (typeof existingItem.maxQty !== "number") {
+          const normalizedIncoming = normalizeMax(maxQty);
+          if (typeof normalizedIncoming === "number") existingItem.maxQty = normalizedIncoming;
         }
       } else {
         const limit = resolveMaxQty(undefined, maxQty);
@@ -96,7 +103,7 @@ const cartSlice = createSlice({
           product_size_id,
           sizeName,
           maxQty: limit,
-          quantity: clampToMax(1, limit), 
+          quantity: clampToMax(1, limit),
         });
       }
 
@@ -149,14 +156,15 @@ export const { addToCart, removeFromCart, updateQuantity, clearCart, setItemMaxQ
 
 export default cartSlice.reducer;
 
-type HasClientCart = { cart: ClientCartState };
+type HasGuestCart = { cart: ClientCartState };
 
-export const selectGuestCartItems = (state: HasClientCart) => state.cart.items;
+export const selectGuestCartItems = (state: HasGuestCart) => state.cart.items;
 
 export const selectGuestCartCount = createSelector([selectGuestCartItems], (items) =>
   items.reduce((acc, it) => acc + it.quantity, 0)
 );
 
 export const selectGuestCartTotal = createSelector([selectGuestCartItems], (items) =>
+  // We keep price parsing as-is to avoid breaking existing data, but the backend should ideally provide a numeric price.
   items.reduce((sum, it) => sum + parseFloat(it.price) * it.quantity, 0)
 );

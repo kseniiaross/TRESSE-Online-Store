@@ -1,4 +1,4 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosHeaders, InternalAxiosRequestConfig } from "axios";
 import { getAccessToken, getRefreshToken, setAccessToken, clearTokens } from "../types/token";
 
 const rawEnv =
@@ -6,7 +6,7 @@ const rawEnv =
   import.meta.env.VITE_BACKEND_URL ||
   "http://127.0.0.1:8000";
 
-const normalized = String(rawEnv).replace(/\/$/, "");
+const normalized = String(rawEnv).replace(/\/+$/, "");
 const baseURL = normalized.endsWith("/api") ? normalized : `${normalized}/api`;
 
 const axiosInstance = axios.create({
@@ -32,16 +32,23 @@ function isNoAuthRequest(config: InternalAxiosRequestConfig): boolean {
   return NO_AUTH.some((p) => url.startsWith(p) || url.includes(p));
 }
 
-axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+function setAuthHeader(config: InternalAxiosRequestConfig, token: string) {
+  config.headers = AxiosHeaders.from(config.headers);
+  config.headers.set("Authorization", `Bearer ${token}`);
+}
+
+/* ================= Request interceptor ================= */
+
+axiosInstance.interceptors.request.use((config) => {
   if (isNoAuthRequest(config)) return config;
 
   const token = getAccessToken();
-  if (token) {
-    config.headers = config.headers ?? {};
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) setAuthHeader(config, token);
+
   return config;
 });
+
+/* ================= Refresh logic ================= */
 
 type RefreshResponse = { access: string };
 
@@ -70,26 +77,32 @@ async function refreshAccessToken(): Promise<string> {
   return access;
 }
 
+/* ================= Response interceptor ================= */
+
 axiosInstance.interceptors.response.use(
   (resp) => resp,
   async (error: AxiosError) => {
     const status = error.response?.status;
     const originalRequest = error.config;
 
-    const url = String(originalRequest?.url || "");
+    if (!originalRequest) return Promise.reject(error);
+
+    const url = String(originalRequest.url || "");
     const isNoAuthRoute = NO_AUTH.some((p) => url.startsWith(p) || url.includes(p));
 
-    if (status !== 401 || !originalRequest || isNoAuthRoute) {
+    if (status !== 401 || isNoAuthRoute) {
       return Promise.reject(error);
     }
 
-    const anyReq = originalRequest as unknown as { _retry?: boolean };
-    if (anyReq._retry) {
+    const req = originalRequest as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    if (req._retry) {
       clearTokens();
       onUnauthorized?.();
       return Promise.reject(error);
     }
-    anyReq._retry = true;
+
+    req._retry = true;
 
     try {
       if (isRefreshing) {
@@ -101,9 +114,9 @@ axiosInstance.interceptors.response.use(
               reject(error);
               return;
             }
-            originalRequest.headers = originalRequest.headers ?? {};
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            resolve(axiosInstance(originalRequest));
+
+            setAuthHeader(req, token);
+            resolve(axiosInstance(req));
           });
         });
       }
@@ -113,10 +126,8 @@ axiosInstance.interceptors.response.use(
       const newAccess = await refreshAccessToken();
       resolveQueue(newAccess);
 
-      originalRequest.headers = originalRequest.headers ?? {};
-      originalRequest.headers.Authorization = `Bearer ${newAccess}`;
-
-      return axiosInstance(originalRequest);
+      setAuthHeader(req, newAccess);
+      return axiosInstance(req);
     } catch {
       resolveQueue(null);
       clearTokens();

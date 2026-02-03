@@ -1,12 +1,17 @@
 .accountRestore {
-  min-height: calc(100vh - var(--header-height));
+  --page-pad-x: 16px;
+  --page-pad-x-mobile: 14px;
+  --page-pad-top-gap: 28px;
+  --page-pad-bottom: 120px;
+
+  min-height: calc(100dvh - var(--header-height));
   display: flex;
   flex-direction: column;
 
-  padding-top: calc(var(--header-height) + 28px);
-  padding-left: 16px;
-  padding-right: 16px;
-  padding-bottom: 120px;
+  padding-top: calc(var(--header-height) + var(--page-pad-top-gap));
+  padding-left: var(--page-pad-x);
+  padding-right: var(--page-pad-x);
+  padding-bottom: var(--page-pad-bottom);
 
   background: #fff;
   color: #0b0b0b;
@@ -70,7 +75,7 @@
 .accountRestore__label {
   display: block;
   font-size: 12px;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-bottom: 8px;
   color: rgba(0, 0, 0, 0.78);
@@ -87,14 +92,11 @@
   letter-spacing: 0.02em;
 }
 
-.accountRestore__input:focus {
-  border-color: rgba(0, 0, 0, 0.42);
-}
-
-/* Accessible focus for keyboard users, consistent with the rest of the app. */
+/* Keyboard focus (WCAG-friendly) + matching border change */
 .accountRestore__input:focus-visible {
   outline: 2px solid rgba(0, 0, 0, 0.28);
   outline-offset: 3px;
+  border-color: rgba(0, 0, 0, 0.42);
 }
 
 .accountRestore__error {
@@ -108,7 +110,7 @@
   margin-top: 18px;
 }
 
-/* Success uses a calm tone (no neon), keeps luxury feel. */
+/* Calm success tone */
 .accountRestore__success {
   margin-top: 12px;
   font-size: 14px;
@@ -134,12 +136,12 @@
 
 @media (max-width: 560px) {
   .accountRestore {
-    padding-left: 14px;
-    padding-right: 14px;
-    padding-bottom: 120px;
+    padding-left: var(--page-pad-x-mobile);
+    padding-right: var(--page-pad-x-mobile);
+    padding-bottom: var(--page-pad-bottom);
   }
 
   .accountRestore__title {
-    letter-spacing: 0.10em;
+    letter-spacing: 0.1em;
   }
 }

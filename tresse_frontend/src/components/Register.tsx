@@ -7,6 +7,7 @@ import axios from "axios";
 
 import type { RegisterFormData } from "../types/auth";
 import type { User } from "../types/user";
+
 import { registerUser } from "../api/auth";
 import { setCredentials } from "../utils/authSlice";
 import { useAppDispatch } from "../utils/hooks";
@@ -17,11 +18,16 @@ import "../../styles/Register.css";
 import registerImage from "../assets/images/Register.jpg";
 
 const schema = Yup.object({
-  first_name: Yup.string().required("First name is required"),
-  last_name: Yup.string().required("Last name is required"),
-  phone_number: Yup.string().required("Phone number is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  password: Yup.string().required("Password is required"),
+  first_name: Yup.string().trim().required("First name is required"),
+  last_name: Yup.string().trim().required("Last name is required"),
+  phone_number: Yup.string()
+    .trim()
+    .matches(/^\+?[0-9\s().-]{7,20}$/, "Enter a valid phone number")
+    .required("Phone number is required"),
+  email: Yup.string().trim().email("Invalid email").required("Email is required"),
+  password: Yup.string()
+    .required("Password is required")
+    .min(8, "Password must be at least 8 characters"),
 });
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -67,6 +73,29 @@ function isRegisterResponse(v: unknown): v is RegisterResponse {
   return "access" in v;
 }
 
+function getServerMessage(error: unknown): string {
+  if (!axios.isAxiosError(error)) return "Registration failed. Please try again.";
+
+  const data = error.response?.data;
+
+  if (typeof data === "object" && data !== null) {
+    const d = data as Record<string, unknown>;
+
+    if (typeof d.detail === "string" && d.detail.trim()) return d.detail;
+
+    const keys = ["email", "password", "phone_number", "first_name", "last_name", "non_field_errors"];
+    for (const key of keys) {
+      const v = d[key];
+      if (Array.isArray(v) && v.length && typeof v[0] === "string") return v[0];
+      if (typeof v === "string" && v.trim()) return v;
+    }
+  }
+
+  const status = error.response?.status;
+  if (status === 400) return "Please check the form fields and try again.";
+  return "Registration failed. Please try again.";
+}
+
 export default function Register() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -102,18 +131,18 @@ export default function Register() {
       const refresh = toNonEmptyStringOrNull(apiResult.refresh);
       const user = toUserOrNull(apiResult.user);
 
-      if (!user) {
-        const next = safeNext ?? "/dashboard";
-        navigate(`/authorization?next=${encodeURIComponent(next)}`, { replace: true });
-        return;
-      }
-
       if (!access) {
         setServerError("Registration failed. Please try again.");
         return;
       }
 
       if (refresh) localStorage.setItem("refresh", refresh);
+
+      if (!user) {
+        const next = safeNext ?? "/";
+        navigate(`/authorization?next=${encodeURIComponent(next)}`, { replace: true });
+        return;
+      }
 
       dispatch(setCredentials({ token: access, user }));
 
@@ -123,13 +152,7 @@ export default function Register() {
 
       navigate(safeNext ?? "/", { replace: true });
     } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
-        if (status === 400) setServerError("Please check the form fields and try again.");
-        else setServerError("Registration failed. Please try again.");
-      } else {
-        setServerError("Registration failed. Please try again.");
-      }
+      setServerError(getServerMessage(error));
     }
   };
 
@@ -165,6 +188,7 @@ export default function Register() {
                   autoFocus
                   aria-invalid={errors.first_name ? "true" : "false"}
                   aria-describedby={ids.firstName}
+                  disabled={isSubmitting}
                   {...register("first_name")}
                 />
                 {errors.first_name ? (
@@ -184,6 +208,7 @@ export default function Register() {
                   autoComplete="family-name"
                   aria-invalid={errors.last_name ? "true" : "false"}
                   aria-describedby={ids.lastName}
+                  disabled={isSubmitting}
                   {...register("last_name")}
                 />
                 {errors.last_name ? (
@@ -200,11 +225,12 @@ export default function Register() {
                 <input
                   className="register__input"
                   id="phone_number"
-                  type="text"
+                  type="tel"
                   autoComplete="tel"
                   inputMode="tel"
                   aria-invalid={errors.phone_number ? "true" : "false"}
                   aria-describedby={ids.phone}
+                  disabled={isSubmitting}
                   {...register("phone_number")}
                 />
                 {errors.phone_number ? (
@@ -225,6 +251,7 @@ export default function Register() {
                   autoComplete="email"
                   aria-invalid={errors.email ? "true" : "false"}
                   aria-describedby={ids.email}
+                  disabled={isSubmitting}
                   {...register("email")}
                 />
                 {errors.email ? (
@@ -245,6 +272,7 @@ export default function Register() {
                   autoComplete="new-password"
                   aria-invalid={errors.password ? "true" : "false"}
                   aria-describedby={ids.password}
+                  disabled={isSubmitting}
                   {...register("password")}
                 />
                 {errors.password ? (

@@ -3,6 +3,7 @@ import * as Yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
 
 import type { LoginFormData } from "../types/auth";
 import type { User } from "../types/user";
@@ -16,10 +17,10 @@ import { fetchCart, mergeGuestCart } from "../store/serverCartSlice";
 import "../../styles/Authorization.css";
 import loginImage from "../assets/images/Login.jpg";
 
-const schema = Yup.object({
+const schema: Yup.ObjectSchema<LoginFormData> = Yup.object({
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string().required("Password is required"),
-});
+}).required();
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
@@ -62,6 +63,23 @@ type LoginResponse = {
 function isLoginResponse(v: unknown): v is LoginResponse {
   if (!isRecord(v)) return false;
   return "access" in v && "user" in v;
+}
+
+function getLoginErrorMessage(error: unknown): string {
+  if (!isAxiosError(error)) return "Network error. Please try again.";
+
+  const status = error.response?.status;
+
+  if (status === 401 || status === 400) return "Invalid email or password.";
+
+  const data = error.response?.data;
+  if (typeof data === "object" && data !== null) {
+    const record = data as Record<string, unknown>;
+    const detail = record.detail;
+    if (typeof detail === "string" && detail.trim()) return detail.trim();
+  }
+
+  return "Something went wrong. Please try again.";
 }
 
 export default function Authorization() {
@@ -109,13 +127,27 @@ export default function Authorization() {
 
       dispatch(setCredentials({ token: access, user }));
 
-      await dispatch(mergeGuestCart()).unwrap();
-      await dispatch(fetchCart()).unwrap();
-      dispatch(fetchWishlistCount());
+      try {
+        await dispatch(mergeGuestCart()).unwrap();
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("mergeGuestCart failed:", e);
+      }
+
+      try {
+        await dispatch(fetchCart()).unwrap();
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("fetchCart failed:", e);
+      }
+
+      try {
+        dispatch(fetchWishlistCount());
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn("fetchWishlistCount failed:", e);
+      }
 
       navigate(safeNext ?? "/", { replace: true });
-    } catch {
-      setServerError("Invalid email or password.");
+    } catch (error: unknown) {
+      setServerError(getLoginErrorMessage(error));
     }
   };
 
@@ -211,7 +243,7 @@ export default function Authorization() {
               {serverError ? (
                 <div
                   className="authorization__message authorization__message--server"
-                  role="status"
+                  role="alert"
                   aria-live="polite"
                 >
                   {serverError}

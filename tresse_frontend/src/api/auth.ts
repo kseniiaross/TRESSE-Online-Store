@@ -2,28 +2,57 @@ import { isAxiosError } from "axios";
 import api from "./axiosInstance";
 import type { LoginRequest, RegisterRequest, ResponseData } from "../types/auth";
 
+const FIELDS_TO_CHECK = [
+  "email",
+  "password",
+  "current_password",
+  "new_password",
+  "confirm_password",
+] as const;
+
 function getErrorMessage(error: unknown, fallback: string): string {
   if (!isAxiosError(error)) return fallback;
 
   const data = error.response?.data;
 
-
   if (typeof data === "object" && data !== null) {
     const record = data as Record<string, unknown>;
 
+    // DRF: detail might be string OR string[]
     const detail = record.detail;
-    if (typeof detail === "string" && detail.trim()) return detail.trim();
+    if (typeof detail === "string" && detail.trim()) {
+      return detail.trim();
+    }
+    if (Array.isArray(detail) && typeof detail[0] === "string" && detail[0].trim()) {
+      return detail[0].trim();
+    }
 
-    const firstKey = Object.keys(record)[0];
-    const firstVal = firstKey ? record[firstKey] : undefined;
-    if (Array.isArray(firstVal) && typeof firstVal[0] === "string" && firstVal[0].trim()) {
-      return firstVal[0].trim();
+    const nonField = record.non_field_errors;
+    if (Array.isArray(nonField) && typeof nonField[0] === "string" && nonField[0].trim()) {
+      return nonField[0].trim();
+    }
+
+    for (const key of FIELDS_TO_CHECK) {
+      const value = record[key];
+
+      if (typeof value === "string" && value.trim()) {
+        return value.trim();
+      }
+
+      if (Array.isArray(value) && typeof value[0] === "string" && value[0].trim()) {
+        return value[0].trim();
+      }
     }
   }
 
-  if (typeof error.message === "string" && error.message.trim()) return error.message.trim();
+  if (typeof error.message === "string" && error.message.trim()) {
+    return error.message.trim();
+  }
+
   return fallback;
 }
+
+// -------------------- AUTH --------------------
 
 export async function loginUser(data: LoginRequest): Promise<ResponseData> {
   try {
@@ -46,8 +75,10 @@ export async function registerUser(data: RegisterRequest): Promise<ResponseData>
   }
 }
 
+// -------------------- ACCOUNT RESTORE --------------------
+
 /**
- * Request account restore email (generic response - does not leak existence)
+ * Request account restore email (generic response, no user existence leak)
  * Backend: POST /api/accounts/restore/request/
  */
 export async function requestAccountRestore(email: string): Promise<{ message: string }> {

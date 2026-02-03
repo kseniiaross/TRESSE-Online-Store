@@ -14,17 +14,23 @@ function daysToMs(days: number): number {
   return days * 24 * 60 * 60 * 1000;
 }
 
+function canUseLocalStorage(): boolean {
+  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+}
+
 function safeLocalStorageGet(key: string): string | null {
+  if (!canUseLocalStorage()) return null;
   try {
-    return localStorage.getItem(key);
+    return window.localStorage.getItem(key);
   } catch {
     return null;
   }
 }
 
 function safeLocalStorageSet(key: string, value: string): void {
+  if (!canUseLocalStorage()) return;
   try {
-    localStorage.setItem(key, value);
+    window.localStorage.setItem(key, value);
   } catch {
   }
 }
@@ -70,12 +76,10 @@ export function canShowNewsletterModal(isLoggedIn: boolean): boolean {
   const subscribedOk = isCooldownPassed(SUBSCRIBED_KEY, SUBSCRIBED_COOLDOWN_DAYS);
   if (!subscribedOk) return false;
 
-  const dismissedOk = isCooldownPassed(DISMISS_KEY, DISMISS_COOLDOWN_DAYS);
-  return dismissedOk;
+  return isCooldownPassed(DISMISS_KEY, DISMISS_COOLDOWN_DAYS);
 }
 
 function extractBestErrorMessage(data: unknown): string | null {
-
   if (isString(data)) return data;
 
   if (!isRecord(data)) return null;
@@ -97,8 +101,26 @@ function extractBestErrorMessage(data: unknown): string | null {
   return null;
 }
 
-function isAxiosLikeError(err: unknown): err is { response?: { status?: number; data?: unknown } } {
-  return isRecord(err) && ("response" in err || "message" in err);
+type AxiosishError = {
+  code?: unknown;
+  message?: unknown;
+  response?: { status?: number; data?: unknown };
+};
+
+function isAxiosLikeError(err: unknown): err is AxiosishError {
+  return isRecord(err) && ("response" in err || "message" in err || "code" in err);
+}
+
+function isTimeoutError(err: unknown): boolean {
+  if (!isAxiosLikeError(err)) return false;
+
+  const code = err.code;
+  if (typeof code === "string" && code.toUpperCase() === "ECONNABORTED") return true;
+
+  const msg = err.message;
+  if (typeof msg === "string" && msg.toLowerCase().includes("timeout")) return true;
+
+  return false;
 }
 
 export async function subscribeNewsletter(email: string, source: SubscribeSource): Promise<void> {
@@ -117,27 +139,24 @@ export async function subscribeNewsletter(email: string, source: SubscribeSource
 
     markNewsletterSubscribed();
   } catch (err: unknown) {
-    let msg = "Subscription failed. Please try again.";
-
-    if (isRecord(err) && isString(err["message"])) {
-      const m = err["message"].toLowerCase();
-      if (m.includes("timeout")) {
-        throw new Error("Server is taking too long to respond. Please try again in a moment.");
-      }
+    if (isTimeoutError(err)) {
+      throw new Error("Server is taking too long to respond. Please try again in a moment.");
     }
+
+    let msg = "Subscription failed. Please try again.";
 
     if (isAxiosLikeError(err)) {
       const status = err.response?.status;
       const data = err.response?.data;
 
       const extracted = extractBestErrorMessage(data);
-      if (extracted) msg = extracted;
-
-      if (!extracted && typeof status === "number") {
+      if (extracted) {
+        msg = extracted;
+      } else if (typeof status === "number") {
         if (status === 400) msg = "Please check your email and try again.";
-        if (status === 404) msg = "Subscribe endpoint not found. Please contact support.";
-        if (status === 405) msg = "Subscribe endpoint does not allow this method.";
-        if (status >= 500) msg = "Server error. Please try again later.";
+        else if (status === 404) msg = "Subscribe endpoint not found. Please contact support.";
+        else if (status === 405) msg = "Subscribe endpoint does not allow this method.";
+        else if (status >= 500) msg = "Server error. Please try again later.";
       }
     }
 

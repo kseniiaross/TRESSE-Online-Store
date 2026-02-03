@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db import transaction
@@ -43,6 +44,8 @@ class CartAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        # We keep a dedicated query with select/prefetch so CartSerializer always gets
+        # consistent related data for the React client.
         cart, _ = Cart.objects.get_or_create(user=request.user)
 
         cart = (
@@ -68,6 +71,7 @@ class CartItemAPIView(APIView):
         cart, _ = Cart.objects.get_or_create(user=request.user)
         serializer = CartItemSerializer(data=request.data)
 
+        # Keep explicit validation response format to avoid breaking the frontend.
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -78,7 +82,9 @@ class CartItemAPIView(APIView):
             return Response({"quantity": "Must be >= 1"}, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
-            ps = ProductSize.objects.select_for_update().get(pk=product_size.pk)
+            # Developer note:
+            # Lock ProductSize row to prevent overselling under concurrent requests.
+            ps = get_object_or_404(ProductSize.objects.select_for_update(), pk=product_size.pk)
 
             item = (
                 CartItem.objects.filter(cart=cart, product_size=ps)
@@ -128,7 +134,8 @@ class CartItemAPIView(APIView):
             if new_qty < 1:
                 return Response({"quantity": "Must be >= 1"}, status=status.HTTP_400_BAD_REQUEST)
 
-            ps = ProductSize.objects.select_for_update().get(pk=item.product_size_id)
+            # Lock ProductSize to validate stock accurately during concurrent updates.
+            ps = get_object_or_404(ProductSize.objects.select_for_update(), pk=item.product_size_id)
 
             if new_qty > ps.quantity:
                 return Response(
@@ -178,12 +185,10 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             )
         )
 
-        # /api/products/?category=woman
         category_slug = self.request.query_params.get("category")
         if category_slug:
             queryset = queryset.filter(category__slug=category_slug)
 
-        # /api/products/?collection=bestsellers
         collection_slug = self.request.query_params.get("collection")
         if collection_slug:
             queryset = queryset.filter(collections__slug=collection_slug)
@@ -232,6 +237,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         except ValidationError:
             return Response({"email": "Invalid email."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # If the user is authenticated, we bind the subscription to the user as well.
         kwargs = {"product": product, "email": email}
         if request.user.is_authenticated:
             kwargs["user"] = request.user
@@ -273,20 +279,3 @@ class WishlistViewSet(viewsets.ReadOnlyModelViewSet):
         ctx["request"] = self.request
         return ctx
 
-
-class ReviewListCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = ReviewSerializer
-
-    def get_permissions(self):
-        if self.request.method == "POST":
-            return [IsAuthenticated()]
-        return [permissions.AllowAny()]
-
-    def get_queryset(self):
-        product_id = self.kwargs["product_id"]
-        return Review.objects.filter(product_id=product_id)
-
-    def perform_create(self, serializer):
-        product_id = self.kwargs["product_id"]
-        product = get_object_or_404(Product, pk=product_id)
-        serializer.save(user=self.request.user, product=product)

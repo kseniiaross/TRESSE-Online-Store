@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_HALF_UP
 from datetime import timedelta
+from decimal import Decimal, ROUND_HALF_UP
 import hashlib
 import logging
 from typing import Any, Iterable, Tuple
@@ -18,31 +18,27 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from products.models import Cart, CartItem
+from .emails import (
+    send_order_canceled_email,
+    send_order_confirmation_email,
+    send_refund_initiated_email,
+)
 from .models import Order, OrderItem
 from .serializers import OrderCreateSerializer, OrderReadSerializer
 from .throttles import StripeIntentAnonThrottle, StripeIntentUserThrottle
-
-from .emails import (
-    send_order_confirmation_email,
-    send_order_canceled_email,
-    send_refund_initiated_email,
-)
 
 logger = logging.getLogger(__name__)
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-# ---------------------------
-# Helpers
-# ---------------------------
 def _to_cents(amount: Decimal) -> int:
-    """Convert Decimal dollars to integer cents safely (Stripe uses smallest unit)."""
+    # Convert Decimal dollars to integer cents using safe rounding for Stripe.
     cents = (amount * Decimal("100")).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
     return int(cents)
 
 
 def _build_cart_signature(items: Iterable[CartItem]) -> str:
-    """Deterministic signature of cart composition (product_size_id:quantity)."""
+    # Deterministic signature of cart contents to build a stable idempotency key.
     parts = [f"{ci.product_size_id}:{ci.quantity}" for ci in items]
     raw = "|".join(sorted(parts))
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:24]
@@ -52,22 +48,13 @@ def _safe_str(v: Any) -> str:
     return str(v or "").strip()
 
 
-def _extract_card_details_from_intent(intent: dict[str, Any]) -> Tuple[str, str, str]:
-    """
-    Extract (card_brand, card_last4, cardholder_name) from a succeeded PaymentIntent.
-
-    We retrieve intent with expand=["latest_charge", "payment_method"].
-    Then read:
-      latest_charge.payment_method_details.card.brand / last4
-      latest_charge.billing_details.name
-    """
+def _extract_card_details_from_intent(intent: Any) -> Tuple[str, str, str]:
     card_brand = ""
     card_last4 = ""
     cardholder_name = ""
 
     latest_charge = intent.get("latest_charge")
 
-    # latest_charge may be expanded object or charge id
     if isinstance(latest_charge, str) and latest_charge:
         try:
             latest_charge = stripe.Charge.retrieve(latest_charge)
@@ -77,7 +64,7 @@ def _extract_card_details_from_intent(intent: dict[str, Any]) -> Tuple[str, str,
     if isinstance(latest_charge, dict):
         try:
             pm_details = latest_charge.get("payment_method_details") or {}
-            card = pm_details.get("card") or {}
+            card = (pm_details.get("card") or {})
             card_brand = _safe_str(card.get("brand"))
             card_last4 = _safe_str(card.get("last4"))
 
@@ -113,9 +100,6 @@ def _build_items_payload(order: Order) -> list[dict[str, Any]]:
     return payload
 
 
-# ---------------------------
-# Orders API
-# ---------------------------
 class MyOrdersAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -145,9 +129,11 @@ class CreateOrderAPIView(APIView):
         create_ser.is_valid(raise_exception=True)
 
         cart, _ = Cart.objects.get_or_create(user=request.user)
-        cart_items = (
-            CartItem.objects.filter(cart=cart).select_related("product_size__product", "product_size__size")
+        cart_items = CartItem.objects.filter(cart=cart).select_related(
+            "product_size__product",
+            "product_size__size",
         )
+
         if not cart_items.exists():
             return Response({"detail": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -293,9 +279,6 @@ class CancelOrderAPIView(APIView):
         return Response(OrderReadSerializer(order).data, status=status.HTTP_200_OK)
 
 
-# ---------------------------
-# Stripe: create intent
-# ---------------------------
 @api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated])
 @throttle_classes([StripeIntentAnonThrottle, StripeIntentUserThrottle])
@@ -320,6 +303,9 @@ def create_payment_intent(request):
 
     amount_cents = _to_cents(total)
     cart_sig = _build_cart_signature(items)
+
+    # attempt_id ensures a fresh idempotency key per client attempt,
+    # while cart_sig prevents charging stale cart content.
     idempotency_key = f"pi_u{request.user.id}_c{cart.id}_a{amount_cents}_{cart_sig}_att{attempt_id}"
 
     user_email = getattr(request.user, "email", "") or None
@@ -341,7 +327,10 @@ def create_payment_intent(request):
             idempotency_key=idempotency_key,
         )
 
-        return Response({"client_secret": intent.client_secret, "payment_intent_id": intent.id}, status=status.HTTP_200_OK)
+        return Response(
+            {"client_secret": intent.client_secret, "payment_intent_id": intent.id},
+            status=status.HTTP_200_OK,
+        )
 
     except stripe.error.StripeError:
         logger.exception("stripe_payment_intent_create_failed user_id=%s cart_id=%s", request.user.id, cart.id)
@@ -352,9 +341,6 @@ def create_payment_intent(request):
         return Response({"detail": "Payment could not be prepared."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# ---------------------------
-# Stripe webhook (minimal)
-# ---------------------------
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])

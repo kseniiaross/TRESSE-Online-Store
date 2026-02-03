@@ -1,11 +1,17 @@
-import React, { useMemo, useState, useEffect } from "react";
+// src/components/ProductModal.tsx
+
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
-import "../../styles/ProductModal.css";
+
 import type { Product } from "../types/product";
+import type { ProductSizeInline } from "../types/product";
+
 import { addToCart as addToGuestCart } from "../utils/cartSlice";
 import { getAccessToken } from "../types/token";
 import * as serverCart from "../store/serverCartSlice";
+
+import "../../styles/ProductModal.css";
 
 interface ProductModalProps {
   product: Product | null;
@@ -20,27 +26,27 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
   const [notifyDone, setNotifyDone] = useState(false);
   const [addBusy, setAddBusy] = useState(false);
 
+  // Using token presence as a quick auth hint (keeps existing behavior unchanged).
   const isAuthed = !!getAccessToken();
 
-  const availableSizes = useMemo(() => {
-    const raw = product?.sizes ?? [];
-    return raw
-      .filter((s: any) => (s?.quantity ?? 0) > 0)
+  const availableSizes = useMemo<ProductSizeInline[]>(() => {
+    // Product sizes are already typed via Product.sizes.
+    return (product?.sizes ?? [])
+      .filter((s) => (s?.quantity ?? 0) > 0)
       .slice()
-      .sort((a: any, b: any) =>
-        String(a?.size?.name ?? "").localeCompare(String(b?.size?.name ?? ""))
-      );
+      .sort((a, b) => String(a.size.name).localeCompare(String(b.size.name)));
   }, [product]);
 
   const isOutOfStock = availableSizes.length === 0;
 
-  const selectedSize = useMemo(() => {
-    return availableSizes.find((s: any) => s.id === selectedSizeId);
+  const selectedSize = useMemo<ProductSizeInline | undefined>(() => {
+    return availableSizes.find((s) => s.id === selectedSizeId);
   }, [availableSizes, selectedSizeId]);
 
   useEffect(() => {
     if (!product) return;
 
+    // Lock body scroll while modal is open.
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
@@ -49,6 +55,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
     };
 
     window.addEventListener("keydown", onKeyDown);
+
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = prev;
@@ -57,6 +64,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
 
   useEffect(() => {
     if (!product) return;
+
+    // Reset local state when product changes.
     setSelectedSizeId(null);
     setNotifyDone(false);
     setNotifyLoading(false);
@@ -66,7 +75,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
   if (!product) return null;
 
   const handleAdd = async () => {
-    if (!selectedSizeId) return;
+    // Strict null check (prevents false negatives if id could ever be 0).
+    if (selectedSizeId == null) return;
     if (addBusy) return;
 
     try {
@@ -74,7 +84,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
 
       if (isAuthed) {
         await dispatch(serverCart.addCartItem({ product_size_id: selectedSizeId })).unwrap();
-        await dispatch(serverCart.fetchCart());
+        await dispatch(serverCart.fetchCart()).unwrap();
       } else {
         dispatch(
           addToGuestCart({
@@ -88,6 +98,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
 
       onClose();
     } catch (e) {
+      // Keeping alert to avoid changing UX flow; swap to toast later if needed.
       console.error("Add to cart (modal) error:", e);
       alert("Could not add to cart.");
     } finally {
@@ -100,8 +111,10 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
 
     try {
       setNotifyLoading(true);
+
+      // UI-only stub: keeps existing behavior (no API call yet).
       setNotifyDone(true);
-      setTimeout(() => setNotifyDone(false), 2500);
+      window.setTimeout(() => setNotifyDone(false), 2500);
     } catch (e) {
       console.error("Notify me error:", e);
     } finally {
@@ -109,40 +122,44 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
     }
   };
 
+  const handleOverlayMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Close only when clicking the overlay, not the content.
+    if (e.target === e.currentTarget) onClose();
+  };
+
   return (
-    <div className="modal-overlay" onMouseDown={onClose} role="presentation">
+    <div className="productModal productModal__overlay" onMouseDown={handleOverlayMouseDown} role="presentation">
       <div
-        className="modal-content"
+        className="productModal__content"
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label="Product options"
       >
-        <button className="modal-x" type="button" onClick={onClose} aria-label="Close">
+        <button className="productModal__close" type="button" onClick={onClose} aria-label="Close">
           ×
         </button>
 
-        <div className="modal-head">
-          <div className="modal-title" title={product.name}>
+        <div className="productModal__head">
+          <div className="productModal__title" title={product.name}>
             {product.name}
           </div>
-          <div className="modal-price">${product.price}</div>
+          <div className="productModal__price">${product.price}</div>
         </div>
 
-        <div className="modal-section">
-          <div className="modal-label">Choose size</div>
+        <div className="productModal__section">
+          <div className="productModal__label">Choose size</div>
 
           {isOutOfStock ? (
-            <div className="modal-muted">Out of stock.</div>
+            <div className="productModal__muted">Out of stock.</div>
           ) : (
-            <div className="modal-sizes" role="listbox" aria-label="Sizes">
-              {availableSizes.map((s: any) => (
+            <div className="productModal__sizes" role="group" aria-label="Sizes">
+              {availableSizes.map((s) => (
                 <button
                   key={s.id}
                   type="button"
-                  role="option"
-                  aria-selected={selectedSizeId === s.id}
-                  className={`modal-size ${selectedSizeId === s.id ? "is-active" : ""}`}
+                  aria-pressed={selectedSizeId === s.id}
+                  className={`productModal__size ${selectedSizeId === s.id ? "productModal__size--active" : ""}`}
                   onClick={() => setSelectedSizeId(s.id)}
                   title={`In stock: ${s.quantity}`}
                 >
@@ -153,28 +170,23 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
           )}
         </div>
 
-        <div className="modal-actions">
+        <div className="productModal__actions">
           <button
-            className="add-btn modal-primary"
+            className="productModal__primary"
             type="button"
-            disabled={isOutOfStock || !selectedSizeId || addBusy}
+            disabled={isOutOfStock || selectedSizeId == null || addBusy}
             onClick={() => void handleAdd()}
           >
             {addBusy ? "ADDING..." : "ADD TO CART"}
           </button>
 
           {isOutOfStock && (
-            <button
-              className="modal-notify"
-              type="button"
-              onClick={handleNotifyMe}
-              disabled={notifyLoading}
-            >
+            <button className="productModal__notify" type="button" onClick={handleNotifyMe} disabled={notifyLoading}>
               {notifyDone ? "SUBSCRIBED" : notifyLoading ? "SAVING..." : "NOTIFY ME"}
             </button>
           )}
 
-          <button className="modal-secondary" type="button" onClick={onClose}>
+          <button className="productModal__secondary" type="button" onClick={onClose}>
             CLOSE
           </button>
         </div>

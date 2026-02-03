@@ -8,8 +8,8 @@
   --auth-left-offset: -18px;
 
   --auth-media-vpad: 16px;
-  --header-h: 120px;
-
+  --header-h: var(--header-height);
+  
   padding-top: var(--auth-top-gap);
   padding-bottom: var(--auth-bottom-gap);
   background: #fff;

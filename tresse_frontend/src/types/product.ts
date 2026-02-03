@@ -12,7 +12,7 @@ export interface CollectionDto {
 
 export interface ProductImage {
   id: number;
-  image_url: string | null;       
+  image_url: string | null;
   alt_text?: string | null;
   sort_order: number;
   is_primary?: boolean;
@@ -37,10 +37,11 @@ export interface Product {
   price: string;
   available: boolean;
   main_image_url: string | null;
-  category: CategoryDto;         
-  collections?: CollectionDto[];  
-  collections_slugs?: string[];   
-  collections_names?: string[];     
+  created_at?: string | null;
+  category: CategoryDto;
+  collections?: CollectionDto[];
+  collections_slugs?: string[];
+  collections_names?: string[];
   images?: ProductImage[];
   sizes?: ProductSizeInline[];
   in_stock: boolean;
