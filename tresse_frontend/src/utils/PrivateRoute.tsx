@@ -1,14 +1,9 @@
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAppSelector } from "./hooks";
+import { isSafePath } from "./routing";
 
-type Props = {
-  children: ReactNode;
-};
-
-function isSafePath(p: string): boolean {
-  return p.startsWith("/") && !p.startsWith("//");
-}
+type Props = { children: ReactNode };
 
 export default function PrivateRoute({ children }: Props) {
   const location = useLocation();

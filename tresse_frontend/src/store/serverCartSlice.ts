@@ -19,13 +19,13 @@ type ProductSize = {
   id: number;
   product: ProductMini;
   size: Size;
-  quantity: number; // stock
+  quantity: number;
 };
 
 export type CartItem = {
   id: number;
   product_size: ProductSize;
-  quantity: number; // cart quantity
+  quantity: number;
 };
 
 export type Cart = {
@@ -53,47 +53,15 @@ const toSafeInt = (n: unknown, fallback = 1) => {
 
 const clampMin1 = (n: unknown) => Math.max(1, toSafeInt(n, 1));
 
-const hasToken = () =>
-  !!(
-    localStorage.getItem("access") ||
-    localStorage.getItem("access_token") ||
-    localStorage.getItem("token")
-  );
+const isBrowser = typeof window !== "undefined" && typeof localStorage !== "undefined";
+const ACCESS_KEY = "access";
 
-
-export const mergeGuestCart = createAsyncThunk<void, void, { state: RootState }>(
-  "serverCart/mergeGuestCart",
-  async (_, { getState, dispatch }) => {
-    if (!hasToken()) return;
-
-    const guestItems = selectGuestCartItems(getState());
-    if (!guestItems.length) return;
-
-    const requests: Promise<unknown>[] = [];
-
-    guestItems.forEach((it) => {
-      const qty = clampMin1(it.quantity);
-      for (let i = 0; i < qty; i += 1) {
-        requests.push(
-          api.post("/products/cart/items/", {
-            product_size_id: it.product_size_id,
-            quantity: 1, // ✅ всегда +1
-          })
-        );
-      }
-    });
-
-    const results = await Promise.allSettled(requests);
-    const allOk = results.every((r) => r.status === "fulfilled");
-
-    if (allOk) {
-      dispatch(clearGuestCart());
-      await dispatch(fetchCart());
-    } else {
-      console.warn("mergeGuestCart: some requests failed", results);
-    }
-  }
-);
+const hasToken = () => {
+  // We unified token checks to a single canonical key to avoid auth desync across the app.
+  if (!isBrowser) return false;
+  const t = localStorage.getItem(ACCESS_KEY);
+  return typeof t === "string" && t.trim().length > 0;
+};
 
 export const fetchCart = createAsyncThunk<Cart | null>("serverCart/fetch", async () => {
   if (!hasToken()) return null;
@@ -101,12 +69,46 @@ export const fetchCart = createAsyncThunk<Cart | null>("serverCart/fetch", async
   return data as Cart;
 });
 
+export const mergeGuestCart = createAsyncThunk<void, void, { state: RootState }>(
+  "serverCart/mergeGuestCart",
+  async (_, { getState, dispatch }) => {
+    // We merge guest cart into server cart only when the user is authenticated.
+    if (!hasToken()) return;
+
+    const guestItems = selectGuestCartItems(getState());
+    if (!guestItems.length) return;
+
+    // We changed the merge strategy to 1 request per cart line with quantity=qty.
+    // This prevents dozens/hundreds of network requests and reduces rate-limit / timeout issues.
+    const requests = guestItems.map((it) => {
+      const qty = clampMin1(it.quantity);
+      return api.post("/products/cart/items/", {
+        product_size_id: it.product_size_id,
+        quantity: qty,
+      });
+    });
+
+    const results = await Promise.allSettled(requests);
+    const allOk = results.every((r) => r.status === "fulfilled");
+
+    if (allOk) {
+      // We clear guest cart only after a full successful merge to prevent data loss.
+      dispatch(clearGuestCart());
+      await dispatch(fetchCart()).unwrap();
+    } else {
+      // We keep guest cart if any request fails so the user can retry without losing items.
+      console.warn("mergeGuestCart: some requests failed", results);
+      await dispatch(fetchCart()).unwrap();
+    }
+  }
+);
+
 export const addCartItem = createAsyncThunk<CartItem, { product_size_id: number }>(
   "serverCart/addItem",
   async ({ product_size_id }) => {
     const { data } = await api.post("/products/cart/items/", {
       product_size_id,
-      quantity: 1, 
+      quantity: 1,
     });
     return data as CartItem;
   }
@@ -134,7 +136,10 @@ const slice = createSlice({
   initialState,
   reducers: {
     clearServerCart(state) {
-      state.cart = state.cart ? { ...state.cart, items: [] } : state.cart;
+      // We normalize the cleared state to a stable shape (empty items array) to simplify UI rendering.
+      state.cart = state.cart ? { ...state.cart, items: [] } : { id: -1, items: [] };
+      state.error = null;
+      state.loading = false;
     },
   },
   extraReducers: (builder) => {

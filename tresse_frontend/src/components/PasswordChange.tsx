@@ -9,7 +9,9 @@ type ChangePasswordPayload = {
 };
 
 function getErrorMessage(err: unknown): string {
-  if (typeof err !== "object" || err === null) return "Something went wrong. Please try again.";
+  if (typeof err !== "object" || err === null) {
+    return "Something went wrong. Please try again.";
+  }
 
   const maybe = err as {
     response?: { data?: unknown };
@@ -18,16 +20,15 @@ function getErrorMessage(err: unknown): string {
 
   const data = maybe.response?.data;
 
-  // DRF can return {detail:"..."} or field errors {field:["..."]}
   if (typeof data === "object" && data !== null) {
     const d = data as Record<string, unknown>;
 
     if (typeof d.detail === "string") return d.detail;
 
-    const fieldOrder = ["current_password", "new_password", "confirm_password", "non_field_errors"];
-    for (const key of fieldOrder) {
+    const order = ["current_password", "new_password", "confirm_password", "non_field_errors"];
+    for (const key of order) {
       const v = d[key];
-      if (Array.isArray(v) && v.length && typeof v[0] === "string") return v[0];
+      if (Array.isArray(v) && typeof v[0] === "string") return v[0];
       if (typeof v === "string") return v;
     }
   }
@@ -83,78 +84,81 @@ export default function PasswordChange() {
   };
 
   return (
-    <section className="pw-page">
-      <div className="pw-shell">
-        <header className="pw-header">
-          <h2 className="pw-title">Change Password</h2>
-          <p className="pw-subtitle">Update your password to keep your account secure.</p>
+    <section className="password-change">
+      <div className="password-change__container">
+        <header className="password-change__header">
+          <h2 className="password-change__title">Change Password</h2>
+          <p className="password-change__subtitle">
+            Update your password to keep your account secure.
+          </p>
         </header>
 
         {error && (
-          <div className="pw-alert pw-alert--error" role="alert" aria-live="assertive">
+          <div className="password-change__alert password-change__alert--error" role="alert">
             {error}
           </div>
         )}
 
         {successMessage && (
-          <div className="pw-alert pw-alert--success" role="status" aria-live="polite">
+          <div className="password-change__alert password-change__alert--success" role="status">
             {successMessage}
           </div>
         )}
 
-        <form className="pw-form" onSubmit={handleSubmit} noValidate>
-          <div className="pw-field">
-            <label className="pw-label" htmlFor="current_password">
+        <form className="password-change__form" onSubmit={handleSubmit} noValidate>
+          <div className="password-change__field">
+            <label className="password-change__label" htmlFor="current_password">
               Current Password
             </label>
             <input
               id="current_password"
-              className="pw-input"
+              className="password-change__input"
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               autoComplete="current-password"
-              required
               disabled={submitting}
               placeholder="Enter current password"
             />
           </div>
 
-          <div className="pw-field">
-            <label className="pw-label" htmlFor="new_password">
+          <div className="password-change__field">
+            <label className="password-change__label" htmlFor="new_password">
               New Password
             </label>
             <input
               id="new_password"
-              className="pw-input"
+              className="password-change__input"
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               autoComplete="new-password"
-              required
               disabled={submitting}
               placeholder="At least 8 characters"
             />
           </div>
 
-          <div className="pw-field">
-            <label className="pw-label" htmlFor="confirm_password">
+          <div className="password-change__field">
+            <label className="password-change__label" htmlFor="confirm_password">
               Confirm New Password
             </label>
             <input
               id="confirm_password"
-              className="pw-input"
+              className="password-change__input"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
-              required
               disabled={submitting}
               placeholder="Repeat new password"
             />
           </div>
 
-          <button className="pw-button pw-button--primary" type="submit" disabled={submitting}>
+          <button
+            className="password-change__button password-change__button--primary"
+            type="submit"
+            disabled={submitting}
+          >
             {submitting ? "Saving…" : "Change Password"}
           </button>
         </form>

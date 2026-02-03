@@ -1,11 +1,5 @@
-// src/api/axiosInstance.ts
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import {
-  getAccessToken,
-  getRefreshToken,
-  setAccessToken,
-  clearTokens,
-} from "../types/token";
+import axios from "axios";
+import { getAccessToken } from "../types/token";
 
 const rawEnv =
   import.meta.env.VITE_API_URL ||

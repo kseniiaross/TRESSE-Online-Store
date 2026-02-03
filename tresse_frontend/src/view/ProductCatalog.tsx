@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
+
 import type { Product } from "../types/product";
+import type { ProductSizeInline } from "../types/product";
+
 import { Link, useLocation } from "react-router-dom";
 
 import api from "../api/axiosInstance";
@@ -14,12 +17,6 @@ import "../../styles/ProductCatalog.css";
 
 import { addToCart } from "../utils/cartSlice";
 import * as serverCart from "../store/serverCartSlice";
-
-type ProductSizeItem = {
-  id: number;
-  quantity: number;
-  size: { name: string };
-};
 
 const SESSION_EMAIL_KEY = "notify_email";
 
@@ -62,11 +59,8 @@ const compareSizes = (a: string, b: string) => {
   return normalizeSizeLabel(a).localeCompare(normalizeSizeLabel(b));
 };
 
-const getProductSizes = (p: Product): ProductSizeItem[] => {
-  const raw = (p as unknown as { sizes?: unknown }).sizes;
-  if (!Array.isArray(raw)) return [];
-  return raw as ProductSizeItem[];
-};
+/** Typed sizes getter (no casts needed). */
+const getProductSizes = (p: Product): ProductSizeInline[] => p.sizes ?? [];
 
 /** ---------------------------------------------------------
  * URL filters (category / collection / search)
@@ -327,12 +321,9 @@ export default function ProductCatalog() {
         }
 
         const items = uniqById(collected);
-
         if (!cancelled) setAllProducts(items);
 
-        if (isAuthed) {
-          dispatch(fetchWishlistCount());
-        }
+        if (isAuthed) dispatch(fetchWishlistCount());
       } catch (e) {
         console.error("products load failed:", e);
         if (!cancelled) {
@@ -528,7 +519,12 @@ export default function ProductCatalog() {
 
               <div className="catalog__actions" aria-label="Product actions">
                 {!isOut ? (
-                  <button type="button" className="catalog__addBtn" disabled={addBusy} onClick={() => void handleAddToCart(apiItem)}>
+                  <button
+                    type="button"
+                    className="catalog__addBtn"
+                    disabled={addBusy}
+                    onClick={() => void handleAddToCart(apiItem)}
+                  >
                     {addBusy ? "Adding..." : "Add to cart"}
                   </button>
                 ) : (
@@ -553,7 +549,12 @@ export default function ProductCatalog() {
           <div className="notifyModal" onClick={(e) => e.stopPropagation()}>
             <div className="notifyModal__head">
               <h3 className="notifyModal__title">Notify me</h3>
-              <button type="button" className="notifyModal__close" onClick={() => setNotifyModalProduct(null)} aria-label="Close">
+              <button
+                type="button"
+                className="notifyModal__close"
+                onClick={() => setNotifyModalProduct(null)}
+                aria-label="Close"
+              >
                 ×
               </button>
             </div>

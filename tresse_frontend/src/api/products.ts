@@ -20,7 +20,10 @@ export type FetchProductsParams = {
   max_price?: number;
 };
 
-export const fetchProducts = async (params?: FetchProductsParams, signal?: AbortSignal) => {
+export async function fetchProducts(
+  params?: FetchProductsParams,
+  signal?: AbortSignal
+): Promise<Paginated<Product>> {
   const response = await api.get<Paginated<Product>>("/products/", { params, signal });
   return response.data;
-};
+}

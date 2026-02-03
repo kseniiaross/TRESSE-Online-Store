@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import { useForm } from "react-hook-form";
@@ -16,42 +16,14 @@ const schema: Yup.ObjectSchema<FormData> = Yup.object({
     .min(8, "Password must be at least 8 characters")
     .required("Password is required"),
   confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password") as unknown as string], "Passwords do not match")
+    .oneOf([Yup.ref("password")], "Passwords do not match")
     .required("Please confirm your password"),
 }).required();
 
-
 function getErrorMessage(e: unknown): string {
-  if (e instanceof Error && e.message) return e.message;
-
-  if (typeof e === "object" && e !== null) {
-    const maybe = e as Record<string, unknown>;
-
-    // Common REST error shapes: { detail }, { message }, { error }, { errors: [...] }
-    const detail = maybe["detail"];
-    if (typeof detail === "string" && detail.trim()) return detail;
-
-    const message = maybe["message"];
-    if (typeof message === "string" && message.trim()) return message;
-
-    const error = maybe["error"];
-    if (typeof error === "string" && error.trim()) return error;
-
-    // Axios-like: error.response.data.message / error.response.data.detail
-    const response = maybe["response"];
-    if (typeof response === "object" && response !== null) {
-      const r = response as Record<string, unknown>;
-      const data = r["data"];
-      if (typeof data === "object" && data !== null) {
-        const d = data as Record<string, unknown>;
-        const dm = d["message"];
-        if (typeof dm === "string" && dm.trim()) return dm;
-        const dd = d["detail"];
-        if (typeof dd === "string" && dd.trim()) return dd;
-      }
-    }
+  if (e instanceof Error && typeof e.message === "string" && e.message.trim()) {
+    return e.message.trim();
   }
-
   return "Something went wrong. Please try again.";
 }
 
@@ -62,8 +34,17 @@ export default function AccountRestore() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Derived state: avoids duplicated checks and keeps render logic clean.
-  const missingParams = useMemo(() => !uidb64 || !token, [uidb64, token]);
+  const missingParams = !uidb64 || !token;
+
+  const timeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const {
     register,
@@ -85,7 +66,6 @@ export default function AccountRestore() {
     }
 
     try {
-      // Single responsibility: UI triggers a single API call with strict payload shape.
       const resp = await confirmAccountRestore({
         uidb64,
         token,
@@ -94,7 +74,7 @@ export default function AccountRestore() {
 
       setSuccessMsg(resp?.message || "Account restored successfully.");
 
-      window.setTimeout(() => {
+      timeoutRef.current = window.setTimeout(() => {
         navigate("/login-choice?next=%2Fdashboard", { replace: true });
       }, 600);
     } catch (e: unknown) {

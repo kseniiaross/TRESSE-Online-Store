@@ -1,10 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
+import { isSafePath } from "../utils/routing";
 import "../../styles/LoginChoice.css";
 import loginChoiceImage from "../assets/images/LoginChoice.jpg";
-
-function isSafePath(p: string | null): p is string {
-  return !!p && p.startsWith("/") && !p.startsWith("//");
-}
 
 export default function LoginChoice() {
   const location = useLocation();
@@ -19,7 +16,7 @@ export default function LoginChoice() {
       <div className="choice__layout">
         <div className="choice__left">
           <div className="choice__content">
-            <h2 className="choice__title">ENJOY THE BEST EXPERIENCE WITH WITH&nbsp;US</h2>
+            <h2 className="choice__title">ENJOY THE BEST EXPERIENCE WITH&nbsp;US</h2>
 
             <p className="choice__subtitle">
               Sign in to enjoy a personalized experience and get access to all our services.

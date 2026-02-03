@@ -17,13 +17,14 @@ import type { CartItemDto, GuestCartItem } from "../types/cart";
 
 import "../../styles/Cart.css";
 
-
+/** Safe int parsing to avoid NaN/Infinity breaking quantity logic. */
 const toSafeInt = (v: unknown, fallback = 1) => {
   const n = typeof v === "number" ? v : Number(v);
   if (!Number.isFinite(n)) return fallback;
   return Math.trunc(n);
 };
 
+/** Clamp quantity to min=1 and optionally to max stock if provided. */
 const clampQty = (q: number, maxQty?: number) => {
   const safe = Math.max(1, toSafeInt(q, 1));
   if (typeof maxQty === "number" && Number.isFinite(maxQty)) {
@@ -64,37 +65,51 @@ export default function Cart() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
- 
+  // Auth is based on access token presence (keep current app convention).
   const isAuthed = !!localStorage.getItem("access");
 
   const cart = useAppSelector((s: RootState) => s.serverCart.cart);
   const loading = useAppSelector((s: RootState) => s.serverCart.loading);
 
+  // Guest cart is stored in Redux + localStorage via cartSlice.
   const guestItems = useAppSelector(selectGuestCartItems) as GuestCartItem[];
+
+  // Server cart comes from backend.
   const serverItems = (cart?.items ?? []) as CartItemDto[];
 
   const hasGuest = guestItems.length > 0;
   const hasServer = serverItems.length > 0;
 
+  /**
+   * If user is authed:
+   * - prefer server cart when it exists,
+   * - otherwise still show guest cart until merge/fetch completes.
+   */
   const usingServer = isAuthed && (hasServer || !hasGuest);
+
   const items: Array<CartItemDto | GuestCartItem> = usingServer ? serverItems : guestItems;
 
+  // Prevent double init in React StrictMode / rerenders.
   const didInitRef = useRef(false);
 
   useEffect(() => {
     if (!isAuthed) return;
-
     if (didInitRef.current) return;
+
     didInitRef.current = true;
 
     let alive = true;
 
     (async () => {
       try {
+        // Merge guest cart only once per session after login.
         if (hasGuest) await dispatch(serverCart.mergeGuestCart());
         if (!alive) return;
+
+        // Then load server cart for stable UI.
         await dispatch(serverCart.fetchCart());
       } catch {
+        // Intentionally ignore errors here; UI will still render guest cart if needed.
       }
     })();
 
@@ -122,6 +137,7 @@ export default function Cart() {
       return;
     }
 
+    // Guest cart uses (id + product_size_id) identity.
     if (guestProductSizeId == null) return;
     dispatch(updateGuestQty({ id, product_size_id: guestProductSizeId, quantity: clamped }));
   };
@@ -138,6 +154,7 @@ export default function Cart() {
 
   const onPay = () => {
     if (!isAuthed) {
+      // Keep redirect flow to auth choice page.
       const next = encodeURIComponent("/order");
       navigate(`/login-choice?next=${next}`);
       return;

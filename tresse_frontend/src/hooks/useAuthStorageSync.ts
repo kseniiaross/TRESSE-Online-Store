@@ -1,26 +1,25 @@
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { fetchWishlistCount, setCount } from '../store/wishListSlice';
-import type { AppDispatch } from '../store';
+import { useEffect } from "react";
+import { useAppDispatch } from "../utils/hooks";
+import { fetchWishlistCount, setCount } from "../store/wishListSlice";
 
 export default function useAuthStorageSync() {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key === 'token') {
-        if (e.newValue) {
-          dispatch(fetchWishlistCount());
-        } else {
-          dispatch(setCount(0));
-        }
+      if (!e.key) return;
+
+      if (e.key === "token") {
+        e.newValue ? dispatch(fetchWishlistCount()) : dispatch(setCount(0));
+        return;
       }
-      if (e.key === 'wishlist:ping') {
+
+      if (e.key === "wishlist:ping") {
         dispatch(fetchWishlistCount());
       }
     };
 
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, [dispatch]);
 }

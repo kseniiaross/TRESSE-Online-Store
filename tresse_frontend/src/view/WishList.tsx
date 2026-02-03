@@ -8,7 +8,7 @@ import type { Product } from "../types/product";
 import ProductModal from "../components/ProductModal";
 import fallbackImg from "../assets/images/fallback_product.jpg";
 
-import { dec } from "../store/wishListSlice";
+import { fetchWishlistCount } from "../store/wishListSlice";
 import "../../styles/WishList.css";
 
 type Paginated<T> = {
@@ -17,6 +17,18 @@ type Paginated<T> = {
   previous: string | null;
   results: T[];
 };
+
+function toNumberOrEmpty(raw: string): number | "" {
+  const v = raw.trim();
+  if (v === "") return "";
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "";
+  return n;
+}
+
+function isFiniteNumber(v: number | ""): v is number {
+  return typeof v === "number" && Number.isFinite(v);
+}
 
 export default function WishList() {
   const dispatch = useDispatch<AppDispatch>();
@@ -36,7 +48,7 @@ export default function WishList() {
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
 
   const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(0);
+  const [serverTotal, setServerTotal] = useState(0);
 
   const pageSize = 12;
 
@@ -50,27 +62,33 @@ export default function WishList() {
     const ctrl = new AbortController();
     setLoading(true);
 
+    const safeMin = isFiniteNumber(minPrice) ? minPrice : undefined;
+    const safeMax = isFiniteNumber(maxPrice) ? maxPrice : undefined;
+
     api
       .get<Paginated<Product>>("/products/wishlist/", {
         params: {
           page_size: pageSize,
           ordering,
           category: categoryParam || undefined,
-          min_price: minPrice === "" ? undefined : minPrice,
-          max_price: maxPrice === "" ? undefined : maxPrice,
+          min_price: safeMin,
+          max_price: safeMax,
         },
         signal: ctrl.signal,
       })
       .then((res) => {
         setProducts(res.data.results);
-        setTotal(res.data.count);
+        setServerTotal(res.data.count);
       })
       .catch((err) => {
+        if (ctrl.signal.aborted) return;
         console.error("Wishlist fetch error:", err);
         setProducts([]);
-        setTotal(0);
+        setServerTotal(0);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!ctrl.signal.aborted) setLoading(false);
+      });
 
     return () => ctrl.abort();
   }, [ordering, categoryParam, minPrice, maxPrice]);
@@ -78,9 +96,11 @@ export default function WishList() {
   const handleRemove = async (id: number) => {
     try {
       await api.post(`/products/${id}/toggle_wishlist/`);
+
       setProducts((prev) => prev.filter((p) => p.id !== id));
-      setTotal((t) => Math.max(0, t - 1));
-      dispatch(dec());
+      setServerTotal((t) => Math.max(0, t - 1));
+
+      dispatch(fetchWishlistCount());
       localStorage.setItem("wishlist:ping", String(Date.now()));
     } catch (e) {
       console.error("Remove wishlist error:", e);
@@ -91,11 +111,14 @@ export default function WishList() {
     navigate(`/product/${productId}`);
   };
 
+  const shownCount = filtered.length;
+
   return (
     <section className="wishlist" aria-label="Wishlist">
       <div className="wishlist__top">
         <h1 className="wishlist__title">
-          MY WISHLIST {total ? `(${total})` : ""}
+          MY WISHLIST{" "}
+          {serverTotal ? `(${serverTotal}${searchTerm.trim() ? ` • showing ${shownCount}` : ""})` : ""}
         </h1>
 
         <div className="wishlist__filters" aria-label="Wishlist filters">
@@ -133,11 +156,11 @@ export default function WishList() {
               type="number"
               placeholder="Min price"
               value={minPrice}
-              onChange={(e) => {
-                const v = e.target.value;
-                setMinPrice(v === "" ? "" : Number(v));
-              }}
+              onChange={(e) => setMinPrice(toNumberOrEmpty(e.target.value))}
               className="wishlist__input wishlist__input--price"
+              inputMode="decimal"
+              min={0}
+              step="0.01"
             />
 
             <label className="srOnly" htmlFor="wishlist_max_price">
@@ -148,11 +171,11 @@ export default function WishList() {
               type="number"
               placeholder="Max price"
               value={maxPrice}
-              onChange={(e) => {
-                const v = e.target.value;
-                setMaxPrice(v === "" ? "" : Number(v));
-              }}
+              onChange={(e) => setMaxPrice(toNumberOrEmpty(e.target.value))}
               className="wishlist__input wishlist__input--price"
+              inputMode="decimal"
+              min={0}
+              step="0.01"
             />
           </div>
         </div>
@@ -172,8 +195,7 @@ export default function WishList() {
 
       <div className="wishlist__grid" role="list" aria-label="Wishlist items">
         {filtered.map((product) => {
-          const imgSrc =
-            product.main_image_url || product.images?.[0]?.image_url || fallbackImg;
+          const imgSrc = product.main_image_url || product.images?.[0]?.image_url || fallbackImg;
 
           return (
             <article key={product.id} className="wishlist__card" role="listitem">

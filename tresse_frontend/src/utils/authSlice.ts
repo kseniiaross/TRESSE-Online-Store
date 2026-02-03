@@ -1,28 +1,40 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { User } from "../types/user";
+import type { AuthState } from "../types/auth"; 
 
-type AuthState = {
-  token: string | null;
-  user: User | null;
-  isLoggedIn: boolean;
-};
+import {
+  getAccessToken,
+  setAccessToken,
+  setRefreshToken,
+  removeRefreshToken, 
+  clearAuthStorage,
+  AUTH_STORAGE_KEYS,
+} from "../types/token";
 
-const ACCESS_KEY = "access";
-const REFRESH_KEY = "refresh";
-const USER_KEY = "user";
+const isBrowser = typeof window !== "undefined" && typeof localStorage !== "undefined";
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
 }
 
+function toPositiveInt(v: unknown): number | null {
+  const n = typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN;
+  if (!Number.isFinite(n)) return null;
+  const i = Math.trunc(n);
+  return i > 0 ? i : null;
+}
+
 function normalizeUser(input: unknown): User | null {
   if (!isRecord(input)) return null;
 
-  const id = input.id;
+  const id = toPositiveInt(input.id);
   const email = input.email;
 
-  if (typeof id !== "number" || !Number.isFinite(id) || id <= 0) return null;
-  if (typeof email !== "string" || !email.includes("@")) return null;
+  if (id === null) return null;
+  if (typeof email !== "string") return null;
+
+  const safeEmail = email.trim().toLowerCase();
+  if (!safeEmail.includes("@")) return null;
 
   const first =
     typeof input.first_name === "string"
@@ -40,15 +52,21 @@ function normalizeUser(input: unknown): User | null {
 
   return {
     id,
-    email: email.trim().toLowerCase(),
+    email: safeEmail,
     first_name: first,
     last_name: last,
   };
 }
 
+/**
+ * We keep user parsing here because it's UI/Redux state related,
+ * but all token storage is delegated to token utils (single source of truth).
+ */
 function readStoredUser(): User | null {
+  if (!isBrowser) return null;
+
   try {
-    const raw = localStorage.getItem(USER_KEY);
+    const raw = localStorage.getItem(AUTH_STORAGE_KEYS.USER_KEY);
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
     return normalizeUser(parsed);
@@ -57,7 +75,16 @@ function readStoredUser(): User | null {
   }
 }
 
-const initialToken = localStorage.getItem(ACCESS_KEY);
+function writeStoredUser(user: User): void {
+  if (!isBrowser) return;
+  try {
+    localStorage.setItem(AUTH_STORAGE_KEYS.USER_KEY, JSON.stringify(user));
+  } catch {
+    // ignore storage errors (private mode / quota)
+  }
+}
+
+const initialToken = getAccessToken();
 const initialUser = readStoredUser();
 
 const initialState: AuthState = {
@@ -70,34 +97,48 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<{ token: string; user: User; refresh?: string }>) => {
+    setCredentials: (
+      state,
+      action: PayloadAction<{ token: string; user: User; refresh?: string }>
+    ) => {
       const { token, user, refresh } = action.payload;
 
       const safeUser = normalizeUser(user);
-      if (!safeUser || !token) {
+      const safeToken = typeof token === "string" ? token.trim() : "";
+      const safeRefresh = typeof refresh === "string" ? refresh.trim() : "";
+
+      // invalid payload => hard reset
+      if (!safeUser || !safeToken) {
         state.token = null;
         state.user = null;
         state.isLoggedIn = false;
 
-        localStorage.removeItem(ACCESS_KEY);
-        localStorage.removeItem(REFRESH_KEY);
-        localStorage.removeItem(USER_KEY);
+        clearAuthStorage();
         return;
       }
 
-      state.token = token;
+      // Redux state
+      state.token = safeToken;
       state.user = safeUser;
       state.isLoggedIn = true;
 
-      localStorage.setItem(ACCESS_KEY, token);
-      localStorage.setItem(USER_KEY, JSON.stringify(safeUser));
+      // Token storage (single source of truth)
+      setAccessToken(safeToken);
 
-      if (typeof refresh === "string" && refresh) {
-        localStorage.setItem(REFRESH_KEY, refresh);
+      if (safeRefresh) {
+        setRefreshToken(safeRefresh);
+      } else {
+        removeRefreshToken(); 
       }
 
-      localStorage.removeItem("token");
-      localStorage.removeItem("access_token");
+      // User storage (UI)
+      writeStoredUser(safeUser);
+
+      // Cleanup legacy keys
+      if (isBrowser) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("access_token");
+      }
     },
 
     logout: (state) => {
@@ -105,12 +146,7 @@ const authSlice = createSlice({
       state.user = null;
       state.isLoggedIn = false;
 
-      localStorage.removeItem(ACCESS_KEY);
-      localStorage.removeItem(REFRESH_KEY);
-      localStorage.removeItem(USER_KEY);
-
-      localStorage.removeItem("token");
-      localStorage.removeItem("access_token");
+      clearAuthStorage();
     },
   },
 });
