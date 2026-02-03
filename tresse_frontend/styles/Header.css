@@ -45,11 +45,6 @@
   min-width: 0;
 }
 
-.header a,
-.header button,
-.header input {
-  font: inherit;
-}
 
 .header a:focus-visible,
 .header button:focus-visible,
@@ -106,12 +101,12 @@
 .logo {
   color: var(--text-light);
   font-family: "EB Garamond", serif;
-  font-size: clamp(2rem, 5vw, 6rem);  
+  font-size: 72px;
   font-weight: 500;
   letter-spacing: 0.2em;
   text-decoration: none;
   cursor: pointer;
-  line-height: 0.9;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -191,7 +186,7 @@
 
   color: var(--text-light);
 
-  outline: revert;
+  outline: none;
 }
 
 .search-input.dark {
@@ -458,6 +453,25 @@
 
 .sidebar-menu a:focus-visible {
   outline: 2px solid rgba(0, 0, 0, 0.35);
+  outline-offset: 6px;
+  border-radius: 10px;
+}
+
+.left-section,
+.right-section {
+  position: relative;
+  z-index: 2;
+}
+
+.humburger,
+.logo {
+  position: relative;
+  z-index: 3;
+}
+
+.humburger:focus-visible,
+.logo:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
   outline-offset: 6px;
   border-radius: 10px;
 }
