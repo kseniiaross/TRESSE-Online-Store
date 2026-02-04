@@ -15,7 +15,7 @@ const SIZE_ROWS: SizeRow[] = [
 export default function SizeGuide() {
   return (
     <section className="sizeGuide">
-      <header className="sizeGuide__header">
+      <header>
         <h1 className="sizeGuide__title">Size Guide</h1>
         <p className="sizeGuide__subtitle">
           Use the guide below to measure your body and choose the best fit.
