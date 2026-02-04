@@ -513,15 +513,11 @@
   }
 
   .right-section {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
+    margin-top: 6px;
+    width: 100%;
     display: flex;
-    align-items: center;
     justify-content: center;
     gap: 10px;
-    width: max-content;
     white-space: nowrap;
   }
 
