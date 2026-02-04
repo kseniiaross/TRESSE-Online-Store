@@ -568,8 +568,8 @@
 
   .catalog__media{
     aspect-ratio:3/4;
-    flex:1 1 auto; 
-    min-height:0;
+    flex: 0 0 auto;  
+    height: auto; 
   }
 }
 
