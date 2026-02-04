@@ -24,6 +24,7 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+// Endpoints that must NOT trigger global unauthorized handling (public auth flows)
 const NO_AUTH = [
   "/token/",
   "/token/refresh/",
@@ -53,6 +54,7 @@ axiosInstance.interceptors.response.use(
   }
 );
 
+// Derives media/static root from API base URL (strip trailing /api)
 export const getMediaRoot = () => {
   const b = String(axiosInstance.defaults.baseURL || "").replace(/\/$/, "");
   return b.endsWith("/api") ? b.slice(0, -4) : b;

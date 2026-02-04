@@ -31,11 +31,10 @@ const hasToken = () => {
 };
 
 /**
- * Backend field-name compatibility:
- * Some APIs expect `product_size_id`, others expect `product_size`.
- * We attempt the first one, and on 400 retry the other.
- *
- * This avoids guessing and prevents breaking the working case.
+ * Backend compatibility shim:
+ * Some environments expect `product_size_id`, others expect `product_size`.
+ * We try `product_size_id` first and only retry on 400 (validation) with the alternate key.
+ * Purpose: keep the client resilient across backend field naming differences without branching per env.
  */
 async function postCartItem(productSizeId: number, quantity: number) {
   const qty = clampMin1(quantity);
@@ -80,15 +79,15 @@ export const mergeGuestCart = createAsyncThunk<void, void, { state: RootState }>
 
     const results = await Promise.allSettled(requests);
     const allOk = results.every((r) => r.status === "fulfilled");
-
+    // Only clear guest cart when ALL server writes succeeded (avoid silent data loss).
     if (allOk) {
       dispatch(clearGuestCart());
     } else {
       console.warn("mergeGuestCart: some requests failed", results);
     }
 
-    // NOTE: fetchCart is intentionally NOT called here.
-    // Cart.tsx calls fetchCart after merge to avoid double network requests.
+    // Intentionally NOT calling fetchCart() here.
+    // Cart screen fetches after merge to avoid duplicate requests.
   }
 );
 

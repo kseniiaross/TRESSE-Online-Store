@@ -16,11 +16,9 @@ const galleryImages = [Dashboard1, Dashboard2, Dashboard3, Dashboard4, Dashboard
 // Local storage key: Order page can read it and prefill shipping fields.
 const PROFILE_STORAGE_KEY = "tresse_profile_v1";
 
-// axiosInstance baseURL already includes "/api".
 const API_PROFILE_URL = "/accounts/profile/";
 const API_DELETE_ACCOUNT_URL = "/accounts/delete-account/";
 
-// Runtime type guard for safe JSON parsing.
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
 }
@@ -63,7 +61,6 @@ function writeProfileToStorage(profile: ProfileFormState) {
 }
 
 function buildDefaultProfile(): ProfileFormState {
-  // Pull user from localStorage (same pattern as in App.tsx).
   let email = "";
   let firstName = "";
   let lastName = "";
@@ -132,7 +129,6 @@ function isValidEmail(value: string): boolean {
   const email = value.trim();
   if (!email) return true;
 
-  // Simple, safe email check (not over-strict)
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   return EMAIL_REGEX.test(email);
 }
@@ -212,7 +208,7 @@ export default function Dashboard() {
 
         const fromApi = mapApiToForm(data);
 
-        // Merge: never overwrite user-entered local values.
+        // Merge strategy: never overwrite user-entered local values with API data.
         setForm((prev) => {
           const merged: ProfileFormState = {
             firstName: prev.firstName || fromApi.firstName,
@@ -231,7 +227,6 @@ export default function Dashboard() {
           return merged;
         });
       } catch {
-        // Silent fail: local data is still usable.
       }
     })();
 
@@ -256,7 +251,7 @@ export default function Dashboard() {
     setSaveMsg("");
     setSaveErr("");
 
-    // Persist locally first for fast UX.
+    // Save locally first for instant UX, then sync with backend.
     writeProfileToStorage(form);
 
     if (!isValidEmail(form.email)) {

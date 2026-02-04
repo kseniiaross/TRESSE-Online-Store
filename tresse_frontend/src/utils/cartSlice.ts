@@ -44,17 +44,16 @@ function loadFromLS(): GuestCartState | null {
       if (Array.isArray(rec.items)) return parsed as GuestCartState;
     }
   } catch {
-    // ignore
   }
   return null;
 }
-
+// We persist guest cart on every change to keep cart state across refreshes.
+// Guest cart is "UX source of truth" until login/merge moves it to the server cart.
 function saveToLS(state: GuestCartState) {
   if (!isBrowser) return;
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(state));
   } catch {
-    // ignore quota errors
   }
 }
 
@@ -107,7 +106,6 @@ const cartSlice = createSlice({
         const limit = resolveMaxQty(existingItem.maxQty, maxQty);
         existingItem.quantity = clampToMax(existingItem.quantity + 1, limit);
 
-        // Only set maxQty if it was previously unknown
         if (typeof existingItem.maxQty !== "number") {
           const normalizedIncoming = normalizeMax(maxQty);
           if (typeof normalizedIncoming === "number") existingItem.maxQty = normalizedIncoming;
@@ -173,7 +171,6 @@ export const { addToCart, removeFromCart, updateQuantity, clearCart, setItemMaxQ
 
 export default cartSlice.reducer;
 
-// selectors
 type HasGuestCart = { cart: GuestCartState };
 
 export const selectGuestCartItems = (state: HasGuestCart) => state.cart.items;
