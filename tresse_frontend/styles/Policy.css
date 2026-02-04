@@ -1,22 +1,34 @@
 .policy {
+  --policy-top-gap: 24px;
+  --policy-top-gap-mobile: 20px;
+
   padding-top: calc(var(--header-height) + var(--policy-top-gap));
+  padding-bottom: 60px;
   padding-left: var(--container-x);
   padding-right: var(--container-x);
-  padding-bottom: 60px;
+
   background: var(--c-white);
   color: var(--text);
+
   min-height: 100vh;
   min-height: 100svh;
 }
 
+/* --------------------------------------------------------------------------
+   Content container
+   -------------------------------------------------------------------------- */
+
 .policy__content {
   width: 100%;
   max-width: 980px;
-  margin: 0 auto;
+  margin: 0;              
   text-align: left;
 }
 
-/* Header */
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+
 .policy__header {
   margin-bottom: 1.25rem;
   padding-bottom: 0.85rem;
@@ -25,14 +37,17 @@
 
 .policy__title {
   margin: 0;
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+  line-height: 1.1;
+  font-weight: 600;
   letter-spacing: var(--track-lg);
   text-transform: uppercase;
-  font-weight: 600;
-  line-height: 1.1;
-  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
 }
 
-/* Sections */
+/* --------------------------------------------------------------------------
+   Sections
+   -------------------------------------------------------------------------- */
+
 .policy__section {
   padding: 1.25rem 0;
   border-bottom: 1px solid var(--border-soft);
@@ -45,17 +60,17 @@
 .policy__h2 {
   margin: 0 0 0.6rem 0;
   font-size: 1.02rem;
+  font-weight: 700;
   letter-spacing: var(--track-md);
   text-transform: uppercase;
-  font-weight: 700;
 }
 
 .policy__text {
   margin: 0.6rem 0;
-  line-height: 1.7;
-  color: var(--text-muted);
   font-size: 1rem;
+  line-height: 1.7;
   font-weight: 400;
+  color: var(--text-muted);
 }
 
 .policy__list {
@@ -69,34 +84,23 @@
   margin: 0.4rem 0;
 }
 
-/* Normalize any links used inside policy pages */
-.policy a {
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
+/* --------------------------------------------------------------------------
+   Links inside policy text
+   -------------------------------------------------------------------------- */
 
-.policy a:hover {
-  opacity: 0.9;
-}
-
-.policy a:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: var(--focus-offset);
-  border-radius: 6px;
-}
-
-/* Keep your class too (optional but ok) */
+.policy a,
 .policy__link {
   color: inherit;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
+.policy a:hover,
 .policy__link:hover {
   opacity: 0.9;
 }
 
+.policy a:focus-visible,
 .policy__link:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: var(--focus-offset);
@@ -104,8 +108,9 @@
 }
 
 /* --------------------------------------------------------------------------
-   Mobile / small screens
+   Mobile
    -------------------------------------------------------------------------- */
+
 @media (max-width: 560px) {
   .policy {
     padding-top: calc(var(--header-height) + var(--policy-top-gap-mobile));
@@ -118,8 +123,8 @@
   }
 
   .policy__title {
-    letter-spacing: 0.10em;
     font-size: 1.75rem;
+    letter-spacing: 0.10em;
   }
 
   .policy__section {
