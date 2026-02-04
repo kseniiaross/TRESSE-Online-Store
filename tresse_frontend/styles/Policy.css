@@ -2,11 +2,11 @@
   --policy-top-gap: 24px;
   --policy-top-gap-mobile: 20px;
 
-    padding-top: calc(var(--header-height) - 12px);
+    padding-top: calc(var(--header-height) - 40px);
 
   padding-bottom: 60px;
-  padding-left: var(--container-x);
-  padding-right: var(--container-x);
+  padding-left: clamp(14px, 2.2vw, 32px);
+  padding-right: clamp(14px, 2.2vw, 32px);
 
   background: var(--c-white);
   color: var(--text);
@@ -31,7 +31,8 @@
    -------------------------------------------------------------------------- */
 
 .policy__header {
-  margin-bottom: 0.75rem;
+  margin-top: 0;       
+  margin-bottom: 0.5rem;
   padding-bottom: 0.6rem;
   border-bottom: 1px solid var(--border);
 }
@@ -114,7 +115,7 @@
 
 @media (max-width: 560px) {
   .policy {
-    padding-top: calc(var(--header-height) + var(--policy-top-gap-mobile));
+    padding-top: calc(var(--header-height) - 48px);
     padding-bottom: 44px;
   }
 
