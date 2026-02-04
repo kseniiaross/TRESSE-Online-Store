@@ -4,13 +4,16 @@
   max-width:1760px;
   margin:0 auto;
 
-  padding-top:calc(var(--header-height) - 24px);
+  padding-top:calc(var(
+    --header-height) - 48px);
   padding-bottom:84px;
 
   padding-left:clamp(2px, .5vw, 10px);
   padding-right:clamp(2px, .5vw, 10px);
   --catalog-top-ui: 150px;
-  --card-h: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
+  --card-h: calc(100dvh - var(
+    --header-height) - var(
+      --catalog-top-ui));
 
   --border: #e6e6e6;
   --border-hover: #cfcfcf;
@@ -27,7 +30,7 @@
   display:flex;
   align-items:center;
   gap:18px;
-  padding:10px 0 22px;
+  padding:6px 0 14px;
   margin:0;
 }
 
@@ -88,7 +91,7 @@
   display:grid;
   grid-template-columns:repeat(4, minmax(0, 1fr));
   gap:var(--gap);
-  padding:22px 0 0;
+  padding:14px 0 0;
   margin:0;
   align-items:start;
 }
