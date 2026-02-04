@@ -22,7 +22,6 @@ pillow==10.4.0
 # Payments
 stripe==14.1.0
 
-# HTTP (если реально используешь requests в коде)
 requests==2.32.3
 urllib3==2.2.3
 certifi==2026.1.4
@@ -33,7 +32,6 @@ idna==3.10
 asgiref==3.11.0
 sqlparse==0.5.1
 
-# Typing (если нужно)
 typing_extensions==4.15.0
 
 whitenoise==6.11.0

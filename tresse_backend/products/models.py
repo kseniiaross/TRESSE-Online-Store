@@ -59,9 +59,7 @@ class StockSubscription(models.Model):
 
 
 class Category(models.Model):
-    """
-    БАЗОВЫЕ разделы: WOMAN / MAN / KIDS
-    """
+   
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=64, unique=True)
 
@@ -75,10 +73,7 @@ class Category(models.Model):
 
 
 class Collection(models.Model):
-    """
-    Витрины/лейблы: THE NEW / BESTSELLERS / EXCLUSIVES и т.п.
-    (many-to-many с Product)
-    """
+
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=64, unique=True)
 
