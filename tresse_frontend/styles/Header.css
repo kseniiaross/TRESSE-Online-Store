@@ -481,7 +481,7 @@
   }
 
   .left-section {
-    position: static;           
+    position: absolute;
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
