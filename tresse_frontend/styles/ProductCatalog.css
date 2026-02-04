@@ -594,7 +594,7 @@
   .catalog{
     padding-left:14px;
     padding-right:14px;
-    --catalog-top-ui: 210px;
+    --catalog-top-ui: 240px;
   }
 
   .catalog__grid{
@@ -603,15 +603,17 @@
   }
 
   .catalog__card{
-    height:auto;
+    height: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
     min-height:0;
     max-height:none;
   }
 
   .catalog__media{
+    height: 100%;
     aspect-ratio:3/4;
     flex:1 1 auto;
     min-height:0;
+    aspect-ratio: auto;
   }
 
   .catalog__wishlist-btn{
