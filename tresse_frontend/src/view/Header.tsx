@@ -211,7 +211,7 @@ const Header: React.FC = () => {
             type="button"
             className="search-icon-btn"
             aria-label="Search products"
-            onClick={() => navigate("/catalog")}
+            onClick={() => navigate("/catalog?category=woman&focusSearch=1")}
           >
             <img src={searchIcon} alt="" className="search-icon" />
           </button>

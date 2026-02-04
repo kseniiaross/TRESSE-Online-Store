@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 
@@ -19,6 +19,7 @@ import { addToCart } from "../utils/cartSlice";
 import * as serverCart from "../store/serverCartSlice";
 
 const SESSION_EMAIL_KEY = "notify_email";
+
 
 /** Email helpers */
 const isValidEmail = (email: string) =>
@@ -259,6 +260,17 @@ const compareProducts = (a: Product, b: Product, ordering: OrderingKey): number 
 export default function ProductCatalog() {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  
+  useEffect(() => {
+  const sp = new URLSearchParams(location.search);
+  const shouldFocus = sp.get("focusSearch") === "1";
+  if (!shouldFocus) return;
+
+  window.setTimeout(() => {
+    searchInputRef.current?.focus();
+  }, 0);
+}, [location.search]);
 
   const isAuthed = !!getAccessToken();
   const { category, collection, search: urlSearch } = useMemo(() => readFilters(location), [location.search]);
@@ -423,6 +435,7 @@ export default function ProductCatalog() {
         </label>
 
         <input
+          ref={searchInputRef}
           id="catalog_search"
           className="catalogFilters__input"
           placeholder="Search in catalog..."
