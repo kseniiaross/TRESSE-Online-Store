@@ -5,6 +5,18 @@ from .models import Product, ProductSize
 
 
 class ProductFilter(filters.FilterSet):
+    """
+    Filters for Product list endpoint.
+
+    Supported query params:
+    - category (slug or aliases: women/woman, men/man, kids)
+    - available (boolean)
+    - in_stock (boolean)
+    - min_price
+    - max_price
+    - collection (collection slug)
+    """
+
     category = filters.CharFilter(method="filter_category")
     available = filters.BooleanFilter(field_name="available")
     in_stock = filters.BooleanFilter(method="filter_in_stock")
@@ -14,13 +26,29 @@ class ProductFilter(filters.FilterSet):
 
     class Meta:
         model = Product
-        fields = ["category", "available", "in_stock", "min_price", "max_price", "collection"]
+        fields = [
+            "category",
+            "available",
+            "in_stock",
+            "min_price",
+            "max_price",
+            "collection",
+        ]
 
-    def filter_category(self, qs, name, value):
+    def filter_category(self, queryset, name, value):
+        """
+        Accepts category as slug or common aliases.
+
+        Examples:
+        - woman / women / womens -> woman
+        - man / men / mens       -> man
+        - kid / kids             -> kids
+        """
         if not value:
-            return qs
+            return queryset
 
-        v = value.strip().lower()
+        v = str(value).strip().lower()
+
         aliases = {
             "women": "woman",
             "womens": "woman",
@@ -31,10 +59,25 @@ class ProductFilter(filters.FilterSet):
             "kid": "kids",
             "kids": "kids",
         }
-        return qs.filter(category__slug__iexact=aliases.get(v, v))
 
-    def filter_in_stock(self, qs, name, value):
+        slug = aliases.get(v, v)
+        return queryset.filter(category__slug__iexact=slug)
+
+    def filter_in_stock(self, queryset, name, value):
+        """
+        in_stock=true  -> products that have at least one ProductSize with quantity > 0
+        in_stock=false -> products that have NO sizes in stock
+        """
         if value is None:
-            return qs
+            return queryset
 
-        return qs.filter(_in_stock=value)
+        stock_subquery = ProductSize.objects.filter(
+            product_id=OuterRef("pk"),
+            quantity__gt=0,
+        )
+
+        queryset = queryset.annotate(
+            _has_stock=Exists(stock_subquery)
+        )
+
+        return queryset.filter(_has_stock=value)
