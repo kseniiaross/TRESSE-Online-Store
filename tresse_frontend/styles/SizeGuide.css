@@ -5,7 +5,7 @@
 .sizeGuide{
   width: 100%;
   box-sizing: border-box;
-  padding-top: calc(var(--header-height) + 8px);
+  padding-top: calc(var(--header-height) - 40px);
   min-height: calc(100dvh - var(--header-height));
   padding-bottom: clamp(28px, 4vh, 72px);
   max-width: 980px;
