@@ -596,7 +596,7 @@
   .catalog{
     padding-left:14px;
     padding-right:14px;
-    --catalog-top-ui: 240px;
+    --catalog-top-ui: 320px;
   }
 
   .catalog__grid{
