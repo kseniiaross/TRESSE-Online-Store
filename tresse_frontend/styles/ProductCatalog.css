@@ -606,16 +606,16 @@
   }
 
   .catalog__card{
-    height: calc(100dvh - var(--header-height) - var(--catalog-top-ui));
-    min-height:0;
-    max-height:none;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    padding-bottom: 14px;
   }
 
   .catalog__media{
-    height: 100%;
-    aspect-ratio:unset;;
-    flex:1 1 auto;
-    min-height:0;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    flex: 0 0 auto;
   }
 
   .catalog__wishlist-btn{
