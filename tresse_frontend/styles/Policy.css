@@ -115,7 +115,7 @@
 
 @media (max-width: 560px) {
   .policy {
-    padding-top: calc(var(--header-height) - 48px);
+    padding-top: calc(var(--header-height) + 20px);
     padding-bottom: 44px;
   }
 
