@@ -10,7 +10,7 @@
 
   padding-left:clamp(2px, .5vw, 10px);
   padding-right:clamp(2px, .5vw, 10px);
-  --catalog-top-ui: 160px;
+  --catalog-top-ui: 150px;
   --card-h: calc(100dvh - var(
     --header-height) - var(
       --catalog-top-ui));
@@ -597,7 +597,7 @@
     padding-top: calc(var(--header-height) + 24px);
     padding-left:14px;
     padding-right:14px;
-    --catalog-top-ui: 320px;
+    --catalog-top-ui: 240px;
   }
 
   .catalog__grid{
