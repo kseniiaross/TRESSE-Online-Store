@@ -610,10 +610,9 @@
 
   .catalog__media{
     height: 100%;
-    aspect-ratio:3/4;
+    aspect-ratio:unset;;
     flex:1 1 auto;
     min-height:0;
-    aspect-ratio: auto;
   }
 
   .catalog__wishlist-btn{
