@@ -254,14 +254,14 @@ const compareProducts = (a: Product, b: Product, ordering: OrderingKey): number 
   if (ordering === "-price") return getPriceNumber(b) - getPriceNumber(a);
   if (ordering === "name") return getNameString(a).localeCompare(getNameString(b));
   if (ordering === "-name") return getNameString(b).localeCompare(getNameString(a));
-  return getCreatedAtMs(b) - getCreatedAtMs(a); // newest first
+  return getCreatedAtMs(b) - getCreatedAtMs(a); 
 };
 
 export default function ProductCatalog() {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const searchInputRef = useRef<HTMLInputElement | null>(null);
-  
+
   useEffect(() => {
   const sp = new URLSearchParams(location.search);
   const shouldFocus = sp.get("focusSearch") === "1";
