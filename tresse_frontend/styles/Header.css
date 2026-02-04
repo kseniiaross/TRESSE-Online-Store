@@ -467,47 +467,44 @@
 }
 
 /* ================= Mobile ================= */
-
 @media (max-width: 768px) {
+
   .header {
-    --header-pad-x: 1rem;
-    --header-pad-y: 0.75rem;
-
     position: fixed;
-    position: relative;
     padding: 12px 14px;
-    flex-direction: column;
+    display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 6px;
-
+    justify-content: center;
+    height: auto;
   }
 
   .left-section {
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: auto;
+    gap: 0;
   }
 
   .header .logo {
-    font-size: 48px;  
+    position: relative;
+    font-size: 48px;
     line-height: 1;
+    z-index: 2;
   }
 
   .right-section {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 6px);
     left: 50%;
     transform: translateX(-50%);
-
-    width: max-content;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-
-    margin-top: 6px;
+    width: max-content;
+    white-space: nowrap;
   }
 
   .login-button,
@@ -516,13 +513,6 @@
   .user-menu__btn {
     font-size: 0.75rem;
     letter-spacing: 0.06em;
-    white-space: nowrap;
-  }
-
-  .shopping-bag {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   .search-icon {
