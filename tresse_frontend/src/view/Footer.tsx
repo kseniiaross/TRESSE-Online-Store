@@ -4,13 +4,11 @@ import "../../styles/Footer.css";
 
 import { subscribeNewsletter, isValidEmail } from "../utils/newsletter";
 
-// Top strip icons (decorative)
 import worldwideDeliveryIcon from "../assets/icons/footer/worldwide_delivery.png";
 import fastDeliveryIcon from "../assets/icons/footer/fast_delivery.png";
 import customerSupportIcon from "../assets/icons/footer/customer_support.png";
 import securePaymentIcon from "../assets/icons/footer/secure_payment.png";
 
-// Social icons (decorative images, links have accessible names)
 import instagramIcon from "../assets/icons/footer/social_media/instagram_icon.png";
 import pinterestIcon from "../assets/icons/footer/social_media/pinterest_icon.png";
 import tiktokIcon from "../assets/icons/footer/social_media/tiktok_icon.png";
@@ -23,7 +21,12 @@ export default function Footer() {
   const [msg, setMsg] = useState<string | null>(null);
   const [status, setStatus] = useState<NewsletterStatus>("idle");
   const [busy, setBusy] = useState(false);
+
   const isInvalid = useMemo(() => status === "error" && Boolean(msg), [status, msg]);
+
+  // Stable ids for accessibility (avoid "aria-describedby points to nothing")
+  const hintId = "footer-newsletter-hint";
+  const msgId = "footer-newsletter-msg";
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,7 +48,7 @@ export default function Footer() {
       setEmail("");
       setStatus("success");
       setMsg("Subscribed. Welcome to TRESSE.");
-    } catch (err) {
+    } catch (err: unknown) {
       const text = err instanceof Error ? err.message : "Subscription failed. Please try again.";
       setStatus("error");
       setMsg(text);
@@ -216,9 +219,10 @@ export default function Footer() {
               inputMode="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              aria-describedby={msg ? "footer-newsletter-msg" : undefined}
+              aria-describedby={msg ? `${hintId} ${msgId}` : hintId}
               aria-invalid={isInvalid ? true : undefined}
               required
+              disabled={busy}
             />
 
             <button className="footer__button" type="submit" disabled={busy} aria-busy={busy}>
@@ -226,11 +230,16 @@ export default function Footer() {
             </button>
           </form>
 
+          <p id={hintId} className="srOnly">
+            Enter your email address to subscribe to the newsletter.
+          </p>
+
           {msg ? (
             <p
-              id="footer-newsletter-msg"
-              className={`footer__legal ${status === "error" ? "footer__legal--error" : ""}`}
-              aria-live="polite"
+              id={msgId}
+              className={`footer__legal ${status === "error" ? "footer__legal--error" : "footer__legal--success"}`}
+              role={status === "error" ? "alert" : "status"}
+              aria-live={status === "error" ? "assertive" : "polite"}
             >
               {msg}
             </p>

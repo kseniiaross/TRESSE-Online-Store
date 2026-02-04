@@ -1,7 +1,10 @@
 .about {
   max-width: 1200px;
   margin: 0 auto;
+
+  min-height: calc(100vh - var(--header-height));
   min-height: calc(100dvh - var(--header-height));
+
   padding: 56px 24px 160px;
   color: #111;
   background: #fff;
@@ -15,8 +18,8 @@
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #666;
-  margin-bottom: 16px;
+  color: #555;
+  margin: 0 0 16px;
 }
 
 .about__title {
@@ -35,7 +38,7 @@
 }
 
 .about__content p {
-  margin-bottom: 24px;
+  margin: 0 0 24px;
 }
 
 .about__signature {
