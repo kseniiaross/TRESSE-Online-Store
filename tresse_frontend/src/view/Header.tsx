@@ -183,6 +183,7 @@ const Header: React.FC = () => {
 
   return (
     <header className="header">
+     
       <div className="left-section">
         <button
           type="button"
@@ -198,12 +199,12 @@ const Header: React.FC = () => {
           <span className={`bar middle ${isDarkText ? "dark" : ""}`} />
           <span className={`bar bottom ${isDarkText ? "dark" : ""}`} />
         </button>
-        <div className="logo-wrap">
-          <Link to="/" className={`logo ${isDarkText ? "dark" : ""}`} aria-label="Go to homepage">
-            T R E S S E
-          </Link>
-        </div>
+      <div className="logo-wrap">
+        <Link to="/" className={`logo ${isDarkText ? "dark" : ""}`} aria-label="Go to homepage">
+          T R E S S E
+        </Link>
       </div>
+    </div>
 
       <div className="right-section">
         {/* SEARCH */}
