@@ -1,13 +1,7 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import (
-    ProductViewSet,
-    CartAPIView,
-    CartItemAPIView,
-    WishlistViewSet,
-    ReviewListCreateAPIView,
-)
+from .views import CartAPIView, CartItemAPIView, ProductViewSet, WishlistViewSet
 
 router = DefaultRouter()
 router.register(r"wishlist", WishlistViewSet, basename="wishlist")
@@ -17,7 +11,5 @@ urlpatterns = [
     path("cart/", CartAPIView.as_view(), name="user-cart"),
     path("cart/items/", CartItemAPIView.as_view(), name="cart-items"),
     path("cart/items/<int:item_id>/", CartItemAPIView.as_view(), name="cart-item"),
-    path("<int:product_id>/reviews/", ReviewListCreateAPIView.as_view(), name="product-reviews"),
-
     path("", include(router.urls)),
 ]
