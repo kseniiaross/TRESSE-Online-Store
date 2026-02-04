@@ -482,7 +482,7 @@
 
   .left-section {
     position: absolute;
-    left: 12px;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
     width: auto;
