@@ -29,7 +29,6 @@ from .serializers import (
     CartItemSerializer,
     CartSerializer,
     ProductSerializer,
-    ReviewSerializer,
 )
 from .throttles import StockSubscribeAnonThrottle, StockSubscribeUserThrottle
 

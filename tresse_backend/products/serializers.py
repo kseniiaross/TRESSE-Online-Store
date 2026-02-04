@@ -13,7 +13,6 @@ from .models import (
     ProductImage,
     ProductSize,
     ProductWishlist,
-    Review,
     Size,
 )
 
