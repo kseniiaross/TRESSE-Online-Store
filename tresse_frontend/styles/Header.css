@@ -484,44 +484,42 @@
 
 /* ================= Mobile ================= */
 @media (max-width: 768px) {
-
   .header {
-    position: fixed;
-    padding: 12px 14px;
-    display: flex;
-    flex-direction: column;  
-    align-items: flex-start; 
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    grid-template-rows: auto auto;
     align-items: center;
-    justify-content: center;
+    padding: 12px 14px;
     height: auto;
   }
 
   .left-section {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: auto;
-    gap: 14px;
+    position: static;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+  }
+
+  .logo-wrap {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: center;
   }
 
   .header .logo {
-    position: relative;
     font-size: 48px;
     line-height: 1;
-    z-index: 2;
   }
 
   .right-section {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
+    position: static;
+    grid-column: 1 / -1;
+    grid-row: 2;
 
     display: flex;
     justify-content: center;
-
-    pointer-events: auto;
+    gap: 10px;
+    white-space: nowrap;
   }
 
   .login-button,
