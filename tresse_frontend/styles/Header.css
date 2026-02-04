@@ -526,6 +526,22 @@
     width: 44px;
   }
 
+  .user-menu-wrap {
+    position: relative;
+  }
+
+  .user-menu {
+    left: 50%;
+    right: auto;                 
+    transform: translateX(-50%);
+    top: calc(100% + 10px);
+
+    width: min(92vw, 320px);     
+    max-width: 92vw;
+
+    z-index: 12000;
+  }
+
   .bar.top { width: 44px; }
   .bar.middle { width: 34px; }
   .bar.bottom { width: 26px; }
