@@ -551,6 +551,7 @@
     padding-left:clamp(8px, 1.2vw, 18px);
     padding-right:clamp(8px, 1.2vw, 18px);
     --catalog-top-ui: 180px;
+    overflow: hidden;
   }
 
   .catalog__grid{
@@ -562,6 +563,7 @@
     height:auto;
     min-height:0;
     max-height:none;
+    padding-bottom: 14px;
   }
 
   .catalog__media{
