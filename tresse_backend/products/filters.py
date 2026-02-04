@@ -17,41 +17,24 @@ class ProductFilter(filters.FilterSet):
         fields = ["category", "available", "in_stock", "min_price", "max_price", "collection"]
 
     def filter_category(self, qs, name, value):
-        """
-        Accepts category as slug or common aliases.
-        Example: woman / women / womens -> woman
-                 man / men / mens       -> man
-        """
         if not value:
             return qs
 
-        v = str(value).strip().lower()
-
+        v = value.strip().lower()
         aliases = {
             "women": "woman",
             "womens": "woman",
             "woman": "woman",
-
             "men": "man",
             "mens": "man",
             "man": "man",
-
             "kid": "kids",
             "kids": "kids",
         }
+        return qs.filter(category__slug__iexact=aliases.get(v, v))
 
-        v = aliases.get(v, v)
-        return qs.filter(category__slug__iexact=v)
-
-    def filter_in_stock(self, queryset, name, value):
-        """
-        in_stock=true  -> products that have at least one ProductSize with quantity > 0
-        in_stock=false -> products that have no sizes in stock
-        """
+    def filter_in_stock(self, qs, name, value):
         if value is None:
-            return queryset
+            return qs
 
-        subq = ProductSize.objects.filter(product_id=OuterRef("pk"), quantity__gt=0)
-        queryset = queryset.annotate(_has_stock=Exists(subq))
-
-        return queryset.filter(_has_stock=True) if value else queryset.filter(_has_stock=False)
+        return qs.filter(_in_stock=value)
