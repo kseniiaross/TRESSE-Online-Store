@@ -2,16 +2,16 @@ import "../../../styles/Policy.css";
 
 export default function ShippingPolicy() {
   return (
-    <section className="policy" aria-labelledby="policyTitle">
+    <section className="policy" aria-labelledby="shippingTitle">
       <div className="policy__content">
         <header className="policy__header">
-          <h1 id="policyTitle" className="policy__title">
+          <h1 id="shippingTitle" className="policy__title">
             Shipping Policy
           </h1>
         </header>
 
-        <section className="policy__section" aria-labelledby="worldwide">
-          <h2 id="worldwide" className="policy__h2">
+        <section className="policy__section" aria-labelledby="shippingWorldwide">
+          <h2 id="shippingWorldwide" className="policy__h2">
             Worldwide shipping
           </h2>
           <p className="policy__text">
@@ -20,8 +20,8 @@ export default function ShippingPolicy() {
           </p>
         </section>
 
-        <section className="policy__section" aria-labelledby="production">
-          <h2 id="production" className="policy__h2">
+        <section className="policy__section" aria-labelledby="shippingProduction">
+          <h2 id="shippingProduction" className="policy__h2">
             Production time
           </h2>
           <p className="policy__text">
@@ -30,8 +30,8 @@ export default function ShippingPolicy() {
           </p>
         </section>
 
-        <section className="policy__section" aria-labelledby="tracking">
-          <h2 id="tracking" className="policy__h2">
+        <section className="policy__section" aria-labelledby="shippingTracking">
+          <h2 id="shippingTracking" className="policy__h2">
             Tracking
           </h2>
           <p className="policy__text">
@@ -40,8 +40,8 @@ export default function ShippingPolicy() {
           </p>
         </section>
 
-        <section className="policy__section" aria-labelledby="customs">
-          <h2 id="customs" className="policy__h2">
+        <section className="policy__section" aria-labelledby="shippingCustoms">
+          <h2 id="shippingCustoms" className="policy__h2">
             Customs &amp; import fees
           </h2>
           <p className="policy__text">
@@ -50,8 +50,8 @@ export default function ShippingPolicy() {
           </p>
         </section>
 
-        <section className="policy__section" aria-labelledby="address">
-          <h2 id="address" className="policy__h2">
+        <section className="policy__section" aria-labelledby="shippingAddress">
+          <h2 id="shippingAddress" className="policy__h2">
             Address responsibility
           </h2>
           <p className="policy__text">

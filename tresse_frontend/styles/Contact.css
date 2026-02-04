@@ -1,14 +1,14 @@
 .contact {
   max-width: 1200px;
   margin: 0 auto;
-  min-height: calc(100dvh - var(--header-height));
+  min-height: calc(100svh - var(--header-height));
   padding: 48px var(--container-x) 96px;
   background: var(--c-white);
   color: var(--text);
 }
 
 .contact__hero {
-  margin-bottom: 80px;
+  margin-bottom: 72px;
 }
 
 .contact__kicker {
@@ -48,7 +48,7 @@
   letter-spacing: var(--track-lg);
   text-transform: uppercase;
   color: var(--text-muted);
-  margin: 0 0 8px;
+  margin-bottom: 8px;
 }
 
 .contact__link {
@@ -68,4 +68,25 @@
   outline: 2px solid var(--focus-ring);
   outline-offset: var(--focus-offset);
   border-bottom-color: transparent;
+  border-radius: 4px;
+}
+
+/* ---------------- Mobile ---------------- */
+
+@media (max-width: 560px) {
+  .contact {
+    padding: 40px var(--container-x) 72px;
+  }
+
+  .contact__hero {
+    margin-bottom: 56px;
+  }
+
+  .contact__title {
+    font-size: 34px;
+  }
+
+  .contact__content {
+    font-size: 15.5px;
+  }
 }

@@ -2,16 +2,16 @@ import "../../../styles/Policy.css";
 
 export default function AccessibilityStatement() {
   return (
-    <section className="policy" aria-labelledby="policyTitle">
+    <section className="policy" aria-labelledby="accessibilityTitle">
       <div className="policy__content">
         <header className="policy__header">
-          <h1 id="policyTitle" className="policy__title">
+          <h1 id="accessibilityTitle" className="policy__title">
             Accessibility Statement
           </h1>
         </header>
 
-        <section className="policy__section" aria-labelledby="commitment">
-          <h2 id="commitment" className="policy__h2">
+        <section className="policy__section" aria-labelledby="accessibilityCommitment">
+          <h2 id="accessibilityCommitment" className="policy__h2">
             Our commitment
           </h2>
           <p className="policy__text">
@@ -24,8 +24,8 @@ export default function AccessibilityStatement() {
           </p>
         </section>
 
-        <section className="policy__section" aria-labelledby="features">
-          <h2 id="features" className="policy__h2">
+        <section className="policy__section" aria-labelledby="accessibilityFeatures">
+          <h2 id="accessibilityFeatures" className="policy__h2">
             Accessibility features
           </h2>
 
@@ -38,8 +38,8 @@ export default function AccessibilityStatement() {
           </ul>
         </section>
 
-        <section className="policy__section" aria-labelledby="feedback">
-          <h2 id="feedback" className="policy__h2">
+        <section className="policy__section" aria-labelledby="accessibilityFeedback">
+          <h2 id="accessibilityFeedback" className="policy__h2">
             Feedback
           </h2>
           <p className="policy__text">
@@ -53,8 +53,6 @@ export default function AccessibilityStatement() {
             </a>
           </p>
         </section>
-
-        <div className="policy__footerSpacer" aria-hidden="true" />
       </div>
     </section>
   );

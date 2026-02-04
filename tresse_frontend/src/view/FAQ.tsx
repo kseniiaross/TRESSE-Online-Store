@@ -181,44 +181,72 @@ export default function FAQ() {
   }, [items]);
 
   const [activeCategory, setActiveCategory] = useState<FAQItem["category"]>("Shipping");
-  const [openId, setOpenId] = useState<string | null>(items.find((i) => i.category === "Shipping")?.id ?? null);
-  const visible = useMemo(() => items.filter((i) => i.category === activeCategory), [items, activeCategory]);
+
+  const initialOpenId = useMemo(() => {
+    return items.find((i) => i.category === activeCategory)?.id ?? null;
+  }, [items, activeCategory]);
+
+  const [openId, setOpenId] = useState<string | null>(
+    items.find((i) => i.category === "Shipping")?.id ?? null
+  );
+
+  const visible = useMemo(
+    () => items.filter((i) => i.category === activeCategory),
+    [items, activeCategory]
+  );
+
+  // IDs for tab accessibility
+  const tabListLabel = "FAQ categories";
+  const tabPanelId = `faq-panel-${activeCategory.toLowerCase()}`;
 
   return (
     <main className="faq" aria-label="FAQ page">
-        <header className="faq__header">
-          <h1 className="faq__title">FAQ</h1>
-          <p className="faq__subtitle">
+      <header className="faq__header">
+        <h1 className="faq__title">FAQ</h1>
+        <p className="faq__subtitle">
           Quick answers to the most common questions about orders, delivery, returns, and care.
         </p>
       </header>
 
       <section className="faq__layout">
-        <aside className="faq__sidebar" aria-label="FAQ categories">
-          <ul className="faq__categories" role="list">
+        {/* Categories as tabs (a11y-friendly, still same UI) */}
+        <aside className="faq__sidebar" aria-label={tabListLabel}>
+          <div className="faq__categories" role="tablist" aria-label={tabListLabel}>
             {categories.map((c) => {
               const isActive = c === activeCategory;
+              const tabId = `faq-tab-${c.toLowerCase()}`;
+
               return (
-                <li key={c} className="faq__categoryItem">
-                  <button
-                    type="button"
-                    className={`faq__categoryBtn ${isActive ? "is-active" : ""}`}
-                    onClick={() => {
-                      setActiveCategory(c);
-                      const first = items.find((i) => i.category === c)?.id ?? null;
-                      setOpenId(first);
-                    }}
-                    aria-current={isActive ? "page" : undefined}
-                  >
-                    {c}
-                  </button>
-                </li>
+                <button
+                  key={c}
+                  id={tabId}
+                  type="button"
+                  role="tab"
+                  className={`faq__categoryBtn ${isActive ? "is-active" : ""}`}
+                  aria-selected={isActive}
+                  aria-controls={tabPanelId}
+                  tabIndex={isActive ? 0 : -1}
+                  onClick={() => {
+                    setActiveCategory(c);
+
+                    const first = items.find((i) => i.category === c)?.id ?? null;
+                    setOpenId(first);
+                  }}
+                >
+                  {c}
+                </button>
               );
             })}
-          </ul>
+          </div>
         </aside>
 
-        <section className="faq__content" aria-label={`${activeCategory} questions`}>
+        {/* Tab panel */}
+        <section
+          className="faq__content"
+          role="tabpanel"
+          id={tabPanelId}
+          aria-label={`${activeCategory} questions`}
+        >
           <div className="faq__list">
             {visible.map((item) => {
               const open = openId === item.id;
@@ -244,12 +272,7 @@ export default function FAQ() {
                     role="region"
                     aria-labelledby={btnId}
                     className="faq__answerWrap"
-                    style={{
-                      maxHeight: open ? 240 : 0,
-                      opacity: open ? 1 : 0,
-                      transition: "max-height 200ms ease, opacity 160ms ease",
-                      overflow: "hidden",
-                    }}
+                    hidden={!open}
                   >
                     <div className="faq__answer">{item.answer}</div>
                   </div>

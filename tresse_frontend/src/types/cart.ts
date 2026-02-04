@@ -1,7 +1,7 @@
 export interface CartProductMini {
   id: number;
   name: string;
-  price: string;
+  price: string; // backend gives string, we parse safely in UI
   main_image_url: string | null;
 }
 
@@ -14,14 +14,13 @@ export interface CartProductSize {
   id: number;
   product: CartProductMini;
   size: CartSizeRef;
-  quantity: number;
+  quantity: number; // stock available for this size
 }
 
 export interface CartItemDto {
   id: number;
   product_size: CartProductSize;
-  product_size_id?: number; 
-  quantity: number; 
+  quantity: number;
 }
 
 export interface CartDto {
@@ -31,18 +30,26 @@ export interface CartDto {
   items: CartItemDto[];
 }
 
+/**
+ * Guest cart item shape stored in localStorage.
+ * IMPORTANT: keep it compatible with what cartSlice actually stores.
+ * We support both { image_url } and legacy { image } for safety.
+ */
 export type GuestCartItem = {
-  id: number;
+  id: number;                 // product id
+  product_size_id: number;    // selected size variant id
   quantity: number;
 
-  product_id?: number;
-  product_size_id: number;
-  size_label?: string;
-
-  maxQty?: number;
   name: string;
   price: string | number;
 
+  sizeName?: string;          // UI label, optional
+  maxQty?: number;            // stock cap, optional
+
   main_image_url?: string | null;
-  images?: { image: string }[];
+
+  images?: Array<{
+    image_url?: string;
+    image?: string; // legacy
+  }>;
 };

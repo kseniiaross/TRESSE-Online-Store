@@ -2,10 +2,10 @@ import "../../styles/About.css";
 
 export default function About() {
   return (
-    <main className="about" role="main" aria-label="About Tresse">
+    <main className="about" aria-labelledby="aboutTitle">
       <section className="about__hero">
         <p className="about__kicker">ABOUT TRESSE</p>
-        <h1 className="about__title">
+        <h1 id="aboutTitle" className="about__title">
           MADE BY HAND.
           <br />
           BUILT WITH TIME.
@@ -37,9 +37,7 @@ export default function About() {
           stitch to the final detail.
         </p>
 
-        <p className="about__signature">
-          TRESSE
-        </p>
+        <p className="about__signature">TRESSE</p>
       </section>
     </main>
   );

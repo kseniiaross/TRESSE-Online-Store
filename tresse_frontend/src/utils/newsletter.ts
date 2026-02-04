@@ -47,8 +47,13 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((v) => typeof v === "string");
 }
 
+
 export function isValidEmail(value: string): boolean {
   const email = value.trim();
+
+  if (email.length < 3 || email.length > 254) return false;
+
+  // simple, production-acceptable regex
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
@@ -73,9 +78,11 @@ function isCooldownPassed(key: string, cooldownDays: number): boolean {
 export function canShowNewsletterModal(isLoggedIn: boolean): boolean {
   if (isLoggedIn) return false;
 
+  // if recently subscribed, do not show for a long time
   const subscribedOk = isCooldownPassed(SUBSCRIBED_KEY, SUBSCRIBED_COOLDOWN_DAYS);
   if (!subscribedOk) return false;
 
+  // respect dismiss cooldown
   return isCooldownPassed(DISMISS_KEY, DISMISS_COOLDOWN_DAYS);
 }
 

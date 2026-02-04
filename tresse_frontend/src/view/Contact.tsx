@@ -4,10 +4,10 @@ const SUPPORT_EMAIL = "support@tresseknitting.com";
 
 export default function Contact() {
   return (
-    <main className="contact" role="main" aria-label="Contact Tresse">
+    <main className="contact" aria-labelledby="contactTitle">
       <section className="contact__hero">
         <p className="contact__kicker">CONTACT</p>
-        <h1 className="contact__title">
+        <h1 id="contactTitle" className="contact__title">
           WE’RE HERE TO HELP
         </h1>
       </section>
@@ -19,8 +19,8 @@ export default function Contact() {
         </p>
 
         <p>
-          We personally review every message and usually respond within
-          <strong> 24 hours</strong>.
+          We personally review every message and usually respond within{" "}
+          <strong>24 hours</strong>.
         </p>
 
         <div className="contact__email">
@@ -28,7 +28,7 @@ export default function Contact() {
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
             className="contact__link"
-            aria-label="Send an email to Tresse support"
+            aria-label={`Send an email to ${SUPPORT_EMAIL}`}
           >
             {SUPPORT_EMAIL}
           </a>

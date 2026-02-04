@@ -81,7 +81,6 @@ class CartItemAPIView(APIView):
             return Response({"quantity": "Must be >= 1"}, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
-            # Developer note:
             # Lock ProductSize row to prevent overselling under concurrent requests.
             ps = get_object_or_404(ProductSize.objects.select_for_update(), pk=product_size.pk)
 

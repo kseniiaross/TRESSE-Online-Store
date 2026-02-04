@@ -48,7 +48,7 @@ function readProfileFromStorage(): ProfileFormState | null {
       city: get("city"),
       state: get("state"),
       postalCode: get("postalCode"),
-      country: get("country"),
+      country: get("country") || "",
     };
   } catch {
     return null;
@@ -79,6 +79,7 @@ function buildDefaultProfile(): ProfileFormState {
       }
     }
   } catch {
+    // ignore
   }
 
   return {
@@ -90,7 +91,7 @@ function buildDefaultProfile(): ProfileFormState {
     city: "",
     state: "",
     postalCode: "",
-    country: "USA",
+    country: "",
   };
 }
 
@@ -105,7 +106,7 @@ function mapApiToForm(data: ProfileResponse): ProfileFormState {
     city: safeString(data.city),
     state: safeString(data.state),
     postalCode: safeString(data.postal_code),
-    country: safeString(data.country) || "USA",
+    country: safeString(data.country) || "",
   };
 }
 
@@ -127,10 +128,13 @@ function mapFormToApi(form: ProfileFormState): ProfileUpdatePayload {
   return payload;
 }
 
-function isValidEmail(v: string): boolean {
-  const s = v.trim();
-  if (!s) return true; 
-  return s.includes("@") && s.includes(".");
+function isValidEmail(value: string): boolean {
+  const email = value.trim();
+  if (!email) return true;
+
+  // Simple, safe email check (not over-strict)
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  return EMAIL_REGEX.test(email);
 }
 
 export default function Dashboard() {
@@ -184,7 +188,6 @@ export default function Dashboard() {
 
     document.addEventListener("keydown", onKey);
 
-    // Autofocus the primary action for accessibility.
     window.setTimeout(() => {
       const btn = modalRef.current?.querySelector<HTMLButtonElement>('[data-autofocus="true"]');
       btn?.focus();
@@ -221,7 +224,7 @@ export default function Dashboard() {
             city: prev.city || fromApi.city,
             state: prev.state || fromApi.state,
             postalCode: prev.postalCode || fromApi.postalCode,
-            country: prev.country || fromApi.country || "USA",
+            country: prev.country || fromApi.country || "",
           };
 
           writeProfileToStorage(merged);
@@ -460,7 +463,7 @@ export default function Dashboard() {
                     value={form.country}
                     onChange={onField("country")}
                     autoComplete="country-name"
-                    placeholder="Country"
+                    placeholder="Country (e.g., USA, Canada, Germany)"
                   />
                 </div>
               </div>
@@ -472,20 +475,11 @@ export default function Dashboard() {
             </div>
 
             <div className="dashboard__actions" aria-label="Account actions">
-              <button
-                className="dashboard__button dashboard__button--primary"
-                type="submit"
-                disabled={saving}
-              >
+              <button className="dashboard__button dashboard__button--primary" type="submit" disabled={saving}>
                 {saving ? "Saving..." : "Save changes"}
               </button>
 
-              <button
-                className="dashboard__button dashboard__button--secondary"
-                type="button"
-                onClick={handleReset}
-                disabled={saving}
-              >
+              <button className="dashboard__button dashboard__button--secondary" type="button" onClick={handleReset} disabled={saving}>
                 Reset
               </button>
 
@@ -493,12 +487,7 @@ export default function Dashboard() {
                 Change password
               </Link>
 
-              <button
-                className="dashboard__button dashboard__button--danger"
-                type="button"
-                onClick={openDeleteModal}
-                disabled={saving}
-              >
+              <button className="dashboard__button dashboard__button--danger" type="button" onClick={openDeleteModal} disabled={saving}>
                 Delete account
               </button>
             </div>
@@ -565,12 +554,7 @@ export default function Dashboard() {
                 {deleting ? "Deleting..." : "Yes, delete"}
               </button>
 
-              <button
-                className="dashboard__button dashboard__button--secondary"
-                type="button"
-                onClick={closeDeleteModal}
-                disabled={deleting}
-              >
+              <button className="dashboard__button dashboard__button--secondary" type="button" onClick={closeDeleteModal} disabled={deleting}>
                 Cancel
               </button>
             </div>

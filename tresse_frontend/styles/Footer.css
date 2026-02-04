@@ -4,6 +4,22 @@
   color: var(--c-white);
 }
 
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Top strip
+   -------------------------------------------------------------------------- */
+
 .footer__top {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -182,6 +198,11 @@
   border-color: #ff4d6d;
 }
 
+.footer__input:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
 .footer__button {
   border: 1px solid var(--c-white);
   background: var(--c-white);
@@ -210,6 +231,10 @@
 
 .footer__legal--error {
   color: #ffd2d2;
+}
+
+.footer__legal--success {
+  color: var(--w-70);
 }
 
 /* --------------------------------------------------------------------------
