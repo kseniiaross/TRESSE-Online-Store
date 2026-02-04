@@ -11,6 +11,8 @@ export type ProfileFormState = {
   country: string;
 };
 
+// API response shape (snake_case, optional fields).
+// Fields are optional because backend may return partial profile data.
 export type ProfileResponse = {
   email?: string;
 

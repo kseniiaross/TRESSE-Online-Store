@@ -2,6 +2,7 @@ import axiosInstance from "../api/axiosInstance";
 
 export type SubscribeSource = "modal" | "footer" | "unknown";
 
+// Persisted timestamps (ms) used to control newsletter modal frequency across sessions.
 const DISMISS_KEY = "tresse:newsletter:lastDismissedAt";
 const SUBSCRIBED_KEY = "tresse:newsletter:lastSubscribedAt";
 
@@ -53,7 +54,6 @@ export function isValidEmail(value: string): boolean {
 
   if (email.length < 3 || email.length > 254) return false;
 
-  // simple, production-acceptable regex
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
@@ -75,10 +75,11 @@ function isCooldownPassed(key: string, cooldownDays: number): boolean {
   return Date.now() - last > daysToMs(cooldownDays);
 }
 
+// Centralized visibility rules for newsletter modal.
+// Intentionally blocks logged-in users and respects dismiss/subscription cooldowns.
 export function canShowNewsletterModal(isLoggedIn: boolean): boolean {
   if (isLoggedIn) return false;
 
-  // if recently subscribed, do not show for a long time
   const subscribedOk = isCooldownPassed(SUBSCRIBED_KEY, SUBSCRIBED_COOLDOWN_DAYS);
   if (!subscribedOk) return false;
 
@@ -86,6 +87,8 @@ export function canShowNewsletterModal(isLoggedIn: boolean): boolean {
   return isCooldownPassed(DISMISS_KEY, DISMISS_COOLDOWN_DAYS);
 }
 
+// Attempts to extract the most user-friendly error message
+// from various backend response formats (DRF-style, field errors, plain strings).
 function extractBestErrorMessage(data: unknown): string | null {
   if (isString(data)) return data;
 

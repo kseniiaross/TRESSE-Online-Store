@@ -21,7 +21,9 @@ import type { RootState } from "../store";
 import * as serverCart from "../store/serverCartSlice";
 import "../../styles/Order.css";
 
+// Saved profile snapshot for instant checkout prefill (no API wait).
 const PROFILE_STORAGE_KEY = "tresse_profile_v1";
+
 const LAST_ORDER_ID_KEY = "tresse_last_order_id_v1";
 
 type StoredProfile = {
@@ -77,6 +79,8 @@ function safeString(v: unknown): string {
   return typeof v === "string" ? v : "";
 }
 
+// Defensive read: localStorage is untrusted (may be stale, edited, or broken JSON).
+// We validate shape and coerce fields to strings to avoid runtime crashes during checkout.
 function readProfileFromStorage(): StoredProfile | null {
   try {
     const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
@@ -103,6 +107,8 @@ function readProfileFromStorage(): StoredProfile | null {
 
 const toTitle = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
+// Stripe expects ISO 3166-1 alpha-2 country codes (e.g., "US").
+// Users may type variations ("USA", "United States"), so we normalize before sending to Stripe
 const normalizeCountryForStripe = (value: string) => {
   const v = value.trim().toUpperCase();
   if (["USA", "US", "UNITED STATES", "UNITED STATES OF AMERICA"].includes(v)) return "US";
@@ -189,13 +195,19 @@ export default function Order() {
   const [cardCvcError, setCardCvcError] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
+  // If Stripe succeeds but order persistence fails, we allow a safe retry ("Finalize order")
+  // using the already-succeeded PaymentIntent id.
   const [needsFinalize, setNeedsFinalize] = useState(false);
   const [succeededIntentId, setSucceededIntentId] = useState("");
 
   const confirmingRef = useRef(false);
   const attemptIdRef = useRef("");
 
-  // Address autocomplete (Nominatim)
+  // Address autocomplete uses Nominatim (OpenStreetMap) with:
+  // - debounce to reduce requests while typing
+  // - AbortController to cancel in-flight requests when query changes
+  // - delayed close on blur so clicks on suggestions still register
+  // Note: We limit to US results for checkout.
   const [addressQuery, setAddressQuery] = useState("");
   const [addressOpen, setAddressOpen] = useState(false);
   const [addressLoading, setAddressLoading] = useState(false);
@@ -240,8 +252,11 @@ export default function Order() {
     if (addr && !addressQuery) setAddressQuery(addr);
   };
 
+  // Loose coupling between Profile page and Checkout:
+  // - "tresse:profileUpdated" is a custom event dispatched when Profile saves locally.
+  // - "storage" handles updates from other tabs/windows.
+  // This lets checkout prefill without wiring global Redux dependencies for profile fields.
   useEffect(() => {
-    // Load saved profile into checkout form on first mount.
     applyProfileToForm(readProfileFromStorage());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -259,8 +274,10 @@ export default function Order() {
     };
   }, [addressQuery]);
 
+  // Checkout idempotency:
+  // We generate one attempt_id per browser session and reuse it for payment intent creation.
+  // This prevents duplicate intents on refresh/re-mount and helps backend dedupe retries safely.
   useEffect(() => {
-    // One attempt id per browser session to avoid duplicate intents.
     const key = "tresse_checkout_attempt_id";
     const stored = sessionStorage.getItem(key);
     if (stored) {
@@ -272,8 +289,8 @@ export default function Order() {
     }
   }, []);
 
+
   useEffect(() => {
-    // Always show the latest server cart.
     dispatch(serverCart.fetchCart());
   }, [dispatch]);
 
@@ -348,7 +365,6 @@ export default function Order() {
   }, [addressQuery, addressOpen]);
 
   useEffect(() => {
-    // Create or refresh payment intent unless cart is empty or we are finalizing.
     if (cartIsEmpty) {
       setClientSecret("");
       setIntentError("");

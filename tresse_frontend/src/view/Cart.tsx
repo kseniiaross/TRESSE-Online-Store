@@ -59,12 +59,19 @@ export default function Cart() {
   const guestItems = useAppSelector(selectGuestCartItems) as GuestCartItem[];
   const serverItems = (cart?.items ?? []) as CartItemDto[];
 
+  // Cart source strategy:
+  // - Guests use local (Redux) cart for instant UX.
+  // - Signed-in users prefer server cart (single source of truth).
+  // - If guest cart exists, we merge it once after login and then rely on server cart.
   const hasGuest = guestItems.length > 0;
   const hasServer = serverItems.length > 0;
 
   const usingServer = isAuthed && (hasServer || !hasGuest);
   const items = usingServer ? serverItems : guestItems;
 
+  // Prevent double-merge:
+  // React StrictMode can run effects twice in dev, so we guard mergeGuestCart()
+  // to avoid duplicate server items or repeated network calls.
   const didMergeRef = useRef(false);
 
   useEffect(() => {
@@ -79,6 +86,7 @@ export default function Cart() {
 
     (async () => {
       try {
+        // Best-effort merge: if it fails, we keep guest cart working and don't block the user.
         await dispatch(serverCart.mergeGuestCart());
         await dispatch(serverCart.fetchCart());
       } catch {
@@ -124,6 +132,7 @@ export default function Cart() {
   };
 
   const onPay = () => {
+    // Preserve intended destination after auth.
     if (!isAuthed) {
       navigate(`/login-choice?next=${encodeURIComponent("/order")}`);
       return;
@@ -219,6 +228,7 @@ export default function Cart() {
                         <button
                           type="button"
                           className="cart-qty__btn"
+                          aria-label={`Decrease quantity for ${name}`}
                           disabled={item.quantity <= 1}
                           onClick={() =>
                             handleQuantityChange(
@@ -234,20 +244,31 @@ export default function Cart() {
 
                         <input
                           className="cart-qty__input"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="\d*"
+                          aria-label={`Quantity for ${name}`}
                           value={item.quantity}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw.trim() === "") {
+                              handleQuantityChange(item.id, 1, guestProductSizeId, maxQty);
+                              return;
+                            }
+                            const digitsOnly = raw.replace(/[^\d]/g, "");
                             handleQuantityChange(
                               item.id,
-                              Number(e.target.value),
+                              digitsOnly === "" ? 1 : Number(digitsOnly),
                               guestProductSizeId,
                               maxQty
                             )
-                          }
+                          }}
                         />
 
                         <button
                           type="button"
                           className="cart-qty__btn"
+                          aria-label={`Increase quantity for ${name}`}
                           disabled={typeof maxQty === "number" && item.quantity >= maxQty}
                           onClick={() =>
                             handleQuantityChange(
@@ -271,7 +292,7 @@ export default function Cart() {
           <aside className="cart-summary">
             <span className="cart-summary__label">Total</span>
             <span className="cart-summary__total">${total.toFixed(2)}</span>
-            <button className="cart-summary__pay" onClick={onPay}>
+            <button className="cart-summary__pay" type="button" onClick={onPay}>
               Pay
             </button>
           </aside>
