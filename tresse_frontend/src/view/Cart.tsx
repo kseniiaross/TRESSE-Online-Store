@@ -71,10 +71,10 @@ export default function Cart() {
   const cart = useAppSelector((s: RootState) => s.serverCart.cart);
   const loading = useAppSelector((s: RootState) => s.serverCart.loading);
 
-  // Guest cart is stored in Redux + localStorage via cartSlice.
+  // Guest items come from cartSlice (Redux + localStorage).
   const guestItems = useAppSelector(selectGuestCartItems) as GuestCartItem[];
 
-  // Server cart comes from backend.
+  // Server items come from backend.
   const serverItems = (cart?.items ?? []) as CartItemDto[];
 
   const hasGuest = guestItems.length > 0;
@@ -86,7 +86,6 @@ export default function Cart() {
    * - otherwise still show guest cart until merge/fetch completes.
    */
   const usingServer = isAuthed && (hasServer || !hasGuest);
-
   const items: Array<CartItemDto | GuestCartItem> = usingServer ? serverItems : guestItems;
 
   // Prevent double init in React StrictMode / rerenders.
@@ -102,14 +101,14 @@ export default function Cart() {
 
     (async () => {
       try {
-        // Merge guest cart only once per session after login.
+        // Merge guest cart once after login.
         if (hasGuest) await dispatch(serverCart.mergeGuestCart());
         if (!alive) return;
 
-        // Then load server cart for stable UI.
+        // Then load server cart.
         await dispatch(serverCart.fetchCart());
       } catch {
-        // Intentionally ignore errors here; UI will still render guest cart if needed.
+        // Keep silent: UI can still show guest cart if needed.
       }
     })();
 
@@ -124,12 +123,7 @@ export default function Cart() {
       : guestItems.reduce((sum, it) => sum + toMoney(it.price) * it.quantity, 0);
   }, [usingServer, serverItems, guestItems]);
 
-  const handleQuantityChange = (
-    id: number,
-    nextQty: number,
-    guestProductSizeId?: number,
-    maxQty?: number
-  ) => {
+  const handleQuantityChange = (id: number, nextQty: number, guestProductSizeId?: number, maxQty?: number) => {
     const clamped = clampQty(nextQty, maxQty);
 
     if (usingServer) {
@@ -137,7 +131,6 @@ export default function Cart() {
       return;
     }
 
-    // Guest cart uses (id + product_size_id) identity.
     if (guestProductSizeId == null) return;
     dispatch(updateGuestQty({ id, product_size_id: guestProductSizeId, quantity: clamped }));
   };
@@ -154,7 +147,6 @@ export default function Cart() {
 
   const onPay = () => {
     if (!isAuthed) {
-      // Keep redirect flow to auth choice page.
       const next = encodeURIComponent("/order");
       navigate(`/login-choice?next=${next}`);
       return;
@@ -195,9 +187,7 @@ export default function Cart() {
 
               const imgSrc = usingServer
                 ? ((item as CartItemDto).product_size.product.main_image_url ?? fallbackImg)
-                : ((item as GuestCartItem).main_image_url ??
-                    getFirstGuestImage(item as GuestCartItem) ??
-                    fallbackImg);
+                : ((item as GuestCartItem).main_image_url ?? getFirstGuestImage(item as GuestCartItem) ?? fallbackImg);
 
               const guestProductSizeId = isGuest ? (item as GuestCartItem).product_size_id : undefined;
 
@@ -243,9 +233,7 @@ export default function Cart() {
                     {(sizeName || typeof maxQty === "number") && (
                       <div className="cart-item__meta">
                         {sizeName ? <span className="cart-item__sub">Size: {sizeName}</span> : null}
-                        {typeof maxQty === "number" ? (
-                          <span className="cart-item__sub">In stock: {maxQty}</span>
-                        ) : null}
+                        {typeof maxQty === "number" ? <span className="cart-item__sub">In stock: {maxQty}</span> : null}
                       </div>
                     )}
 

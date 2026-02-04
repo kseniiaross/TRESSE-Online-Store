@@ -1,15 +1,25 @@
-import { createSlice, PayloadAction, createSelector } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction, createSelector } from "@reduxjs/toolkit";
 import type { Product } from "../types/product";
 
-export type ClientCartItem = Product & {
+/**
+ * Guest cart item stored locally (Redux + localStorage).
+ * NOTE: We keep the structure stable so nothing breaks in UI or merge logic.
+ */
+export type GuestCartItem = Product & {
   quantity: number;
   product_size_id: number;
   sizeName?: string;
   maxQty?: number;
 };
 
-export type ClientCartState = {
-  items: ClientCartItem[];
+/**
+ * Backwards-compatibility alias.
+ * If any old file still imports ClientCartItem, it will keep working.
+ */
+export type ClientCartItem = GuestCartItem;
+
+export type GuestCartState = {
+  items: GuestCartItem[];
 };
 
 type AddToCartPayload = {
@@ -22,31 +32,33 @@ type AddToCartPayload = {
 const isBrowser = typeof window !== "undefined" && typeof localStorage !== "undefined";
 const LS_KEY = "guest_cart";
 
-function loadFromLS(): ClientCartState | null {
-  // We read guest cart from localStorage to persist it across refreshes and guest sessions.
+function loadFromLS(): GuestCartState | null {
   if (!isBrowser) return null;
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (parsed && Array.isArray(parsed.items)) return parsed as ClientCartState;
+
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed && typeof parsed === "object") {
+      const rec = parsed as Record<string, unknown>;
+      if (Array.isArray(rec.items)) return parsed as GuestCartState;
+    }
   } catch {
-    // Intentionally ignore parse errors and fall back to empty cart.
+    // ignore
   }
   return null;
 }
 
-function saveToLS(state: ClientCartState) {
-  // We persist guest cart after each mutation to keep UI and storage consistent.
+function saveToLS(state: GuestCartState) {
   if (!isBrowser) return;
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(state));
   } catch {
-    // Intentionally ignore storage quota errors.
+    // ignore quota errors
   }
 }
 
-const initialState: ClientCartState = loadFromLS() ?? { items: [] };
+const initialState: GuestCartState = loadFromLS() ?? { items: [] };
 
 const toSafeInt = (n: unknown, fallback = 1) => {
   const v = typeof n === "number" ? n : Number(n);
@@ -75,6 +87,11 @@ const resolveMaxQty = (existingMax?: number, incomingMax?: number) => {
   return undefined;
 };
 
+const toMoney = (v: unknown): number => {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+};
+
 const cartSlice = createSlice({
   name: "cart",
   initialState,
@@ -90,7 +107,7 @@ const cartSlice = createSlice({
         const limit = resolveMaxQty(existingItem.maxQty, maxQty);
         existingItem.quantity = clampToMax(existingItem.quantity + 1, limit);
 
-        // We only upgrade maxQty if the existing one is missing and the incoming value is valid.
+        // Only set maxQty if it was previously unknown
         if (typeof existingItem.maxQty !== "number") {
           const normalizedIncoming = normalizeMax(maxQty);
           if (typeof normalizedIncoming === "number") existingItem.maxQty = normalizedIncoming;
@@ -156,7 +173,8 @@ export const { addToCart, removeFromCart, updateQuantity, clearCart, setItemMaxQ
 
 export default cartSlice.reducer;
 
-type HasGuestCart = { cart: ClientCartState };
+// selectors
+type HasGuestCart = { cart: GuestCartState };
 
 export const selectGuestCartItems = (state: HasGuestCart) => state.cart.items;
 
@@ -165,6 +183,5 @@ export const selectGuestCartCount = createSelector([selectGuestCartItems], (item
 );
 
 export const selectGuestCartTotal = createSelector([selectGuestCartItems], (items) =>
-  // We keep price parsing as-is to avoid breaking existing data, but the backend should ideally provide a numeric price.
-  items.reduce((sum, it) => sum + parseFloat(it.price) * it.quantity, 0)
+  items.reduce((sum, it) => sum + toMoney(it.price) * it.quantity, 0)
 );

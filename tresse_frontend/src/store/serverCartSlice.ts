@@ -1,40 +1,12 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import api from "../api/axiosInstance";
 import type { RootState } from ".";
 import { selectGuestCartItems, clearCart as clearGuestCart } from "../utils/cartSlice";
-
-type ProductMini = {
-  id: number;
-  name: string;
-  price: string;
-  main_image_url?: string | null;
-};
-
-type Size = {
-  id: number;
-  name: string;
-};
-
-type ProductSize = {
-  id: number;
-  product: ProductMini;
-  size: Size;
-  quantity: number;
-};
-
-export type CartItem = {
-  id: number;
-  product_size: ProductSize;
-  quantity: number;
-};
-
-export type Cart = {
-  id: number;
-  items: CartItem[];
-};
+import { getAccessToken } from "../types/token";
+import type { CartDto, CartItemDto } from "../types/cart";
 
 type State = {
-  cart: Cart | null;
+  cart: CartDto | null;
   loading: boolean;
   error: string | null;
 };
@@ -53,91 +25,100 @@ const toSafeInt = (n: unknown, fallback = 1) => {
 
 const clampMin1 = (n: unknown) => Math.max(1, toSafeInt(n, 1));
 
-const isBrowser = typeof window !== "undefined" && typeof localStorage !== "undefined";
-const ACCESS_KEY = "access";
-
 const hasToken = () => {
-  // We unified token checks to a single canonical key to avoid auth desync across the app.
-  if (!isBrowser) return false;
-  const t = localStorage.getItem(ACCESS_KEY);
+  const t = getAccessToken();
   return typeof t === "string" && t.trim().length > 0;
 };
 
-export const fetchCart = createAsyncThunk<Cart | null>("serverCart/fetch", async () => {
+/**
+ * Backend field-name compatibility:
+ * Some APIs expect `product_size_id`, others expect `product_size`.
+ * We attempt the first one, and on 400 retry the other.
+ *
+ * This avoids guessing and prevents breaking the working case.
+ */
+async function postCartItem(productSizeId: number, quantity: number) {
+  const qty = clampMin1(quantity);
+
+  try {
+    const { data } = await api.post<CartItemDto>("/products/cart/items/", {
+      product_size_id: productSizeId,
+      quantity: qty,
+    });
+    return data;
+  } catch (err: unknown) {
+    const maybeAxios = err as { response?: { status?: number; data?: unknown } };
+    const status = maybeAxios?.response?.status;
+
+    // Only retry on 400 (validation), not on other failures.
+    if (status !== 400) throw err;
+
+    // Retry with alternate field name
+    const { data } = await api.post<CartItemDto>("/products/cart/items/", {
+      product_size: productSizeId,
+      quantity: qty,
+    });
+    return data;
+  }
+}
+
+export const fetchCart = createAsyncThunk<CartDto | null>("serverCart/fetch", async () => {
   if (!hasToken()) return null;
-  const { data } = await api.get("/products/cart/");
-  return data as Cart;
+  const { data } = await api.get<CartDto>("/products/cart/");
+  return data;
 });
 
 export const mergeGuestCart = createAsyncThunk<void, void, { state: RootState }>(
   "serverCart/mergeGuestCart",
   async (_, { getState, dispatch }) => {
-    // We merge guest cart into server cart only when the user is authenticated.
     if (!hasToken()) return;
 
     const guestItems = selectGuestCartItems(getState());
     if (!guestItems.length) return;
 
-    // We changed the merge strategy to 1 request per cart line with quantity=qty.
-    // This prevents dozens/hundreds of network requests and reduces rate-limit / timeout issues.
-    const requests = guestItems.map((it) => {
-      const qty = clampMin1(it.quantity);
-      return api.post("/products/cart/items/", {
-        product_size_id: it.product_size_id,
-        quantity: qty,
-      });
-    });
+    const requests = guestItems.map((it) => postCartItem(it.product_size_id, it.quantity));
 
     const results = await Promise.allSettled(requests);
     const allOk = results.every((r) => r.status === "fulfilled");
 
     if (allOk) {
-      // We clear guest cart only after a full successful merge to prevent data loss.
       dispatch(clearGuestCart());
-      await dispatch(fetchCart()).unwrap();
     } else {
-      // We keep guest cart if any request fails so the user can retry without losing items.
       console.warn("mergeGuestCart: some requests failed", results);
-      await dispatch(fetchCart()).unwrap();
     }
+
+    // NOTE: fetchCart is intentionally NOT called here.
+    // Cart.tsx calls fetchCart after merge to avoid double network requests.
   }
 );
 
-export const addCartItem = createAsyncThunk<CartItem, { product_size_id: number }>(
+export const addCartItem = createAsyncThunk<CartItemDto, { product_size_id: number }>(
   "serverCart/addItem",
   async ({ product_size_id }) => {
-    const { data } = await api.post("/products/cart/items/", {
-      product_size_id,
-      quantity: 1,
-    });
-    return data as CartItem;
+    return await postCartItem(product_size_id, 1);
   }
 );
 
-export const updateCartItem = createAsyncThunk<CartItem, { item_id: number; quantity: number }>(
+export const updateCartItem = createAsyncThunk<CartItemDto, { item_id: number; quantity: number }>(
   "serverCart/updateItem",
   async ({ item_id, quantity }) => {
     const safeQty = clampMin1(quantity);
-    const { data } = await api.put(`/products/cart/items/${item_id}/`, { quantity: safeQty });
-    return data as CartItem;
+    const { data } = await api.put<CartItemDto>(`/products/cart/items/${item_id}/`, { quantity: safeQty });
+    return data;
   }
 );
 
-export const removeCartItem = createAsyncThunk<number, number>(
-  "serverCart/removeItem",
-  async (item_id) => {
-    await api.delete(`/products/cart/items/${item_id}/`);
-    return item_id;
-  }
-);
+export const removeCartItem = createAsyncThunk<number, number>("serverCart/removeItem", async (item_id) => {
+  await api.delete(`/products/cart/items/${item_id}/`);
+  return item_id;
+});
 
 const slice = createSlice({
   name: "serverCart",
   initialState,
   reducers: {
     clearServerCart(state) {
-      // We normalize the cleared state to a stable shape (empty items array) to simplify UI rendering.
-      state.cart = state.cart ? { ...state.cart, items: [] } : { id: -1, items: [] };
+      state.cart = state.cart ? { ...state.cart, items: [] } : null;
       state.error = null;
       state.loading = false;
     },
@@ -158,7 +139,7 @@ const slice = createSlice({
       })
 
       .addCase(addCartItem.fulfilled, (state, action) => {
-        if (!state.cart) state.cart = { id: -1, items: [] };
+        if (!state.cart) return; // UI should fetchCart() if cart isn't loaded
         const idx = state.cart.items.findIndex((i) => i.id === action.payload.id);
         if (idx >= 0) state.cart.items[idx] = action.payload;
         else state.cart.items.push(action.payload);
