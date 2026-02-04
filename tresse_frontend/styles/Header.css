@@ -486,7 +486,7 @@
 @media (max-width: 768px) {
   .header {
     display: grid;
-    grid-template-columns: 44px 1fr 44px;
+    grid-template-columns: 44px 1fr max-content;
     grid-template-rows: auto auto;
     align-items: center;
     padding: 12px 14px;
