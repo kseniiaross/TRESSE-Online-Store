@@ -594,7 +594,7 @@
 
 @media (max-width:768px){
   .catalog{
-    padding-top: calc(var(--header-height) - 12px);
+    padding-top: calc(var(--header-height) - 24px);
     padding-left:14px;
     padding-right:14px;
   }
