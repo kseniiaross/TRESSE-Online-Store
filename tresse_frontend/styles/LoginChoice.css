@@ -114,10 +114,16 @@
 /* MOBILE */
 
 @media (max-width: 900px) {
+  .choice {
+    padding-top: calc(var(--header-height) + 18px);
+  }
+
+
   .choice__layout {
     grid-template-columns: 1fr;
     min-height: auto;
     row-gap: 32px;
+    padding-top: 0;
   }
 
   .choice__content {

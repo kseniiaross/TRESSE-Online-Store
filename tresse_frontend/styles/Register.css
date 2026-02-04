@@ -185,7 +185,7 @@
 
 @media (max-width: 900px) {
   .register {
-    padding-top: 20px;
+    padding-top: calc(var(--header-height) + 18px);
     padding-bottom: 30px;
 
     --register-left-offset: 0px;
