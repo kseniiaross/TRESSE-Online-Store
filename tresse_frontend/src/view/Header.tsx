@@ -199,12 +199,13 @@ const Header: React.FC = () => {
           <span className={`bar middle ${isDarkText ? "dark" : ""}`} />
           <span className={`bar bottom ${isDarkText ? "dark" : ""}`} />
         </button>
-      </div>
+     
 
-      <div className="logo-wrap">
-        <Link to="/" className={`logo ${isDarkText ? "dark" : ""}`} aria-label="Go to homepage">
-          T R E S S E
-        </Link>
+        <div className="logo-wrap">
+          <Link to="/" className={`logo ${isDarkText ? "dark" : ""}`} aria-label="Go to homepage">
+            T R E S S E
+          </Link>
+        </div>
     </div>
 
       <div className="right-section">
