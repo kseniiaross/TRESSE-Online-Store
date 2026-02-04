@@ -80,7 +80,6 @@ function writeStoredUser(user: User): void {
   try {
     localStorage.setItem(AUTH_STORAGE_KEYS.USER_KEY, JSON.stringify(user));
   } catch {
-    // ignore storage errors (private mode / quota)
   }
 }
 

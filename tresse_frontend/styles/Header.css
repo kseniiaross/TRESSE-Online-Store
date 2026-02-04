@@ -104,9 +104,6 @@
   width: 50px;
 }
 
-/* ================= Logo (IMPORTANT) ================= */
-/* Важно: только ОДИН блок, чтобы не было конфликтов. */
-
 .header .logo {
   color: var(--text-light);
   font-family: "EB Garamond", serif;
@@ -492,7 +489,7 @@
   }
 
   .header .logo {
-    font-size: 56px;  
+    font-size: 48px;  
     line-height: 1;
   }
 

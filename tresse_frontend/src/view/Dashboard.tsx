@@ -76,7 +76,6 @@ function buildDefaultProfile(): ProfileFormState {
       }
     }
   } catch {
-    // ignore
   }
 
   return {
