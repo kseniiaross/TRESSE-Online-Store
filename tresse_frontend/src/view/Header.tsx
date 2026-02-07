@@ -31,6 +31,7 @@ const Header: React.FC = () => {
   const [hovered, setHovered] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
+  const [isCompact, setIsCompact] = useState(() => window.innerWidth <= 900);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const userMenuWrapRef = useRef<HTMLDivElement | null>(null);
@@ -48,7 +49,7 @@ const Header: React.FC = () => {
 
   const user = useAppSelector((state) => state.auth.user);
 
-  const isAuthed = Boolean(user) && isAuthenticated();
+  const isAuthed = isAuthenticated();
 
   const serverCart = useAppSelector((s) => s.serverCart.cart);
   const serverItems = serverCart?.items ?? [];
@@ -67,9 +68,12 @@ const Header: React.FC = () => {
   const searchIcon = isDarkText ? searchIconBlack : searchIconWhite;
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const handleResize = () => {
+    setIsMobile(window.innerWidth <= 768);
+    setIsCompact(window.innerWidth <= 900);
+  };
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -210,7 +214,7 @@ const Header: React.FC = () => {
 
       <div className="right-section">
         {/* SEARCH */}
-        {isMobile ? (
+        {isCompact ? (
           <button
             type="button"
             className="search-icon-btn"
