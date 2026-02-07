@@ -507,26 +507,27 @@
     line-height: 1;
   }
 
+
   .right-section{
     width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    white-space: nowrap;
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: 10px;
+    justify-items: end;  
     min-width: 0;
-    transform: none; 
   }
 
   .header-search{
-    width: min(520px, 92vw);
+    grid-row: 2;
+    justify-self: center;
+    width: min(420px, 92vw);
+    display: flex;
     justify-content: center;
   }
 
   .search-input{
     width: 100%;
-    max-width: 520px;
+    max-width: none;
   }
 
   .search-dropdown{
@@ -535,8 +536,8 @@
   }
 
   .user-menu{
-    right: 50%;
-    transform: translateX(50%);
+    right: 0;
+    transform: none;
   }
 }
 
@@ -571,7 +572,7 @@
     gap: 10px;
     flex-wrap: wrap;
     white-space: nowrap;
-    transform: none;;
+    transform: translateX(-28px);
   }
 
   .login-button,
