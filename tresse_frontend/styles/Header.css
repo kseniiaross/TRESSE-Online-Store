@@ -503,26 +503,40 @@
 
   .header .logo{
     justify-self: center;
-    font-size: 56px; 
+    font-size: 56px;
     line-height: 1;
   }
 
   .right-section{
     width: 100%;
+    display: flex;
     justify-content: center;
+    align-items: center;
     gap: 12px;
     flex-wrap: wrap;
     white-space: nowrap;
     min-width: 0;
+    transform: none; 
   }
 
-  .right-section{
-    transform: none;
+  .header-search{
+    width: min(520px, 92vw);
+    justify-content: center;
+  }
+
+  .search-input{
+    width: 100%;
+    max-width: 520px;
   }
 
   .search-dropdown{
     left: 50%;
     transform: translateX(-50%);
+  }
+
+  .user-menu{
+    right: 50%;
+    transform: translateX(50%);
   }
 }
 
@@ -557,7 +571,7 @@
     gap: 10px;
     flex-wrap: wrap;
     white-space: nowrap;
-    transform: translateX(-28px);
+    transform: none;;
   }
 
   .login-button,
