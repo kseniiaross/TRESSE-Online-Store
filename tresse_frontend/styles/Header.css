@@ -507,14 +507,22 @@
     line-height: 1;
   }
 
-
   .right-section{
     width: 100%;
     display: grid;
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
     row-gap: 10px;
-    justify-items: end;  
     min-width: 0;
+  }
+
+  .right-section > :not(.header-search){
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .right-section{
+    align-items: center;
   }
 
   .header-search{
