@@ -8,7 +8,7 @@
   max-width: 1440px;
   margin: 0 auto;
   min-height: calc(100svh - var(--header-height));
-  padding: calc(var(--header-height) - 36px) clamp(16px, 3vw, 36px) 96px;
+  padding: calc(var(--header-height) - 28px) clamp(16px, 3vw, 36px) 96px;
 
   display: grid;
   grid-template-columns: 1fr 1fr;
