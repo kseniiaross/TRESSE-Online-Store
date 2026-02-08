@@ -8,7 +8,7 @@
   max-width: 1440px;
   margin: 0 auto;
   min-height: calc(100svh - var(--header-height));
-  padding: calc(var(--header-height) - 28px) clamp(16px, 3vw, 36px) 96px;
+  padding: calc(var(--header-height) - 36px) clamp(16px, 3vw, 36px) 96px;
 
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -84,7 +84,7 @@
   padding: 12px;
   border: 1px solid #eaeaea;
   font-size: 14px;
-  box-sizing: border-box; /* ✅ */
+  box-sizing: border-box; 
 }
 
 .dashboard__input:focus {
@@ -147,16 +147,17 @@
 }
 
 .dashboard__media-frame {
-  width: 100%;
-  max-width: 860px;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
+  width:100%;
+  max-width:560px;     
+  overflow:visible;
 }
 
 .dashboard__media-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width:100%;
+  height:auto;
+  max-height:760px;    
+  object-fit:contain;  
+  display:block;
 }
 
 .dashboard__modalOverlay {

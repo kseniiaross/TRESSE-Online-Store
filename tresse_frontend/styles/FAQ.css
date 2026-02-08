@@ -1,7 +1,7 @@
 /* src/styles/FAQ.css */
 
 .faq {
-  /* ✅ mobile-safe viewport */
+  /* mobile-safe viewport */
   min-height: 100svh;
   background: #fff;
   color: #111;
@@ -140,7 +140,6 @@
   color: #111;
 }
 
-/* ✅ No fixed height cutting. Hidden handled by [hidden] attr in TSX */
 .faq__answerWrap[hidden] {
   display: none;
 }

@@ -61,7 +61,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, blank=False, null=False)
 
-    # ✅ IMPORTANT: phone is required, but NOT unique (for now)
+    # IMPORTANT: phone is required, but NOT unique (for now)
     phone_number = models.CharField(max_length=15, unique=False, blank=False, null=False)
 
     first_name = models.CharField(max_length=30, blank=False)
