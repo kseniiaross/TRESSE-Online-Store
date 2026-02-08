@@ -4,17 +4,14 @@
 }
 
 .dashboard__layout {
-  --dash-pad-top: calc(var(--header-height) - 48px);
-  --dash-pad-bottom: 96px;
-
   max-width: 1440px;
   margin: 0 auto;
   min-height: calc(100svh - var(--header-height));
   padding: var(--dash-pad-top) clamp(16px, 3vw, 36px) var(--dash-pad-bottom);
-
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(18px, 4vw, 44px);
+  align-items: stretch;
   box-sizing: border-box;
 }
 
@@ -22,6 +19,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .dashboard__header {
@@ -149,7 +147,7 @@
 .dashboard__media-frame {
   width: 100%;
   max-width: 560px;
-  height: calc(100svh - var(--dash-pad-top) - var(--dash-pad-bottom));
+  height: 100%;
   position: relative;
   overflow: hidden;
   display: flex;
