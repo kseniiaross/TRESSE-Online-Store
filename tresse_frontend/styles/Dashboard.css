@@ -109,12 +109,26 @@
 }
 
 .dashboard__button {
-  padding: 0.8rem;
-  font-size: 14px;
-  letter-spacing: 0.04em;
-  border: 1px solid #111;
-  background: #fff;
-  cursor: pointer;
+   padding:0.8rem;
+  font-size:14px;
+  letter-spacing:0.04em;
+
+  border:1px solid #111;
+  background:#fff;
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  color:#111;
+
+  box-sizing:border-box;
+  width:100%;
+  min-height:44px;
+}
+.dashboard__button:visited{
+  color:#111;
 }
 
 .dashboard__button--primary {
