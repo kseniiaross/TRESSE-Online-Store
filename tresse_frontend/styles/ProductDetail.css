@@ -36,7 +36,7 @@
   height: auto;
   object-fit: contain;
   object-position: center;
-  max-height: calc(100vh - (var(--header-offset) + 120px));
+  max-height: clamp(520px, calc(100svh - (var(--header-offset) + 260px)), 760px);
   display: block;
 }
 
