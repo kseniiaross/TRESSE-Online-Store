@@ -37,3 +37,6 @@ __pycache__/
 
 # Django collected static
 staticfiles/
+# Videos
+*.webm
+tresse_frontend/src/assets/videos/
